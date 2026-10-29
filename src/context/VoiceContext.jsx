@@ -4,7 +4,19 @@ const VoiceContext = createContext();
 
 const STORAGE_KEYS = {
   VOICE_ENABLED: 'sisterhood_voice_enabled_v1',
+  SELECTED_VOICE_URI: 'sisterhood_voice_uri_v1',
+  SELECTED_LANG: 'sisterhood_voice_lang_v1',
+  SPEECH_RATE: 'sisterhood_speech_rate_v1',
+  SPEECH_PITCH: 'sisterhood_speech_pitch_v1'
 };
+
+export const SUPPORTED_VOICE_LANGUAGES = [
+  { code: 'ru-RU', label: 'Русский', flag: '🌸', sample: 'Привет! Я твоя добрая старшая сестренка. Здесь ты в безопасности.' },
+  { code: 'en-US', label: 'English', flag: '✨', sample: 'Hello! I am your supportive digital big sister. You are safe here.' },
+  { code: 'uk-UA', label: 'Українська', flag: '🌻', sample: 'Привіт! Я твоя віртуальна старша сестричка. Тут ти в повній безпеці.' },
+  { code: 'kk-KZ', label: 'Қазақша', flag: '☀️', sample: 'Сәлем! Мен сенің қолдаушы үлкен әпкеңмін. Мұнда бәрі қауіпсіз.' },
+  { code: 'be-BY', label: 'Беларуская', flag: '🌾', sample: 'Прывітанне! Я твая старэйшая сястра. Тут твая бяспечная прастора.' },
+];
 
 // Clean emojis and markdown formatting for clean, pleasant speech synthesis
 export const cleanTextForSpeech = (text) => {
@@ -33,13 +45,51 @@ export const VoiceProvider = ({ children }) => {
   const [micError, setMicError] = useState(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  const [voices, setVoices] = useState([]);
+
+  // Voice preferences with localStorage persistence
   const [voiceEnabled, setVoiceEnabledState] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.VOICE_ENABLED);
-      return stored !== null ? stored === 'true' : true; // Default ON for accessibility
+      return stored !== null ? stored === 'true' : true;
     } catch {
       return true;
+    }
+  });
+
+  const [selectedVoiceURI, setSelectedVoiceURIState] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.SELECTED_VOICE_URI) || '';
+    } catch {
+      return '';
+    }
+  });
+
+  const [selectedLang, setSelectedLangState] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.SELECTED_LANG) || 'ru-RU';
+    } catch {
+      return 'ru-RU';
+    }
+  });
+
+  const [speechRate, setSpeechRateState] = useState(() => {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.SPEECH_RATE);
+      return val ? parseFloat(val) : 0.92;
+    } catch {
+      return 0.92;
+    }
+  });
+
+  const [speechPitch, setSpeechPitchState] = useState(() => {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.SPEECH_PITCH);
+      return val ? parseFloat(val) : 1.05;
+    } catch {
+      return 1.05;
     }
   });
 
@@ -49,7 +99,12 @@ export const VoiceProvider = ({ children }) => {
   const speakingIdRef = useRef(null);
   const activeUtteranceRef = useRef(null);
 
-  // Keep refs synchronized with state to allow stable useCallback with [] deps
+  const selectedVoiceURIRef = useRef(selectedVoiceURI);
+  const selectedLangRef = useRef(selectedLang);
+  const speechRateRef = useRef(speechRate);
+  const speechPitchRef = useRef(speechPitch);
+
+  // Sync refs with state
   useEffect(() => {
     isSpeakingRef.current = isSpeaking;
   }, [isSpeaking]);
@@ -58,11 +113,57 @@ export const VoiceProvider = ({ children }) => {
     speakingIdRef.current = speakingId;
   }, [speakingId]);
 
+  useEffect(() => {
+    selectedVoiceURIRef.current = selectedVoiceURI;
+  }, [selectedVoiceURI]);
+
+  useEffect(() => {
+    selectedLangRef.current = selectedLang;
+  }, [selectedLang]);
+
+  useEffect(() => {
+    speechRateRef.current = speechRate;
+  }, [speechRate]);
+
+  useEffect(() => {
+    speechPitchRef.current = speechPitch;
+  }, [speechPitch]);
+
+  // Setters with localStorage
+  const setSelectedVoiceURI = useCallback((uri) => {
+    setSelectedVoiceURIState(uri);
+    try {
+      localStorage.setItem(STORAGE_KEYS.SELECTED_VOICE_URI, uri);
+    } catch (e) {}
+  }, []);
+
+  const setSelectedLang = useCallback((langCode) => {
+    setSelectedLangState(langCode);
+    try {
+      localStorage.setItem(STORAGE_KEYS.SELECTED_LANG, langCode);
+    } catch (e) {}
+    // Reset selected voice URI so a matching voice in the new language will be picked
+    setSelectedVoiceURI('');
+  }, [setSelectedVoiceURI]);
+
+  const setSpeechRate = useCallback((rate) => {
+    setSpeechRateState(rate);
+    try {
+      localStorage.setItem(STORAGE_KEYS.SPEECH_RATE, String(rate));
+    } catch (e) {}
+  }, []);
+
+  const setSpeechPitch = useCallback((pitch) => {
+    setSpeechPitchState(pitch);
+    try {
+      localStorage.setItem(STORAGE_KEYS.SPEECH_PITCH, String(pitch));
+    } catch (e) {}
+  }, []);
+
   // Check browser capabilities and setup voice loading
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Detect mobile / iOS devices
     const ua = navigator.userAgent || '';
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
     setIsMobileDevice(isMobile);
@@ -72,9 +173,10 @@ export const VoiceProvider = ({ children }) => {
 
       const updateVoices = () => {
         try {
-          const list = window.speechSynthesis.getVoices();
-          if (list && list.length > 0) {
+          const list = window.speechSynthesis.getVoices() || [];
+          if (list.length > 0) {
             voicesRef.current = list;
+            setVoices(list);
           }
         } catch (e) {
           console.warn('Could not load voices:', e);
@@ -98,7 +200,6 @@ export const VoiceProvider = ({ children }) => {
     if (typeof window === 'undefined') return;
 
     try {
-      // 1. Unlock Web Audio API AudioContext if present
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
         if (!window.__appAudioCtx) {
@@ -109,9 +210,7 @@ export const VoiceProvider = ({ children }) => {
         }
       }
 
-      // 2. Unlock SpeechSynthesis on iOS / Android
       if ('speechSynthesis' in window) {
-        // Speak empty 1-space utterance with volume 0 to unlock iOS WebKit audio channel
         const unlockUtterance = new SpeechSynthesisUtterance(' ');
         unlockUtterance.volume = 0.01;
         unlockUtterance.rate = 2.0;
@@ -180,17 +279,15 @@ export const VoiceProvider = ({ children }) => {
     speakingIdRef.current = null;
   }, []);
 
-  // Speak text with friendly Russian voice at child-appropriate tempo - STABLE REFERENCE
+  // Speak text with user's chosen voice & language
   const speak = useCallback((text, id = null, onEnd = null) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
-    // If currently speaking this exact item, toggle off
     if (isSpeakingRef.current && speakingIdRef.current === id && id !== null) {
       stopSpeaking();
       return;
     }
 
-    // Cancel any previous utterance
     if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
       window.speechSynthesis.cancel();
     }
@@ -201,30 +298,48 @@ export const VoiceProvider = ({ children }) => {
     const cleaned = cleanTextForSpeech(text);
     if (!cleaned) return;
 
+    const currentLang = selectedLangRef.current || 'ru-RU';
+    const langPrefix = currentLang.split('-')[0].toLowerCase();
+
     const utterance = new SpeechSynthesisUtterance(cleaned);
-    utterance.lang = 'ru-RU';
+    utterance.lang = currentLang;
 
-    // Best-effort Russian voice picking (prefer gentle female or natural RU voice)
     const available = voicesRef.current.length > 0 ? voicesRef.current : window.speechSynthesis.getVoices();
-    const ruVoice = available.find(v => v.lang && (
-      (v.lang.toLowerCase().startsWith('ru') || v.lang.toLowerCase().replace('_', '-').includes('ru')) &&
-      (v.name.includes('Milena') ||
-       v.name.includes('Tatyana') ||
-       v.name.includes('Katya') ||
-       v.name.includes('Google') ||
-       v.name.includes('Female') ||
-       v.name.includes('Женский'))
-    )) || available.find(v => v.lang && (v.lang.toLowerCase().startsWith('ru') || v.lang.toLowerCase().replace('_', '-').includes('ru')));
 
-    if (ruVoice) {
-      utterance.voice = ruVoice;
+    // 1. Try to find user explicitly selected voice by URI
+    let chosenVoice = null;
+    if (selectedVoiceURIRef.current) {
+      chosenVoice = available.find(v => v.voiceURI === selectedVoiceURIRef.current);
     }
 
-    // Gentle, accessible speed (0.92) and slightly warmer pitch (1.05) for young kids
-    utterance.rate = 0.92;
-    utterance.pitch = 1.05;
+    // 2. Fallback: match language and pick friendly natural/female voice
+    if (!chosenVoice) {
+      const langMatches = available.filter(v => v.lang && (
+        v.lang.toLowerCase().startsWith(langPrefix) ||
+        v.lang.toLowerCase().replace('_', '-').includes(langPrefix)
+      ));
 
-    // Workaround for WebKit / Chrome garbage collection bug: keep reference alive!
+      if (langMatches.length > 0) {
+        chosenVoice = langMatches.find(v => (
+          v.name.includes('Milena') ||
+          v.name.includes('Tatyana') ||
+          v.name.includes('Katya') ||
+          v.name.includes('Google') ||
+          v.name.includes('Natural') ||
+          v.name.includes('Siri') ||
+          v.name.includes('Female') ||
+          v.name.includes('Женский')
+        )) || langMatches[0];
+      }
+    }
+
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+    }
+
+    utterance.rate = speechRateRef.current || 0.92;
+    utterance.pitch = speechPitchRef.current || 1.05;
+
     activeUtteranceRef.current = utterance;
     window.__currentUtterance = utterance;
 
@@ -246,7 +361,6 @@ export const VoiceProvider = ({ children }) => {
     };
 
     utterance.onerror = (e) => {
-      // In iOS Safari, canceled utterances report error 'interrupted' or 'canceled', ignore those
       if (e.error !== 'interrupted' && e.error !== 'canceled') {
         console.warn('SpeechSynthesis error:', e.error || e);
       }
@@ -258,7 +372,6 @@ export const VoiceProvider = ({ children }) => {
       window.__currentUtterance = null;
     };
 
-    // On mobile Safari, trigger speak and immediately resume synthesis
     try {
       window.speechSynthesis.speak(utterance);
       if (window.speechSynthesis.paused) {
@@ -269,7 +382,7 @@ export const VoiceProvider = ({ children }) => {
     }
   }, [stopSpeaking]);
 
-  // Start Speech-to-Text dictation
+  // Start Speech-to-Text dictation with selected language
   const startListening = useCallback((onFinalText, onError) => {
     if (typeof window === 'undefined') return;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -281,7 +394,6 @@ export const VoiceProvider = ({ children }) => {
       return;
     }
 
-    // Stop TTS if speaking so mic doesn't record our own speaker
     stopSpeaking();
 
     try {
@@ -289,8 +401,9 @@ export const VoiceProvider = ({ children }) => {
         recognitionRef.current.abort();
       }
 
+      const currentLang = selectedLangRef.current || 'ru-RU';
       const recognition = new SpeechRecognition();
-      recognition.lang = 'ru-RU';
+      recognition.lang = currentLang;
       recognition.continuous = false;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
@@ -384,6 +497,15 @@ export const VoiceProvider = ({ children }) => {
       value={{
         hasSpeechSynthesis,
         hasSpeechRecognition,
+        voices,
+        selectedVoiceURI,
+        setSelectedVoiceURI,
+        selectedLang,
+        setSelectedLang,
+        speechRate,
+        setSpeechRate,
+        speechPitch,
+        setSpeechPitch,
         voiceEnabled,
         setVoiceEnabled,
         isSpeaking,
@@ -397,7 +519,9 @@ export const VoiceProvider = ({ children }) => {
         stopListening,
         unlockAudio,
         isMobileDevice,
-        isAudioUnlocked
+        isAudioUnlocked,
+        isSettingsOpen,
+        setIsSettingsOpen
       }}
     >
       {children}

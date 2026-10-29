@@ -17,7 +17,8 @@ import {
   Volume2,
   VolumeX,
   Share2,
-  BookOpen
+  BookOpen,
+  Sliders
 } from 'lucide-react';
 
 export const StoriesPlayer = () => {
@@ -33,7 +34,8 @@ export const StoriesPlayer = () => {
     stopSpeaking,
     isSpeaking,
     voiceEnabled,
-    setVoiceEnabled
+    setVoiceEnabled,
+    setIsSettingsOpen
   } = useVoice();
 
   const story = STORIES_DATA.find((s) => s.id === activeStoryId) || STORIES_DATA[0];
@@ -319,6 +321,21 @@ export const StoriesPlayer = () => {
                   <VolumeX className="w-4 h-4" />
                 )}
               </button>
+
+              {voiceEnabled && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    stopSpeaking();
+                    setIsSettingsOpen(true);
+                  }}
+                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-700 flex items-center justify-center shadow-xs transition-all"
+                  title="Настройки голоса и языка"
+                  aria-label="Настройки голоса и языка"
+                >
+                  <Sliders className="w-4 h-4 text-stone-600" />
+                </button>
+              )}
 
               <button
                 onClick={(e) => {

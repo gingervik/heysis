@@ -7,6 +7,7 @@ import { StoriesPlayer } from './components/StoriesPlayer';
 import { ChatAssistant } from './screens/ChatAssistant';
 import { FloatingPanicButton } from './components/FloatingPanicButton';
 import { PanicOverlay } from './components/PanicOverlay';
+import { VoiceSettingsModal } from './components/VoiceSettingsModal';
 
 const MainRouter = () => {
   const { screen } = useApp();
@@ -24,6 +25,9 @@ const MainRouter = () => {
 
       {/* Instant Stealth Mode Calculator / Notes Overlay */}
       <PanicOverlay />
+
+      {/* Voice & Language Customization Modal */}
+      <VoiceSettingsModal />
     </div>
   );
 };

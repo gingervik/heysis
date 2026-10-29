@@ -20,7 +20,9 @@ import {
   Info,
   Volume2,
   VolumeX,
-  Mic
+  Mic,
+  Sliders,
+  Globe
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -41,7 +43,8 @@ export const Dashboard = () => {
     isSpeaking,
     speakingId,
     voiceEnabled,
-    setVoiceEnabled
+    setVoiceEnabled,
+    setIsSettingsOpen
   } = useVoice();
 
   // Filter stories by current age group
@@ -165,6 +168,18 @@ export const Dashboard = () => {
             )}
             <span className="text-[11px] font-bold">{voiceEnabled ? 'Голос' : 'Без звука'}</span>
           </button>
+
+          {/* Voice Settings Button */}
+          {voiceEnabled && (
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="w-7 h-7 rounded-full bg-lavender-100 hover:bg-lavender-200 border border-lavender-200 text-lavender-700 flex items-center justify-center transition shadow-2xs"
+              title="Настройки голоса и языка"
+              aria-label="Настройки голоса и языка"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+            </button>
+          )}
 
           {/* Age Filter Toggle */}
           <div className="flex items-center gap-1 bg-white border border-stone-200 rounded-full px-2 py-0.5 text-xs text-stone-600 shadow-2xs">

@@ -14,7 +14,8 @@ import {
   Volume2,
   VolumeX,
   Radio,
-  Square
+  Square,
+  Sliders
 } from 'lucide-react';
 
 export const ChatAssistant = () => {
@@ -40,7 +41,8 @@ export const ChatAssistant = () => {
     micError,
     startListening,
     stopListening,
-    hasSpeechRecognition
+    hasSpeechRecognition,
+    setIsSettingsOpen
   } = useVoice();
 
   const [inputText, setInputText] = useState('');
@@ -188,6 +190,18 @@ export const ChatAssistant = () => {
               </>
             )}
           </button>
+
+          {/* Voice Settings Button */}
+          {voiceEnabled && (
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="w-8 h-8 rounded-full bg-lavender-100 hover:bg-lavender-200 text-lavender-700 flex items-center justify-center transition"
+              title="Настройки голоса и языка"
+              aria-label="Настройки голоса и языка"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+            </button>
+          )}
 
           {/* Clear chat button */}
           <button
