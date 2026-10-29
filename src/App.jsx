@@ -1,0 +1,36 @@
+import React from 'react';
+import { AppProvider, useApp } from './context/AppContext';
+import { Onboarding } from './screens/Onboarding';
+import { Dashboard } from './screens/Dashboard';
+import { StoriesPlayer } from './components/StoriesPlayer';
+import { ChatAssistant } from './screens/ChatAssistant';
+import { FloatingPanicButton } from './components/FloatingPanicButton';
+import { PanicOverlay } from './components/PanicOverlay';
+
+const MainRouter = () => {
+  const { screen } = useApp();
+
+  return (
+    <div className="relative min-h-screen bg-stone-50 font-sans">
+      {/* Universal Floating Panic / SOS Quick Camouflage Button */}
+      <FloatingPanicButton />
+
+      {/* Screen Router */}
+      {screen === 'onboarding' && <Onboarding />}
+      {screen === 'dashboard' && <Dashboard />}
+      {screen === 'stories' && <StoriesPlayer />}
+      {screen === 'chat' && <ChatAssistant />}
+
+      {/* Instant Stealth Mode Calculator / Notes Overlay */}
+      <PanicOverlay />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AppProvider>
+      <MainRouter />
+    </AppProvider>
+  );
+}
