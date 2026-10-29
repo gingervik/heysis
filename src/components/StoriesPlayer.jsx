@@ -73,14 +73,22 @@ export const StoriesPlayer = () => {
     if (voiceEnabled) {
       const text = getSlideText(currentSlide);
       const slideId = `slide-${story.id}-${currentIndex}`;
-      speak(text, slideId);
+      // Small timeout to allow slide transition to complete smoothly
+      const timer = setTimeout(() => {
+        speak(text, slideId);
+      }, 100);
+      return () => clearTimeout(timer);
     } else {
       stopSpeaking();
     }
+  }, [currentIndex, voiceEnabled, story.id]);
+
+  // Cleanup on unmount only
+  useEffect(() => {
     return () => {
       stopSpeaking();
     };
-  }, [currentIndex, voiceEnabled, currentSlide, getSlideText, speak, stopSpeaking, story.id]);
+  }, [stopSpeaking]);
 
   // Auto-advance progress timer
   useEffect(() => {

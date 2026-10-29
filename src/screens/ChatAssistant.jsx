@@ -47,7 +47,8 @@ export const ChatAssistant = () => {
   const [isSending, setIsSending] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const messagesEndRef = useRef(null);
-  const lastSpokenMessageIdRef = useRef(null);
+  // Default to 'welcome-msg' so mobile browsers don't try to autoplay before user gesture
+  const lastSpokenMessageIdRef = useRef('welcome-msg');
 
   const iceBreakers = ICE_BREAKER_PROMPTS_BY_AGE[ageGroup] || ICE_BREAKER_PROMPTS_BY_AGE.default;
 

@@ -31,6 +31,8 @@ export const VoiceProvider = ({ children }) => {
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState('');
   const [micError, setMicError] = useState(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
   const [voiceEnabled, setVoiceEnabledState] = useState(() => {
     try {
@@ -43,61 +45,158 @@ export const VoiceProvider = ({ children }) => {
 
   const recognitionRef = useRef(null);
   const voicesRef = useRef([]);
+  const isSpeakingRef = useRef(false);
+  const speakingIdRef = useRef(null);
+  const activeUtteranceRef = useRef(null);
 
-  // Check browser capabilities
+  // Keep refs synchronized with state to allow stable useCallback with [] deps
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if ('speechSynthesis' in window) {
-        setHasSpeechSynthesis(true);
+    isSpeakingRef.current = isSpeaking;
+  }, [isSpeaking]);
 
-        const updateVoices = () => {
-          voicesRef.current = window.speechSynthesis.getVoices();
-        };
+  useEffect(() => {
+    speakingIdRef.current = speakingId;
+  }, [speakingId]);
 
-        updateVoices();
-        if (window.speechSynthesis.onvoiceschanged !== undefined) {
-          window.speechSynthesis.onvoiceschanged = updateVoices;
+  // Check browser capabilities and setup voice loading
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Detect mobile / iOS devices
+    const ua = navigator.userAgent || '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    setIsMobileDevice(isMobile);
+
+    if ('speechSynthesis' in window) {
+      setHasSpeechSynthesis(true);
+
+      const updateVoices = () => {
+        try {
+          const list = window.speechSynthesis.getVoices();
+          if (list && list.length > 0) {
+            voicesRef.current = list;
+          }
+        } catch (e) {
+          console.warn('Could not load voices:', e);
         }
-      }
+      };
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        setHasSpeechRecognition(true);
+      updateVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = updateVoices;
       }
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setHasSpeechRecognition(true);
     }
   }, []);
 
-  const setVoiceEnabled = (val) => {
+  // Unlock mobile WebKit / Safari audio pipeline on first user tap/click
+  const unlockAudio = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      // 1. Unlock Web Audio API AudioContext if present
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        if (!window.__appAudioCtx) {
+          window.__appAudioCtx = new AudioCtx();
+        }
+        if (window.__appAudioCtx.state === 'suspended') {
+          window.__appAudioCtx.resume();
+        }
+      }
+
+      // 2. Unlock SpeechSynthesis on iOS / Android
+      if ('speechSynthesis' in window) {
+        // Speak empty 1-space utterance with volume 0 to unlock iOS WebKit audio channel
+        const unlockUtterance = new SpeechSynthesisUtterance(' ');
+        unlockUtterance.volume = 0.01;
+        unlockUtterance.rate = 2.0;
+        window.speechSynthesis.speak(unlockUtterance);
+        window.speechSynthesis.resume();
+      }
+
+      setIsAudioUnlocked(true);
+    } catch (e) {
+      console.warn('Audio unlock warning:', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleFirstTouch = () => {
+      unlockAudio();
+      window.removeEventListener('touchstart', handleFirstTouch);
+      window.removeEventListener('touchend', handleFirstTouch);
+      window.removeEventListener('click', handleFirstTouch);
+    };
+
+    window.addEventListener('touchstart', handleFirstTouch, { passive: true });
+    window.addEventListener('touchend', handleFirstTouch, { passive: true });
+    window.addEventListener('click', handleFirstTouch, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleFirstTouch);
+      window.removeEventListener('touchend', handleFirstTouch);
+      window.removeEventListener('click', handleFirstTouch);
+    };
+  }, [unlockAudio]);
+
+  const setVoiceEnabled = useCallback((val) => {
     setVoiceEnabledState(val);
     try {
       localStorage.setItem(STORAGE_KEYS.VOICE_ENABLED, String(val));
     } catch (e) {}
     if (!val) {
-      stopSpeaking();
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setIsSpeaking(false);
+      setSpeakingId(null);
+      isSpeakingRef.current = false;
+      speakingIdRef.current = null;
     }
-  };
+  }, []);
 
-  // Stop Text-to-Speech immediately
+  // Stop Text-to-Speech immediately - STABLE REFERENCE
   const stopSpeaking = useCallback(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }
+    activeUtteranceRef.current = null;
+    if (typeof window !== 'undefined') {
+      window.__currentUtterance = null;
     }
     setIsSpeaking(false);
     setSpeakingId(null);
+    isSpeakingRef.current = false;
+    speakingIdRef.current = null;
   }, []);
 
-  // Speak text with friendly Russian voice at child-appropriate tempo
+  // Speak text with friendly Russian voice at child-appropriate tempo - STABLE REFERENCE
   const speak = useCallback((text, id = null, onEnd = null) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
     // If currently speaking this exact item, toggle off
-    if (isSpeaking && speakingId === id && id !== null) {
+    if (isSpeakingRef.current && speakingIdRef.current === id && id !== null) {
       stopSpeaking();
       return;
     }
 
     // Cancel any previous utterance
-    stopSpeaking();
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel();
+    }
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
 
     const cleaned = cleanTextForSpeech(text);
     if (!cleaned) return;
@@ -107,42 +206,68 @@ export const VoiceProvider = ({ children }) => {
 
     // Best-effort Russian voice picking (prefer gentle female or natural RU voice)
     const available = voicesRef.current.length > 0 ? voicesRef.current : window.speechSynthesis.getVoices();
-    const ruVoice = available.find(v => v.lang.startsWith('ru') && (
-      v.name.includes('Milena') ||
-      v.name.includes('Tatyana') ||
-      v.name.includes('Google') ||
-      v.name.includes('Katya') ||
-      v.name.includes('Female') ||
-      v.name.includes('Женский')
-    )) || available.find(v => v.lang.startsWith('ru')) || available.find(v => v.lang.includes('RU'));
+    const ruVoice = available.find(v => v.lang && (
+      (v.lang.toLowerCase().startsWith('ru') || v.lang.toLowerCase().replace('_', '-').includes('ru')) &&
+      (v.name.includes('Milena') ||
+       v.name.includes('Tatyana') ||
+       v.name.includes('Katya') ||
+       v.name.includes('Google') ||
+       v.name.includes('Female') ||
+       v.name.includes('Женский'))
+    )) || available.find(v => v.lang && (v.lang.toLowerCase().startsWith('ru') || v.lang.toLowerCase().replace('_', '-').includes('ru')));
 
     if (ruVoice) {
       utterance.voice = ruVoice;
     }
 
-    // Gentle, accessible speed (0.91) and slightly warmer pitch (1.05) for young kids
+    // Gentle, accessible speed (0.92) and slightly warmer pitch (1.05) for young kids
     utterance.rate = 0.92;
     utterance.pitch = 1.05;
+
+    // Workaround for WebKit / Chrome garbage collection bug: keep reference alive!
+    activeUtteranceRef.current = utterance;
+    window.__currentUtterance = utterance;
 
     utterance.onstart = () => {
       setIsSpeaking(true);
       setSpeakingId(id);
+      isSpeakingRef.current = true;
+      speakingIdRef.current = id;
     };
 
     utterance.onend = () => {
       setIsSpeaking(false);
       setSpeakingId(null);
+      isSpeakingRef.current = false;
+      speakingIdRef.current = null;
+      activeUtteranceRef.current = null;
+      window.__currentUtterance = null;
       if (onEnd) onEnd();
     };
 
     utterance.onerror = (e) => {
-      console.warn('SpeechSynthesis error:', e);
+      // In iOS Safari, canceled utterances report error 'interrupted' or 'canceled', ignore those
+      if (e.error !== 'interrupted' && e.error !== 'canceled') {
+        console.warn('SpeechSynthesis error:', e.error || e);
+      }
       setIsSpeaking(false);
       setSpeakingId(null);
+      isSpeakingRef.current = false;
+      speakingIdRef.current = null;
+      activeUtteranceRef.current = null;
+      window.__currentUtterance = null;
     };
 
-    window.speechSynthesis.speak(utterance);
-  }, [isSpeaking, speakingId, stopSpeaking]);
+    // On mobile Safari, trigger speak and immediately resume synthesis
+    try {
+      window.speechSynthesis.speak(utterance);
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    } catch (err) {
+      console.warn('Failed to call speak:', err);
+    }
+  }, [stopSpeaking]);
 
   // Start Speech-to-Text dictation
   const startListening = useCallback((onFinalText, onError) => {
@@ -150,7 +275,7 @@ export const VoiceProvider = ({ children }) => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      const err = 'Голосовой ввод не поддерживается в этом браузере';
+      const err = 'Голосовой ввод не поддерживается этим браузером';
       setMicError(err);
       if (onError) onError(err);
       return;
@@ -212,6 +337,8 @@ export const VoiceProvider = ({ children }) => {
           message = 'Разреши доступ к микрофону в настройках браузера 🎤';
         } else if (event.error === 'no-speech') {
           message = 'Я ничего не услышала, попробуй сказать еще раз!';
+        } else if (event.error === 'network') {
+          message = 'Для распознавания речи требуется подключение к интернету';
         }
         setMicError(message);
         if (onError) onError(message);
@@ -267,7 +394,10 @@ export const VoiceProvider = ({ children }) => {
         interimTranscript,
         micError,
         startListening,
-        stopListening
+        stopListening,
+        unlockAudio,
+        isMobileDevice,
+        isAudioUnlocked
       }}
     >
       {children}
