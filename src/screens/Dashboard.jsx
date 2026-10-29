@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useVoice } from '../context/VoiceContext';
 import { STORIES_DATA, DAILY_MYTHS_BY_AGE } from '../data/mockData';
 import {
   Sparkles,
@@ -16,7 +17,10 @@ import {
   Calculator,
   RefreshCw,
   Flame,
-  Info
+  Info,
+  Volume2,
+  VolumeX,
+  Mic
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -30,6 +34,15 @@ export const Dashboard = () => {
     goToChatWithPrompt,
     triggerPanic
   } = useApp();
+
+  const {
+    speak,
+    stopSpeaking,
+    isSpeaking,
+    speakingId,
+    voiceEnabled,
+    setVoiceEnabled
+  } = useVoice();
 
   // Filter stories by current age group
   const visibleStories = STORIES_DATA.filter((story) =>
@@ -47,6 +60,9 @@ export const Dashboard = () => {
 
   const handleMythAnswer = (userChoice) => {
     setMythAnswerState(userChoice);
+    if (voiceEnabled) {
+      speak(`${currentMyth.shortAnswer}. ${currentMyth.fullExplanation}`, `myth-${currentMythIndex}`);
+    }
     if (userChoice === currentMyth.isFact) {
       try {
         confetti({
@@ -59,6 +75,7 @@ export const Dashboard = () => {
   };
 
   const nextMyth = () => {
+    stopSpeaking();
     setMythAnswerState(null);
     setCurrentMythIndex((prev) => (prev + 1) % mythsList.length);
   };
@@ -125,23 +142,49 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Age Filter Toggle */}
-        <div className="flex items-center gap-1 bg-white border border-stone-200 rounded-full px-2 py-0.5 text-xs text-stone-600 shadow-2xs">
-          <span className="text-[11px] font-medium text-stone-400">Возраст:</span>
-          <select
-            value={ageGroup}
-            onChange={(e) => {
-              setAgeGroup(e.target.value);
-              setMythAnswerState(null);
-              setCurrentMythIndex(0);
+        {/* Top Controls: Voice Toggle & Age Filter */}
+        <div className="flex items-center gap-2">
+          {/* Global Voice Toggle */}
+          <button
+            onClick={() => {
+              const next = !voiceEnabled;
+              setVoiceEnabled(next);
+              if (!next) stopSpeaking();
             }}
-            className="bg-transparent font-bold text-stone-700 focus:outline-none cursor-pointer text-xs"
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition border shadow-2xs ${
+              voiceEnabled
+                ? 'bg-lavender-100 border-lavender-200 text-lavender-800'
+                : 'bg-white border-stone-200 text-stone-400'
+            }`}
+            title={voiceEnabled ? 'Озвучка текста включена' : 'Озвучка текста выключена'}
           >
-            <option value="8-9">8–9 лет</option>
-            <option value="10-12">10–12 лет</option>
-            <option value="13-15">13–15 лет</option>
-            <option value="16+">16+ лет</option>
-          </select>
+            {voiceEnabled ? (
+              <Volume2 className="w-3.5 h-3.5 text-lavender-600" />
+            ) : (
+              <VolumeX className="w-3.5 h-3.5" />
+            )}
+            <span className="text-[11px] font-bold">{voiceEnabled ? 'Голос' : 'Без звука'}</span>
+          </button>
+
+          {/* Age Filter Toggle */}
+          <div className="flex items-center gap-1 bg-white border border-stone-200 rounded-full px-2 py-0.5 text-xs text-stone-600 shadow-2xs">
+            <span className="text-[11px] font-medium text-stone-400">Возраст:</span>
+            <select
+              value={ageGroup}
+              onChange={(e) => {
+                setAgeGroup(e.target.value);
+                setMythAnswerState(null);
+                setCurrentMythIndex(0);
+                stopSpeaking();
+              }}
+              className="bg-transparent font-bold text-stone-700 focus:outline-none cursor-pointer text-xs"
+            >
+              <option value="8-9">8–9 лет</option>
+              <option value="10-12">10–12 лет</option>
+              <option value="13-15">13–15 лет</option>
+              <option value="16+">16+ лет</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -204,15 +247,38 @@ export const Dashboard = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-stone-200/50 text-xs text-stone-500 font-medium">
-                  <div className="flex items-center gap-1 text-[11px]">
+                  <div className="flex items-center gap-1.5 text-[11px]">
                     <Clock className="w-3.5 h-3.5 text-stone-400" />
                     <span>{story.readTime}</span>
                   </div>
 
-                  <span className="font-bold text-stone-700 flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform text-xs">
-                    <span>Открыть</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const cardId = `card-${story.id}`;
+                        if (isSpeaking && speakingId === cardId) {
+                          stopSpeaking();
+                        } else {
+                          speak(`${story.title}. ${story.subtitle}`, cardId);
+                        }
+                      }}
+                      className={`p-1.5 rounded-full transition shadow-2xs ${
+                        isSpeaking && speakingId === `card-${story.id}`
+                          ? 'bg-lavender-500 text-white animate-pulse'
+                          : 'bg-white/80 hover:bg-white text-stone-500 hover:text-lavender-700'
+                      }`}
+                      title="Послушать о чем эта история"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
+
+                    <span className="font-bold text-stone-700 flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform text-xs">
+                      <span>Открыть</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
                 </div>
               </div>
             );
@@ -285,9 +351,37 @@ export const Dashboard = () => {
 
         <div className="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-xs space-y-4">
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-peach-600 uppercase tracking-wider">
-              {currentMyth.dateLabel}
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-peach-600 uppercase tracking-wider">
+                {currentMyth.dateLabel}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const mythId = `myth-${currentMythIndex}`;
+                  if (isSpeaking && speakingId === mythId) {
+                    stopSpeaking();
+                  } else {
+                    if (!mythAnswerState) {
+                      speak(`Миф дня. ${currentMyth.question}. Это правда или миф?`, mythId);
+                    } else {
+                      speak(`${currentMyth.shortAnswer}. ${currentMyth.fullExplanation}`, mythId);
+                    }
+                  }
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition ${
+                  isSpeaking && speakingId === `myth-${currentMythIndex}`
+                    ? 'bg-lavender-500 text-white animate-pulse'
+                    : 'bg-stone-100 hover:bg-lavender-100 text-stone-600 hover:text-lavender-800'
+                }`}
+                title="Прослушать миф дня"
+              >
+                <Volume2 className="w-3.5 h-3.5 text-lavender-600" />
+                <span className="text-[11px]">
+                  {isSpeaking && speakingId === `myth-${currentMythIndex}` ? 'Читаю...' : 'Послушать'}
+                </span>
+              </button>
+            </div>
             <h4 className="text-base font-bold text-stone-800 leading-snug">
               {currentMyth.question}
             </h4>

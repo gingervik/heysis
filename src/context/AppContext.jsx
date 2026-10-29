@@ -109,6 +109,9 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
+        if (typeof window !== 'undefined' && window.__emergencySilenceVoice) {
+          window.__emergencySilenceVoice();
+        }
         setIsPanicOpen((prev) => !prev);
       }
     };
@@ -140,6 +143,9 @@ export const AppProvider = ({ children }) => {
   };
 
   const triggerPanic = (type = 'calculator') => {
+    if (typeof window !== 'undefined' && window.__emergencySilenceVoice) {
+      window.__emergencySilenceVoice();
+    }
     setPanicType(type);
     setIsPanicOpen(true);
   };

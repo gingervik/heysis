@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { ShieldCheck, Heart, Sparkles, Calculator, Check, ArrowRight, EyeOff } from 'lucide-react';
+import { useVoice } from '../context/VoiceContext';
+import { ShieldCheck, Heart, Sparkles, Calculator, Check, ArrowRight, EyeOff, Volume2, VolumeX, Mic } from 'lucide-react';
 
 export const Onboarding = () => {
   const { completeOnboarding, ageGroup, triggerPanic } = useApp();
-  const [selectedAge, setSelectedAge] = useState(ageGroup || '13-15');
+  const { speak, stopSpeaking, isSpeaking, speakingId, voiceEnabled, setVoiceEnabled } = useVoice();
+  const [selectedAge, setSelectedAge] = useState(ageGroup || '8-9');
   const [hasTriedPanic, setHasTriedPanic] = useState(false);
+
+  const welcomeSpokenText = selectedAge === '8-9'
+    ? 'Привет, солнышко! Это твоё безопасное пространство. Здесь ты можешь узнать о секретах тела, почему выпадают зубки, как дружить и что делать, если тебе тревожно. Ты можешь задавать вопросы прямо своим голосом через микрофон, а сестренка ответит тебе вслух! Никто не узнает о наших беседах.'
+    : 'Привет! Это твоё безопасное пространство. Здесь ты можешь спокойно узнать всё о своем теле, месячных и эмоциях без стеснения и страха. Никаких аккаунтов, паролей или следов. Доступны голосовой ввод и озвучка ответов.';
+
+  const isWelcomeSpeaking = isSpeaking && speakingId === 'onboarding-welcome';
+
+  const toggleWelcomeVoice = () => {
+    if (isWelcomeSpeaking) {
+      stopSpeaking();
+    } else {
+      speak(welcomeSpokenText, 'onboarding-welcome');
+    }
+  };
 
   const ageOptions = [
     { value: '8-9', label: '8–9 лет', hint: 'Тело и дружба' },
@@ -39,11 +55,36 @@ export const Onboarding = () => {
             Твоё безопасное пространство
           </h1>
           <p className="text-sm sm:text-base text-stone-600 leading-relaxed max-w-sm mx-auto">
-            Привет! Здесь ты можешь спокойно узнать всё о своем теле, месячных и эмоциях.
+            Привет! Здесь ты можешь спокойно узнать всё о своем теле, эмоциях и дружбе.
             <span className="font-semibold text-stone-700 block mt-1">
               Никаких аккаунтов, истории поиска и следов.
             </span>
           </p>
+
+          {/* Voice listen button for young kids who prefer listening */}
+          <div className="pt-1 flex justify-center">
+            <button
+              type="button"
+              onClick={toggleWelcomeVoice}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition shadow-xs ${
+                isWelcomeSpeaking
+                  ? 'bg-lavender-500 text-white animate-pulse'
+                  : 'bg-white hover:bg-lavender-50 text-lavender-800 border border-lavender-200'
+              }`}
+            >
+              {isWelcomeSpeaking ? (
+                <>
+                  <Volume2 className="w-4 h-4 animate-bounce" />
+                  <span>Читаю вслух... Нажми, чтобы остановить</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-lavender-600" />
+                  <span>Послушать приветствие голосом 🔊</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Age selection cards */}
@@ -98,6 +139,7 @@ export const Onboarding = () => {
             </span>
             <button
               onClick={() => {
+                stopSpeaking();
                 setHasTriedPanic(true);
                 triggerPanic('calculator');
               }}
@@ -113,7 +155,10 @@ export const Onboarding = () => {
       {/* Start Button */}
       <div className="pt-4 pb-2">
         <button
-          onClick={() => completeOnboarding(selectedAge)}
+          onClick={() => {
+            stopSpeaking();
+            completeOnboarding(selectedAge);
+          }}
           className="w-full bg-gradient-to-r from-mint-600 to-mint-500 hover:from-mint-700 hover:to-mint-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all transform active:scale-98 flex items-center justify-center gap-2 text-base"
         >
           <span>Начать безопасное знакомство</span>

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
+import { useVoice } from '../context/VoiceContext';
 import { STORIES_DATA } from '../data/mockData';
 import confetti from 'canvas-confetti';
 import {
@@ -27,6 +28,14 @@ export const StoriesPlayer = () => {
     goToChatWithPrompt
   } = useApp();
 
+  const {
+    speak,
+    stopSpeaking,
+    isSpeaking,
+    voiceEnabled,
+    setVoiceEnabled
+  } = useVoice();
+
   const story = STORIES_DATA.find((s) => s.id === activeStoryId) || STORIES_DATA[0];
   const slides = story.slides;
 
@@ -41,6 +50,37 @@ export const StoriesPlayer = () => {
   const progressTimerRef = useRef(null);
 
   const currentSlide = slides[currentIndex] || slides[0];
+
+  const getSlideText = useCallback((slide) => {
+    if (!slide) return '';
+    if (slide.type === 'intro') {
+      return `${story.title}. ${story.subtitle || ''}`;
+    }
+    if (slide.type === 'theory') {
+      return `${slide.headline}. ${slide.text}. ${slide.tip ? `Совет: ${slide.tip}` : ''}`;
+    }
+    if (slide.type === 'quiz') {
+      return `Вопрос. Правда или миф: ${slide.question}. Нажми на экране: это правда, или это миф!`;
+    }
+    if (slide.type === 'completion') {
+      return `${slide.title}. ${slide.text}. ${slide.ctaText || ''}`;
+    }
+    return '';
+  }, [story]);
+
+  // Read slide aloud automatically if voiceEnabled is true
+  useEffect(() => {
+    if (voiceEnabled) {
+      const text = getSlideText(currentSlide);
+      const slideId = `slide-${story.id}-${currentIndex}`;
+      speak(text, slideId);
+    } else {
+      stopSpeaking();
+    }
+    return () => {
+      stopSpeaking();
+    };
+  }, [currentIndex, voiceEnabled, currentSlide, getSlideText, speak, stopSpeaking, story.id]);
 
   // Auto-advance progress timer
   useEffect(() => {
@@ -93,6 +133,7 @@ export const StoriesPlayer = () => {
   }, [currentIndex]);
 
   const handleNext = () => {
+    stopSpeaking();
     if (currentIndex < slides.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setQuizAnswer(null);
@@ -103,6 +144,7 @@ export const StoriesPlayer = () => {
   };
 
   const handlePrev = () => {
+    stopSpeaking();
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
       setQuizAnswer(null);
@@ -150,6 +192,10 @@ export const StoriesPlayer = () => {
 
   const handleQuizChoice = (idx, isCorrect) => {
     setQuizAnswer({ selectedIndex: idx, isCorrect });
+    if (voiceEnabled) {
+      const resultText = (isCorrect ? 'Правильно! ' : 'Это миф! ') + (currentSlide.explanation || '');
+      speak(resultText, `quiz-result-${currentIndex}`);
+    }
     if (isCorrect) {
       try {
         confetti({
@@ -236,10 +282,40 @@ export const StoriesPlayer = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  const next = !voiceEnabled;
+                  setVoiceEnabled(next);
+                  if (next) {
+                    speak(getSlideText(currentSlide), `slide-${story.id}-${currentIndex}`);
+                  } else {
+                    stopSpeaking();
+                  }
+                }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center shadow-xs transition-all ${
+                  isSpeaking
+                    ? 'bg-lavender-500 text-white animate-pulse'
+                    : voiceEnabled
+                    ? 'bg-white/90 text-lavender-700 hover:bg-white'
+                    : 'bg-white/60 text-stone-400 hover:bg-white'
+                }`}
+                title={isSpeaking ? 'Остановить чтение вслух' : 'Прослушать этот слайд голосом'}
+              >
+                {isSpeaking ? (
+                  <Volume2 className="w-4 h-4 animate-bounce" />
+                ) : voiceEnabled ? (
+                  <Volume2 className="w-4 h-4" />
+                ) : (
+                  <VolumeX className="w-4 h-4" />
+                )}
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  stopSpeaking();
                   setScreen('dashboard');
                 }}
                 className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-700 flex items-center justify-center shadow-xs transition-all"

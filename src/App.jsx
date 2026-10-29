@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { VoiceProvider } from './context/VoiceContext';
 import { Onboarding } from './screens/Onboarding';
 import { Dashboard } from './screens/Dashboard';
 import { StoriesPlayer } from './components/StoriesPlayer';
@@ -30,7 +31,9 @@ const MainRouter = () => {
 export default function App() {
   return (
     <AppProvider>
-      <MainRouter />
+      <VoiceProvider>
+        <MainRouter />
+      </VoiceProvider>
     </AppProvider>
   );
 }
