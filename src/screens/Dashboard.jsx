@@ -312,9 +312,14 @@ export const Dashboard = () => {
       </div>
 
       {/* Bottom Safe Information Footnote */}
-      <div className="pt-2 text-center text-xs text-stone-400 flex items-center justify-center gap-2">
-        <ShieldCheck className="w-4 h-4 text-mint-600" />
-        <span>Все данные сохраняются исключительно на твоем телефоне</span>
+      <div className="pt-2 text-center text-xs text-stone-400 space-y-1">
+        <div className="flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-4 h-4 text-mint-600" />
+          <span>Все данные сохраняются исключительно на твоем телефоне</span>
+        </div>
+        <div className="text-[11px] text-stone-400">
+          Open Source проект • ПО: <span className="font-semibold text-stone-500">MIT</span> • Контент: <span className="font-semibold text-stone-500">CC-BY 4.0</span>
+        </div>
       </div>
     </div>
   );

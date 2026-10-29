@@ -1,7 +1,8 @@
 {
   "name": "sisterhood-pwa",
-  "private": true,
   "version": "1.0.0",
+  "description": "SisterHood (Твоя Тайна / My Notes) - Privacy-first Open Source PWA for adolescent girls health education & safe AI guidance",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
