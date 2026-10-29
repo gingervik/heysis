@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { STORIES_DATA, DAILY_MYTHS } from '../data/mockData';
+import { STORIES_DATA, DAILY_MYTHS_BY_AGE } from '../data/mockData';
 import {
   Sparkles,
   Droplet,
@@ -12,6 +12,7 @@ import {
   Clock,
   ChevronRight,
   ShieldCheck,
+  Shield,
   Calculator,
   RefreshCw,
   Flame,
@@ -30,11 +31,19 @@ export const Dashboard = () => {
     triggerPanic
   } = useApp();
 
-  // Daily Myth State
+  // Filter stories by current age group
+  const visibleStories = STORIES_DATA.filter((story) =>
+    story.targetAges ? story.targetAges.includes(ageGroup) : true
+  );
+
+  const completedInAge = visibleStories.filter((s) => completedStories.includes(s.id)).length;
+
+  // Daily Myth State by Age
   const [currentMythIndex, setCurrentMythIndex] = useState(0);
   const [mythAnswerState, setMythAnswerState] = useState(null); // 'revealed' | null
 
-  const currentMyth = DAILY_MYTHS[currentMythIndex];
+  const mythsList = DAILY_MYTHS_BY_AGE[ageGroup] || DAILY_MYTHS_BY_AGE.default;
+  const currentMyth = mythsList[currentMythIndex % mythsList.length];
 
   const handleMythAnswer = (userChoice) => {
     setMythAnswerState(userChoice);
@@ -51,7 +60,7 @@ export const Dashboard = () => {
 
   const nextMyth = () => {
     setMythAnswerState(null);
-    setCurrentMythIndex((prev) => (prev + 1) % DAILY_MYTHS.length);
+    setCurrentMythIndex((prev) => (prev + 1) % mythsList.length);
   };
 
   const getCategoryIcon = (iconName) => {
@@ -59,6 +68,7 @@ export const Dashboard = () => {
       case 'Droplet': return <Droplet className="w-5 h-5 text-peach-600 fill-peach-200" />;
       case 'Sparkles': return <Sparkles className="w-5 h-5 text-mint-600 fill-mint-200" />;
       case 'Heart': return <Heart className="w-5 h-5 text-lavender-600 fill-lavender-200" />;
+      case 'Shield': return <Shield className="w-5 h-5 text-mint-600 fill-mint-200" />;
       default: return <Sparkles className="w-5 h-5 text-mint-600" />;
     }
   };
@@ -120,9 +130,14 @@ export const Dashboard = () => {
           <span className="text-[11px] font-medium text-stone-400">Возраст:</span>
           <select
             value={ageGroup}
-            onChange={(e) => setAgeGroup(e.target.value)}
+            onChange={(e) => {
+              setAgeGroup(e.target.value);
+              setMythAnswerState(null);
+              setCurrentMythIndex(0);
+            }}
             className="bg-transparent font-bold text-stone-700 focus:outline-none cursor-pointer text-xs"
           >
+            <option value="8-9">8–9 лет</option>
             <option value="10-12">10–12 лет</option>
             <option value="13-15">13–15 лет</option>
             <option value="16+">16+ лет</option>
@@ -135,20 +150,22 @@ export const Dashboard = () => {
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <h2 className="text-base sm:text-lg font-black text-stone-800 flex items-center gap-1.5">
-              <span>Истории и факты</span>
+              <span>{ageGroup === '8-9' ? 'Секреты тела и дружбы' : 'Истории и факты'}</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-mint-100 text-mint-800 font-bold">
-                {completedStories.length}/{STORIES_DATA.length} пройдено
+                {completedInAge}/{visibleStories.length} пройдено
               </span>
             </h2>
             <p className="text-xs text-stone-500">
-              Короткие карточки без сложных терминов за 1-2 минуты
+              {ageGroup === '8-9'
+                ? 'Добрые и понятные карточки о теле, эмоциях и гигиене'
+                : 'Короткие карточки без сложных терминов за 1-2 минуты'}
             </p>
           </div>
         </div>
 
         {/* Horizontal Carousel */}
         <div className="flex gap-3.5 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth snap-x snap-mandatory">
-          {STORIES_DATA.map((story) => {
+          {visibleStories.map((story) => {
             const isCompleted = completedStories.includes(story.id);
             const theme = getCategoryTheme(story.categoryColor);
 
@@ -216,15 +233,17 @@ export const Dashboard = () => {
             <div className="space-y-2 max-w-[280px] sm:max-w-xs">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-[11px] font-bold text-lavender-100">
                 <Sparkles className="w-3 h-3 text-peach-300" />
-                <span>Digital Big Sister • 100% Приватно</span>
+                <span>{ageGroup === '8-9' ? 'Добрая Старшая Сестра' : 'Digital Big Sister • 100% Приватно'}</span>
               </div>
 
               <h3 className="text-lg sm:text-xl font-black leading-tight text-white">
-                Задай вопрос Ассистенту (Анонимно)
+                {ageGroup === '8-9' ? 'Спроси Сестренку (Безопасно)' : 'Задай вопрос Ассистенту (Анонимно)'}
               </h3>
 
               <p className="text-xs sm:text-sm text-lavender-100 leading-relaxed font-normal">
-                Спроси о том, что неловко обсудить вслух. Отвечаем по-доброму, как старшая сестра.
+                {ageGroup === '8-9'
+                  ? 'Спроси о зубках, страхах, дружбе или правиле купальника. Отвечаем ласково и просто!'
+                  : 'Спроси о том, что неловко обсудить вслух. Отвечаем по-доброму, как старшая сестра.'}
               </p>
             </div>
 
@@ -234,7 +253,9 @@ export const Dashboard = () => {
           </div>
 
           <div className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between text-xs font-semibold relative z-10">
-            <span className="text-lavender-200">Без регистрации • Без осуждения</span>
+            <span className="text-lavender-200">
+              {ageGroup === '8-9' ? 'Только добрые и полезные ответы' : 'Без регистрации • Без осуждения'}
+            </span>
             <span className="flex items-center gap-1 bg-white text-lavender-900 px-3 py-1.5 rounded-full text-xs font-bold shadow-xs">
               <span>Открыть чат</span>
               <ChevronRight className="w-3.5 h-3.5" />

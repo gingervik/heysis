@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { ICE_BREAKER_PROMPTS } from '../data/mockData';
+import { ICE_BREAKER_PROMPTS_BY_AGE } from '../data/mockData';
 import {
   ArrowLeft,
   Send,
@@ -22,13 +22,16 @@ export const ChatAssistant = () => {
     sendChatMessage,
     clearChatHistory,
     initialChatPrompt,
-    setInitialChatPrompt
+    setInitialChatPrompt,
+    ageGroup
   } = useApp();
 
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const messagesEndRef = useRef(null);
+
+  const iceBreakers = ICE_BREAKER_PROMPTS_BY_AGE[ageGroup] || ICE_BREAKER_PROMPTS_BY_AGE.default;
 
   // If navigated with initial prompt from story
   useEffect(() => {
@@ -82,14 +85,14 @@ export const ChatAssistant = () => {
             <div>
               <div className="flex items-center gap-1.5">
                 <h2 className="font-extrabold text-stone-800 text-sm">
-                  Старшая Сестра
+                  {ageGroup === '8-9' ? 'Старшая Сестренка' : 'Старшая Сестра'}
                 </h2>
                 <span className="text-[10px] font-bold px-1.5 py-0.2 bg-lavender-100 text-lavender-700 rounded-full">
                   AI
                 </span>
               </div>
               <p className="text-[11px] text-stone-400">
-                100% анонимно • Без осуждения
+                {ageGroup === '8-9' ? 'Добрые ответы • 100% приватно' : '100% анонимно • Без осуждения'}
               </p>
             </div>
           </div>
@@ -108,10 +111,17 @@ export const ChatAssistant = () => {
       {/* UNICEF & Safety Sticky Disclaimer */}
       <div className="bg-amber-50/90 border-b border-amber-200/80 px-4 py-2.5 text-xs text-amber-900 flex items-start gap-2.5 shrink-0">
         <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-        <div className="leading-snug text-[11px] sm:text-xs">
-          <span className="font-bold">Безопасность (UNICEF): </span>
-          Я — ИИ-помощница, а не настоящий врач. Если тебе очень больно или страшно, обратись к школьной медсестре, родителям или врачу.
-        </div>
+        {ageGroup === '8-9' ? (
+          <div className="leading-snug text-[11px] sm:text-xs">
+            <span className="font-bold">Безопасность: </span>
+            Я — виртуальная добрая сестренка, а не врач. Если у тебя что-то болит, тебе страшно или тебя кто-то обижает — обязательно расскажи маме, папе или учительнице!
+          </div>
+        ) : (
+          <div className="leading-snug text-[11px] sm:text-xs">
+            <span className="font-bold">Безопасность (UNICEF): </span>
+            Я — ИИ-помощница, а не настоящий врач. Если тебе очень больно или страшно, обратись к школьной медсестре, родителям или врачу.
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal to Clear Chat */}
@@ -208,7 +218,7 @@ export const ChatAssistant = () => {
           <span>Подсказки (нажми, чтобы спросить):</span>
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1.5 no-scrollbar">
-          {ICE_BREAKER_PROMPTS.map((prompt, i) => (
+          {iceBreakers.map((prompt, i) => (
             <button
               key={i}
               type="button"
@@ -233,7 +243,7 @@ export const ChatAssistant = () => {
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Спроси о теле или самочувствии..."
+          placeholder={ageGroup === '8-9' ? 'Спроси о зубках, страхах, дружбе или теле...' : 'Спроси о теле или самочувствии...'}
           className="flex-1 bg-stone-100 border border-stone-200 rounded-2xl px-4 py-2.5 text-sm sm:text-base text-stone-800 focus:outline-none focus:ring-2 focus:ring-lavender-400 focus:bg-white transition"
         />
 

@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { STORIES_DATA, ICE_BREAKER_PROMPTS, SAFE_AI_FALLBACKS } from '../data/mockData';
+import {
+  STORIES_DATA,
+  ICE_BREAKER_PROMPTS_BY_AGE,
+  DAILY_MYTHS_BY_AGE,
+  SAFE_AI_FALLBACKS
+} from '../data/mockData';
 
 const AppContext = createContext();
 
@@ -10,14 +15,29 @@ const STORAGE_KEYS = {
   CHAT_MESSAGES: 'sisterhood_chat_messages_v1',
 };
 
-const DEFAULT_WELCOME_MESSAGE = {
-  id: 'welcome-msg',
-  sender: 'ai',
-  text: 'Привет, милая! Я твоя виртуальная старшая сестра 🌸 Здесь можно задать любой вопрос о теле, настроении или взрослении без стеснения и страха. Всё останется между нами!',
-  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+const getWelcomeMessage = (age) => {
+  if (age === '8-9') {
+    return {
+      id: 'welcome-msg',
+      sender: 'ai',
+      text: 'Привет, солнышко! 🌸 Я твоя добрая старшая сестренка. Здесь можно спросить обо всем: о секретах тела, зубках, дружбе в школе или если тебе страшно. Никто не увидит наши сообщения!',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+  }
+  return {
+    id: 'welcome-msg',
+    sender: 'ai',
+    text: 'Привет, милая! Я твоя виртуальная старшая сестра 🌸 Здесь можно задать любой вопрос о теле, настроении или взрослении без стеснения и страха. Всё останется между нами!',
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
 };
 
 export const AppProvider = ({ children }) => {
+  // Age group state ('8-9' | '10-12' | '13-15' | '16+')
+  const [ageGroup, setAgeGroupState] = useState(() => {
+    return localStorage.getItem(STORAGE_KEYS.AGE_GROUP) || '13-15';
+  });
+
   // Navigation & Screen State
   const [hasOnboarded, setHasOnboarded] = useState(() => {
     return localStorage.getItem(STORAGE_KEYS.ONBOARDED) === 'true';
@@ -29,11 +49,6 @@ export const AppProvider = ({ children }) => {
 
   const [activeStoryId, setActiveStoryId] = useState('periods-101');
   const [initialChatPrompt, setInitialChatPrompt] = useState('');
-
-  // Age group state (10-12, 13-15, 16+)
-  const [ageGroup, setAgeGroup] = useState(() => {
-    return localStorage.getItem(STORAGE_KEYS.AGE_GROUP) || '13-15';
-  });
 
   // Completed stories progress
   const [completedStories, setCompletedStories] = useState(() => {
@@ -49,15 +64,28 @@ export const AppProvider = ({ children }) => {
   const [chatMessages, setChatMessages] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES);
-      return stored ? JSON.parse(stored) : [DEFAULT_WELCOME_MESSAGE];
+      return stored ? JSON.parse(stored) : [getWelcomeMessage(localStorage.getItem(STORAGE_KEYS.AGE_GROUP) || '13-15')];
     } catch {
-      return [DEFAULT_WELCOME_MESSAGE];
+      return [getWelcomeMessage('13-15')];
     }
   });
 
   // Panic Button / Stealth Overlay State
   const [isPanicOpen, setIsPanicOpen] = useState(false);
   const [panicType, setPanicType] = useState('calculator'); // 'calculator' or 'notes'
+
+  const setAgeGroup = (newAge) => {
+    setAgeGroupState(newAge);
+    try {
+      localStorage.setItem(STORAGE_KEYS.AGE_GROUP, newAge);
+    } catch (e) {}
+
+    // If active story belongs to another age, adjust it
+    const available = STORIES_DATA.filter((s) => s.targetAges.includes(newAge));
+    if (available.length > 0 && !available.some((s) => s.id === activeStoryId)) {
+      setActiveStoryId(available[0].id);
+    }
+  };
 
   // Persist completed stories
   useEffect(() => {
@@ -91,7 +119,6 @@ export const AppProvider = ({ children }) => {
   const completeOnboarding = (chosenAge) => {
     if (chosenAge) {
       setAgeGroup(chosenAge);
-      localStorage.setItem(STORAGE_KEYS.AGE_GROUP, chosenAge);
     }
     setHasOnboarded(true);
     localStorage.setItem(STORAGE_KEYS.ONBOARDED, 'true');
@@ -122,7 +149,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const clearChatHistory = () => {
-    setChatMessages([DEFAULT_WELCOME_MESSAGE]);
+    setChatMessages([getWelcomeMessage(ageGroup)]);
     localStorage.removeItem(STORAGE_KEYS.CHAT_MESSAGES);
   };
 
@@ -131,10 +158,13 @@ export const AppProvider = ({ children }) => {
     setScreen('chat');
   };
 
-  // Safe client-side assistant logic implementing system prompt rules:
-  // "Ты — эмпатичная старшая сестра. Отвечай девочке-подростку (10-15 лет).
-  // Язык: простой, поддерживающий, без сложных мед. терминов. Максимум 3-4 предложения.
-  // Не ставь диагнозы. Если вопрос про насилие, депрессию или сильную боль — дай базовую поддержку и скажи, как попросить помощи у взрослых."
+  // Safe client-side assistant logic adapted by age group:
+  // For 8-9 years:
+  // - Warm, simple words, short sentences (2-3 sentences), lots of comforting emojis.
+  // - Focus on swimsuit rule, boundaries, hygiene, teeth, sleep, friendship, emotions.
+  // - Telling parents/teachers as first line of safety.
+  // For 10-15+ years:
+  // - Empathetic older sister answering puberty questions respectfully without diagnosis.
   const sendChatMessage = async (userText) => {
     if (!userText.trim()) return;
 
@@ -155,15 +185,36 @@ export const AppProvider = ({ children }) => {
 
         // Safety trigger: pain / medical urgency
         if (lower.includes('очень болит') || lower.includes('невыносим') || lower.includes('скорая') || lower.includes('рвота') || lower.includes('температур')) {
-          replyText = 'Милая, если боль очень сильная и не проходит, пожалуйста, не терпи её в одиночку! Обязательно скажи маме, папе или школьной медсестре прямо сейчас — они дадут нужное лекарство или помогут показаться врачу. Я всегда рядом, но твоё здоровье сейчас на первом месте 🫂';
+          replyText = ageGroup === '8-9'
+            ? 'Солнышко, когда что-то сильно болит — сразу же позови маму, папу или учительницу! Они дадут тебе нужное лекарство или позовут доброго доктора. Не терпи боль в одиночку, взрослые обязательно помогут 🫂'
+            : 'Милая, если боль очень сильная и не проходит, пожалуйста, не терпи её в одиночку! Обязательно скажи маме, папе или школьной медсестре прямо сейчас — они дадут нужное лекарство или помогут показаться врачу. Я всегда рядом, но твоё здоровье сейчас на первом месте 🫂';
         }
         // Safety trigger: violence / abuse / severe distress
         else if (lower.includes('бьют') || lower.includes('обижают') || lower.includes('трогает') || lower.includes('насили') || lower.includes('умереть') || lower.includes('страшно жить')) {
-          replyText = 'Ты в безопасности со мной, и ты ни в чем не виновата! Пожалуйста, обязательно поделись этим с взрослым, которому доверяешь (учительнице, родственнику или школьному психологу). Также есть бесплатный анонимный телефон доверия для детей 8-800-2000-122. Ты очень смелая и не одна!';
+          replyText = ageGroup === '8-9'
+            ? 'Ты в полной безопасности со мной, и ты ни в чем-ни в чем не виновата! Если кто-то обижает или трогает тебя — немедленно расскажи маме, папе или любимой учительнице. Ты самая смелая девочка, и взрослые тебя защитят!'
+            : 'Ты в безопасности со мной, и ты ни в чем не виновата! Пожалуйста, обязательно поделись этим с взрослым, которому доверяешь (учительнице, родственнику или школьному психологу). Также есть бесплатный анонимный телефон доверия для детей 8-800-2000-122. Ты очень смелая и не одна!';
         }
-        // Ice-breaker matches
+        // Age 8-9 specific handlers
+        else if (ageGroup === '8-9') {
+          if (lower.includes('купальник') || lower.includes('трогает') || lower.includes('секрет')) {
+            replyText = 'Запомни, милая: места под купальником принадлежат только тебе! Никто не может просить показать их. А если кто-то просит хранить «секрет» о прикосновениях — сразу беги к маме или папе. Ты умница!';
+          } else if (lower.includes('зуб') || lower.includes('молочн')) {
+            replyText = 'Шатающийся зубик — это верный знак, что ты растешь! Молочный зуб уступает место новому, крепкому зубу. Положи выпавший зубик под подушку и не забывай чистить зубки утром и вечером ✨';
+          } else if (lower.includes('темнот') || lower.includes('страш') || lower.includes('боюсь')) {
+            replyText = 'Бояться — это нормально, даже взрослые иногда боятся! Попроси маму включить ночник и оставить дверь открытой. Обними мягкую игрушку — она будет охранять твои сны 🧸';
+          } else if (lower.includes('подруг') || lower.includes('поссорил') || lower.includes('дразн') || lower.includes('школ')) {
+            replyText = 'Обижаться очень грустно, солнышко. Если подружка дразнит, скажи твердо: «Мне не нравится, перестань!». А если поссорились — попробуй первой сказать: «Давай играть дружно, я соскучилась». Дружба сильнее ссор 💜';
+          } else if (lower.includes('руки') || lower.includes('мыл') || lower.includes('гигиен')) {
+            replyText = 'Мыло смывает невидимых микробов-букашек! Мой ручки с теплой водичкой и напевай про себя песенку 20 секунд перед каждым обедом 🧼';
+          } else {
+            replyText = 'Спасибо, что спросила меня, солнышко! Твое тело растет здоровым и красивым каждый день. Если есть секрет или вопрос, который тебя волнует — напиши мне еще, я всегда помогу 🌸';
+          }
+        }
+        // Age 10-15+ handlers
         else {
-          const match = ICE_BREAKER_PROMPTS.find((p) => 
+          const iceBreakers = ICE_BREAKER_PROMPTS_BY_AGE.default;
+          const match = iceBreakers.find((p) => 
             lower.includes(p.text.toLowerCase().slice(0, 15)) ||
             (p.tag === 'Тело' && (lower.includes('грудь') || lower.includes('сосок') || lower.includes('размер'))) ||
             (p.tag === 'Общение' && (lower.includes('как сказать маме') || lower.includes('сказать родителям'))) ||
@@ -193,7 +244,7 @@ export const AppProvider = ({ children }) => {
 
         setChatMessages((prev) => [...prev, aiMsg]);
         resolve(aiMsg);
-      }, 700);
+      }, 600);
     });
   };
 

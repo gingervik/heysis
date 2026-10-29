@@ -8,6 +8,7 @@ export const Onboarding = () => {
   const [hasTriedPanic, setHasTriedPanic] = useState(false);
 
   const ageOptions = [
+    { value: '8-9', label: '8–9 лет', hint: 'Тело и дружба' },
     { value: '10-12', label: '10–12 лет', hint: 'Самое начало' },
     { value: '13-15', label: '13–15 лет', hint: 'Время перемен' },
     { value: '16+', label: '16+ лет', hint: 'Взросление' },
@@ -52,7 +53,7 @@ export const Onboarding = () => {
             <span className="text-[11px] font-normal text-stone-400">для адаптации историй</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
             {ageOptions.map((opt) => {
               const isSelected = selectedAge === opt.value;
               return (

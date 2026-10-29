@@ -12,6 +12,7 @@ import {
   Sparkles,
   Droplet,
   Heart,
+  Shield,
   Volume2,
   VolumeX,
   Share2,
@@ -256,9 +257,10 @@ export const StoriesPlayer = () => {
           {currentSlide.type === 'intro' && (
             <div className="space-y-6 max-w-sm mx-auto animate-slide-up">
               <div className="w-24 h-24 mx-auto rounded-3xl bg-white shadow-md flex items-center justify-center p-4 border border-stone-100 relative">
-                {story.categoryColor === 'peach' && <Droplet className="w-12 h-12 text-peach-500 fill-peach-200" />}
-                {story.categoryColor === 'mint' && <Sparkles className="w-12 h-12 text-mint-500 fill-mint-200" />}
-                {story.categoryColor === 'lavender' && <Heart className="w-12 h-12 text-lavender-500 fill-lavender-200" />}
+                {story.categoryIcon === 'Shield' && <Shield className="w-12 h-12 text-mint-500 fill-mint-200" />}
+                {story.categoryIcon !== 'Shield' && story.categoryColor === 'peach' && <Droplet className="w-12 h-12 text-peach-500 fill-peach-200" />}
+                {story.categoryIcon !== 'Shield' && story.categoryColor === 'mint' && <Sparkles className="w-12 h-12 text-mint-500 fill-mint-200" />}
+                {story.categoryIcon !== 'Shield' && story.categoryColor === 'lavender' && <Heart className="w-12 h-12 text-lavender-500 fill-lavender-200" />}
               </div>
 
               <div className="space-y-2">
