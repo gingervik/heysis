@@ -5,6 +5,7 @@ import { Onboarding } from './screens/Onboarding';
 import { Dashboard } from './screens/Dashboard';
 import { StoriesPlayer } from './components/StoriesPlayer';
 import { ChatAssistant } from './screens/ChatAssistant';
+import { ParentMode } from './screens/ParentMode';
 import { FloatingPanicButton } from './components/FloatingPanicButton';
 import { PanicOverlay } from './components/PanicOverlay';
 import { VoiceSettingsModal } from './components/VoiceSettingsModal';
@@ -22,6 +23,7 @@ const MainRouter = () => {
       {screen === 'dashboard' && <Dashboard />}
       {screen === 'stories' && <StoriesPlayer />}
       {screen === 'chat' && <ChatAssistant />}
+      {screen === 'parent' && <ParentMode />}
 
       {/* Instant Stealth Mode Calculator / Notes Overlay */}
       <PanicOverlay />

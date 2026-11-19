@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "deploy": "vite build && firebase deploy --only hosting",
+    "deploy:local": "vite build && /usr/local/bin/node /opt/homebrew/bin/firebase deploy --only hosting",
     "preview": "vite preview"
   },
   "dependencies": {

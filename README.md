@@ -47,16 +47,19 @@
 
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/your-org/sisterhood-pwa.git
-cd sisterhood-pwa
+git clone https://github.com/gingervik/sisterhood.git
+cd sisterhood
 
 # 2. Установить зависимости
 npm install
 
-# 3. Запустить локальный сервер для разработки
+# 3. Скопировать шаблон переменных окружения (опционально)
+cp .env.example .env.local
+
+# 4. Запустить локальный сервер для разработки
 npm run dev
 
-# 4. Сборка для продакшена
+# 5. Сборка для продакшена
 npm run build
 
 # 5. Просмотр готовой сборки

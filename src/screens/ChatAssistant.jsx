@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { useVoice } from '../context/VoiceContext';
-import { ICE_BREAKER_PROMPTS_BY_AGE } from '../data/mockData';
+import { getLocalizedIceBreakers } from '../data/mockDataLocalized';
+import { LANG_META } from '../services/languageDetector';
 import {
   ArrowLeft,
   Send,
   Trash2,
   AlertTriangle,
-  Sparkles,
   Heart,
   Mic,
-  MicOff,
   Volume2,
   VolumeX,
   Radio,
   Square,
-  Sliders
+  Calculator,
+  ShieldCheck,
+  ChevronDown
 } from 'lucide-react';
 
 export const ChatAssistant = () => {
@@ -26,7 +27,11 @@ export const ChatAssistant = () => {
     clearChatHistory,
     initialChatPrompt,
     setInitialChatPrompt,
-    ageGroup
+    ageGroup,
+    isAiTyping,
+    appLanguage,
+    triggerPanic,
+    t
   } = useApp();
 
   const {
@@ -35,24 +40,56 @@ export const ChatAssistant = () => {
     isSpeaking,
     speakingId,
     voiceEnabled,
-    setVoiceEnabled,
     isListening,
     interimTranscript,
     micError,
     startListening,
-    stopListening,
-    hasSpeechRecognition,
-    setIsSettingsOpen
+    stopListening
   } = useVoice();
 
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showSafetyDetail, setShowSafetyDetail] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const messagesEndRef = useRef(null);
-  // Default to 'welcome-msg' so mobile browsers don't try to autoplay before user gesture
-  const lastSpokenMessageIdRef = useRef('welcome-msg');
 
-  const iceBreakers = ICE_BREAKER_PROMPTS_BY_AGE[ageGroup] || ICE_BREAKER_PROMPTS_BY_AGE.default;
+  // Auto-read voice toggle (default true for joyful friendly experience, persisted)
+  const [autoReadChat, setAutoReadChat] = useState(() => {
+    try {
+      const stored = localStorage.getItem('sisterhood_auto_read_chat_v1');
+      return stored !== null ? stored === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleAutoRead = () => {
+    const nextVal = !autoReadChat;
+    setAutoReadChat(nextVal);
+    try {
+      localStorage.setItem('sisterhood_auto_read_chat_v1', String(nextVal));
+    } catch (e) {}
+    if (!nextVal) {
+      stopSpeaking();
+    }
+  };
+
+  const lastSpokenMessageIdRef = useRef(
+    chatMessages.length > 0 ? chatMessages[chatMessages.length - 1]?.id : null
+  );
+  const isInitialMountRef = useRef(true);
+
+  // Cleanup on leaving chat
+  useEffect(() => {
+    isInitialMountRef.current = false;
+    return () => {
+      stopSpeaking();
+      stopListening();
+    };
+  }, [stopSpeaking, stopListening]);
+
+  const iceBreakers = getLocalizedIceBreakers(ageGroup, appLanguage);
 
   // Auto-fill prompt if navigated from story card
   useEffect(() => {
@@ -67,41 +104,100 @@ export const ChatAssistant = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isSending, isListening, interimTranscript]);
 
-  // For 8-9 age group or when voice is enabled, auto-speak the latest AI response
+  // Auto-speak ONLY when a NEW AI response arrives during active chat session AND autoReadChat is enabled
   useEffect(() => {
-    if (!voiceEnabled) return;
+    if (isInitialMountRef.current) return;
+    if (!voiceEnabled || !autoReadChat) return;
+
     const lastMsg = chatMessages[chatMessages.length - 1];
     if (lastMsg && lastMsg.sender === 'ai' && lastMsg.id !== lastSpokenMessageIdRef.current) {
       lastSpokenMessageIdRef.current = lastMsg.id;
-      // Auto-read response for 8-9 years old or if voiceEnabled
       speak(lastMsg.text, lastMsg.id);
     }
-  }, [chatMessages, voiceEnabled, speak]);
+  }, [chatMessages, voiceEnabled, autoReadChat, speak]);
+
+  const isPolish = appLanguage === 'pl';
+  const isUkrainian = appLanguage === 'uk';
+  const isEnglish = appLanguage === 'en';
+
+  const confirmClearChat = () => {
+    stopSpeaking();
+    stopListening();
+    clearChatHistory();
+    lastSpokenMessageIdRef.current = 'welcome-msg';
+    setShowClearConfirm(false);
+    setToastMessage(
+      isPolish
+        ? 'Czat został wyczyszczony 🌸'
+        : isUkrainian
+        ? 'Чат успішно очищено 🌸'
+        : isEnglish
+        ? 'Chat has been cleared 🌸'
+        : 'Чат успешно очищен 🌸'
+    );
+    setTimeout(() => setToastMessage(''), 2500);
+  };
 
   const handleSend = async (textToSend) => {
-    const text = (textToSend || inputText).trim();
+    const text = (textToSend !== undefined ? textToSend : inputText).trim();
     if (!text || isSending) return;
+
+    // Natural command intercept to clear chat
+    const lower = text.toLowerCase().trim();
+    if (
+      lower === '/clear' ||
+      lower === 'очистить' ||
+      lower === 'очистить чат' ||
+      lower === 'очисти' ||
+      lower === 'очисти чат' ||
+      lower === 'очистити' ||
+      lower === 'очистити чат' ||
+      lower === 'зітри' ||
+      lower === 'зітри чат' ||
+      lower === 'видали' ||
+      lower === 'видали чат' ||
+      lower === 'wyczyść' ||
+      lower === 'wyczysc' ||
+      lower === 'wyczyść czat' ||
+      lower === 'wyczysc czat' ||
+      lower === 'clear' ||
+      lower === 'clear chat'
+    ) {
+      setInputText('');
+      setShowClearConfirm(true);
+      return;
+    }
 
     setInputText('');
     setIsSending(true);
-    await sendChatMessage(text);
-    setIsSending(false);
+    try {
+      const res = await sendChatMessage(text);
+      if (res?.switchedLanguage && LANG_META[res.switchedLanguage]) {
+        setToastMessage(LANG_META[res.switchedLanguage].switchNotice);
+        setTimeout(() => setToastMessage(''), 3500);
+      }
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleVoiceInputClick = () => {
     if (isListening) {
       stopListening();
     } else {
+      if (isSpeaking) {
+        stopSpeaking();
+      }
       startListening(
         (finalTranscript) => {
-          if (finalTranscript) {
-            setInputText(finalTranscript);
-            // In 8-9 age mode or general mode, send right away so child doesn't need to press send
-            handleSend(finalTranscript);
+          if (finalTranscript && finalTranscript.trim()) {
+            const transcript = finalTranscript.trim();
+            setInputText(transcript);
+            handleSend(transcript);
           }
         },
         (err) => {
-          console.warn('Voice recognition notice:', err);
+          console.warn('Voice recognition note:', err);
         }
       );
     }
@@ -115,162 +211,173 @@ export const ChatAssistant = () => {
     }
   };
 
-  const speakPrompt = (promptText, promptId, e) => {
-    e.stopPropagation();
-    speak(promptText, promptId);
-  };
-
   return (
-    <div className="flex flex-col h-screen max-w-xl mx-auto bg-stone-100 select-none">
-      {/* Top Header */}
-      <div className="bg-white px-4 py-3 border-b border-stone-200/80 flex items-center justify-between shadow-2xs shrink-0 z-10">
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col h-screen max-w-xl mx-auto bg-stone-50 select-none">
+      {/* 1. Friendly Mobile Header (Spacious, Uncluttered) */}
+      <header className="bg-white px-3 sm:px-4 py-2.5 border-b border-stone-200/70 flex items-center justify-between shadow-2xs shrink-0 z-10">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => {
               stopSpeaking();
               stopListening();
               setScreen('dashboard');
             }}
-            className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-700 transition"
-            title="Назад на главную"
+            className="w-10 h-10 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-700 transition active:scale-95"
+            title={isPolish ? 'Wstecz' : isUkrainian ? 'Назад' : isEnglish ? 'Back' : 'Назад'}
+            aria-label={isPolish ? 'Wstecz' : isUkrainian ? 'Назад' : isEnglish ? 'Back' : 'Назад'}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          {/* Avatar and Sister Info */}
+          {/* Sister Avatar & Title */}
           <div className="flex items-center gap-2.5">
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-lavender-400 to-mint-400 flex items-center justify-center text-white shadow-xs">
-                <Sparkles className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-lavender-400 via-rose-300 to-mint-300 flex items-center justify-center text-white shadow-xs">
+                <span className="text-lg">🌸</span>
               </div>
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
 
             <div>
-              <div className="flex items-center gap-1.5">
-                <h2 className="font-extrabold text-stone-800 text-sm">
-                  {ageGroup === '8-9' ? 'Старшая Сестренка' : 'Старшая Сестра'}
-                </h2>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 bg-lavender-100 text-lavender-700 rounded-full">
-                  AI
-                </span>
-              </div>
-              <p className="text-[11px] text-stone-400">
-                {ageGroup === '8-9' ? 'Голосовые ответы • 100% приватно' : '100% анонимно • Без осуждения'}
+              <h2 className="font-extrabold text-stone-800 text-sm sm:text-base leading-tight">
+                {t('sisterTitle')}
+              </h2>
+              <p className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                <span>{isPolish ? 'zawsze blisko 💚' : isUkrainian ? 'завжди поруч 💚' : isEnglish ? 'always here for you 💚' : 'всегда рядом 💚'}</span>
               </p>
             </div>
           </div>
         </div>
 
-        {/* Top Controls: Voice Toggle & Clear Chat */}
+        {/* Child-friendly Header Controls: Sound Toggle, Quick Camouflage & Clear */}
         <div className="flex items-center gap-1.5">
-          {/* Voice toggle button */}
+          {/* Sound Toggle (Big, obvious speaker) */}
           <button
-            onClick={() => {
-              const next = !voiceEnabled;
-              setVoiceEnabled(next);
-              if (!next) stopSpeaking();
-            }}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold transition ${
-              voiceEnabled
-                ? 'bg-lavender-100 text-lavender-800 hover:bg-lavender-200'
+            onClick={toggleAutoRead}
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition active:scale-95 ${
+              autoReadChat
+                ? 'bg-lavender-100 text-lavender-800 border border-lavender-200'
                 : 'bg-stone-100 text-stone-400 hover:text-stone-600'
             }`}
-            title={voiceEnabled ? 'Озвучка включена' : 'Озвучка выключена'}
+            title={
+              autoReadChat
+                ? (isPolish ? 'Głos: Włączony' : isUkrainian ? 'Голос: Увімкнено' : isEnglish ? 'Voice: On' : 'Озвучка: Включена')
+                : (isPolish ? 'Głos: Wyłączony' : isUkrainian ? 'Голос: Вимкнено' : isEnglish ? 'Voice: Off' : 'Озвучка: Выключена')
+            }
           >
-            {voiceEnabled ? (
-              <>
-                <Volume2 className="w-3.5 h-3.5 text-lavender-600" />
-                <span className="text-[11px] hidden sm:inline">Голос вкл</span>
-              </>
+            {autoReadChat ? (
+              <Volume2 className="w-4 h-4 text-lavender-700" />
             ) : (
-              <>
-                <VolumeX className="w-3.5 h-3.5" />
-                <span className="text-[11px] hidden sm:inline">Голос выкл</span>
-              </>
+              <VolumeX className="w-4 h-4 text-stone-400" />
             )}
           </button>
 
-          {/* Voice Settings Button */}
-          {voiceEnabled && (
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="w-8 h-8 rounded-full bg-lavender-100 hover:bg-lavender-200 text-lavender-700 flex items-center justify-center transition"
-              title="Настройки голоса и языка"
-              aria-label="Настройки голоса и языка"
-            >
-              <Sliders className="w-3.5 h-3.5" />
-            </button>
-          )}
+          {/* Quick SOS / Camouflage Button */}
+          <button
+            onClick={() => triggerPanic('calculator')}
+            className="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition active:scale-95"
+            title={isPolish ? 'Szybkie ukrycie (Kalkulator)' : isUkrainian ? 'Швидке сховання (Калькулятор)' : isEnglish ? 'Quick disguise (Calculator)' : 'Быстро спрятать (Калькулятор)'}
+          >
+            <Calculator className="w-4 h-4 text-stone-600" />
+          </button>
 
-          {/* Clear chat button */}
+          {/* Clear Chat Button (Prominent pill with text label) */}
           <button
             onClick={() => setShowClearConfirm(true)}
-            className="text-stone-400 hover:text-red-500 p-2 rounded-full hover:bg-stone-50 transition"
-            title="Стереть историю чата"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/90 text-xs font-semibold transition active:scale-95 shadow-2xs"
+            title={t('clearChat')}
+            aria-label={t('clearChat')}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+            <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">
+              {isPolish ? 'Wyczyść' : isUkrainian ? 'Очистити' : isEnglish ? 'Clear' : 'Очистить'}
+            </span>
           </button>
+        </div>
+      </header>
+
+      {/* Language Switcher Bar inside Chat */}
+      <div className="bg-stone-100/90 border-b border-stone-200/70 px-3.5 py-1 flex items-center justify-between text-xs shrink-0">
+        <span className="text-[11px] font-semibold text-stone-600">
+          {isPolish ? 'Język:' : isUkrainian ? 'Мова:' : isEnglish ? 'Language:' : 'Язык:'}
+        </span>
+        <div className="flex items-center bg-white rounded-xl p-0.5 text-xs font-bold shadow-2xs border border-stone-200/60">
+          {[
+            { code: 'ru', label: 'RU', flag: '🌸' },
+            { code: 'uk', label: 'UA', flag: '🌻' },
+            { code: 'pl', label: 'PL', flag: '🇵🇱' },
+            { code: 'en', label: 'EN', flag: '✨' }
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => setAppLanguage(lang.code)}
+              className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
+                appLanguage === lang.code ? 'bg-lavender-100 text-lavender-900 shadow-2xs' : 'text-stone-400 hover:text-stone-700'
+              }`}
+            >
+              <span>{lang.flag}</span>
+              <span>{lang.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* UNICEF & Safety Sticky Disclaimer */}
-      <div className="bg-amber-50/90 border-b border-amber-200/80 px-4 py-2.5 text-xs text-amber-900 flex items-start gap-2.5 shrink-0">
-        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-        {ageGroup === '8-9' ? (
-          <div className="leading-snug text-[11px] sm:text-xs">
-            <span className="font-bold">Безопасность: </span>
-            Я — виртуальная добрая сестренка, а не врач. Если у тебя что-то болит, тебе страшно или тебя кто-то обижает — обязательно расскажи маме, папе или учительнице!
+      {/* 2. Soft, Gentle Safety Reassurance Banner */}
+      <div className="bg-amber-50/70 border-b border-amber-200/50 px-3.5 py-1.5 text-amber-900 shrink-0">
+        <div
+          onClick={() => setShowSafetyDetail(!showSafetyDetail)}
+          className="flex items-center justify-between cursor-pointer text-[11px] gap-2"
+        >
+          <div className="flex items-center gap-1.5 font-medium leading-tight">
+            <span className="shrink-0">🛡️</span>
+            <span>
+              {isPolish
+                ? 'Pamiętaj: w razie bólu lub strachu powiedz mamie lub tacie 💜'
+                : isUkrainian
+                ? 'Пам’ятай: якщо боляче або страшно — скажи мамі чи татові 💜'
+                : isEnglish
+                ? 'Remember: if you are in pain or scared, tell mom or dad 💜'
+                : 'Помни: если тебе больно или страшно — скажи маме или папе 💜'}
+            </span>
           </div>
-        ) : (
-          <div className="leading-snug text-[11px] sm:text-xs">
-            <span className="font-bold">Безопасность (UNICEF): </span>
-            Я — ИИ-помощница, а не настоящий врач. Если тебе очень больно или страшно, обратись к школьной медсестре, родителям или врачу.
+          <span className="text-[10px] text-amber-700 underline shrink-0 whitespace-nowrap">
+            {showSafetyDetail ? '▲' : (isPolish ? 'Pomoc' : isUkrainian ? 'Допомога' : isEnglish ? 'Help' : 'Помощь')}
+          </span>
+        </div>
+
+        {showSafetyDetail && (
+          <div className="mt-1.5 pt-1.5 border-t border-amber-200/60 text-[11px] space-y-1 text-amber-800 leading-relaxed">
+            <p>
+              {isPolish
+                ? 'Jestem wirtualną siostrą, a nie lekarzem. W razie silnego bólu, zagrożenia lub złego traktowania — nie bój się porozmawiać z rodzicami lub zadzwonić pod bezpłatny Telefon Zaufania: 116 111.'
+                : isUkrainian
+                ? 'Я — твоя віртуальна добра сестричка, а не лікар. Якщо щось сильно болить або тебе хтось ображає — обов’язково розкажи батькам або зателефонуй на Національну дитячу гарячу лінію: 116 111 (безкоштовно) чи 0 800 500 225.'
+                : isEnglish
+                ? 'I am your virtual big sister, not a doctor. If you experience severe pain, harm, or bullying — please tell your parents or contact the Childhelp Helpline: 1-800-422-4453 (or 112/911).'
+                : 'Я — твоя виртуальная добрая сестренка, а не доктор. Если что-то сильно болит или тебя кто-то обижает — обязательно расскажи родителям или позвони на детский телефон доверия: 8-800-2000-122 (бесплатно).'}
+            </p>
           </div>
         )}
       </div>
 
-      {/* Clear confirmation modal */}
-      {showClearConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-5 max-w-xs w-full shadow-xl space-y-3 animate-slide-up">
-            <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
-              <Trash2 className="w-5 h-5" />
-            </div>
-            <div className="text-center space-y-1">
-              <h4 className="font-bold text-stone-800 text-base">Очистить историю?</h4>
-              <p className="text-xs text-stone-500">
-                Все сообщения этого чата удалятся безвозвратно.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 pt-2">
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                className="py-2 px-3 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-50"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={() => {
-                  stopSpeaking();
-                  stopListening();
-                  clearChatHistory();
-                  setShowClearConfirm(false);
-                }}
-                className="py-2 px-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-bold shadow-xs"
-              >
-                Да, стереть всё
-              </button>
-            </div>
+      {/* 3. Chat Messages Stream (Large Readable Bubbles) */}
+      <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-3.5">
+        {/* Quick Clear Pill when there are messages */}
+        {chatMessages.length > 1 && (
+          <div className="flex justify-center pt-0.5 pb-2">
+            <button
+              type="button"
+              onClick={() => setShowClearConfirm(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100/90 hover:bg-rose-50 text-stone-500 hover:text-rose-600 border border-stone-200/60 hover:border-rose-200 text-[11px] font-medium transition active:scale-95"
+            >
+              <Trash2 className="w-3 h-3 text-stone-400" />
+              <span>{isPolish ? 'Wyczyść historię rozmowy' : isUkrainian ? 'Очистити історію чату' : isEnglish ? 'Clear chat history' : 'Очистить историю чата'}</span>
+            </button>
           </div>
-        </div>
-      )}
-
-      {/* Messages Stream */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+        )}
         {chatMessages.map((msg) => {
           const isAI = msg.sender === 'ai';
-          const isMsgSpeaking = isSpeaking && speakingId === msg.id;
+          const isThisSpeaking = isSpeaking && speakingId === msg.id;
 
           return (
             <div
@@ -278,44 +385,42 @@ export const ChatAssistant = () => {
               className={`flex items-end gap-2 ${isAI ? 'justify-start' : 'justify-end'}`}
             >
               {isAI && (
-                <div className="w-7 h-7 rounded-full bg-lavender-200 text-lavender-700 flex items-center justify-center shrink-0 mb-1">
-                  <Heart className="w-3.5 h-3.5 fill-lavender-400" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-lavender-200 to-rose-200 border border-lavender-200 flex items-center justify-center text-stone-700 shrink-0 mb-1 shadow-2xs">
+                  <span className="text-sm">🌸</span>
                 </div>
               )}
 
               <div
-                className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-4 py-3 shadow-xs space-y-1.5 relative group ${
+                className={`max-w-[86%] sm:max-w-[80%] rounded-3xl px-4 py-3 shadow-2xs ${
                   isAI
-                    ? isMsgSpeaking
-                      ? 'bg-lavender-50/90 text-stone-800 rounded-bl-xs border-2 border-lavender-400 shadow-sm'
-                      : 'bg-white text-stone-800 rounded-bl-xs border border-stone-200/60'
-                    : 'bg-lavender-600 text-white rounded-br-xs'
+                    ? 'bg-white border border-stone-200/80 rounded-bl-sm text-stone-800'
+                    : 'bg-gradient-to-r from-lavender-600 to-indigo-600 text-white rounded-br-sm'
                 }`}
               >
-                <div className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap font-medium">
+                <p className="text-[15px] sm:text-base leading-relaxed whitespace-pre-line font-normal">
                   {msg.text}
-                </div>
+                </p>
 
-                <div className="flex items-center justify-between gap-2 pt-0.5">
+                {/* Bubble Footer: Simple Listen Button & Time */}
+                <div className="flex items-center justify-between gap-3 mt-2.5 pt-1.5 border-t border-stone-100/70">
                   {isAI ? (
                     <button
                       onClick={() => toggleMessageVoice(msg)}
-                      className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold transition ${
-                        isMsgSpeaking
-                          ? 'bg-lavender-500 text-white animate-pulse'
-                          : 'bg-stone-100 hover:bg-lavender-100 text-stone-600 hover:text-lavender-800'
+                      className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full transition active:scale-95 ${
+                        isThisSpeaking
+                          ? 'bg-lavender-500 text-white shadow-xs animate-pulse'
+                          : 'bg-lavender-50 text-lavender-700 hover:bg-lavender-100'
                       }`}
-                      title={isMsgSpeaking ? 'Остановить чтение' : 'Прослушать сообщение голосом'}
                     >
-                      {isMsgSpeaking ? (
+                      {isThisSpeaking ? (
                         <>
-                          <Square className="w-2.5 h-2.5 fill-white" />
-                          <span>Читаю...</span>
+                          <Square className="w-3.5 h-3.5 fill-white" />
+                          <span>{isPolish ? 'Zatrzymaj' : isUkrainian ? 'Зупинити' : isEnglish ? 'Stop' : 'Стоп'}</span>
                         </>
                       ) : (
                         <>
-                          <Volume2 className="w-3 h-3 text-lavender-600" />
-                          <span>Послушать</span>
+                          <Volume2 className="w-3.5 h-3.5 text-lavender-600" />
+                          <span>{isPolish ? 'Posłuchaj' : isUkrainian ? 'Послухати' : isEnglish ? 'Listen' : 'Послушать'}</span>
                         </>
                       )}
                     </button>
@@ -323,66 +428,71 @@ export const ChatAssistant = () => {
                     <div></div>
                   )}
 
-                  <div
+                  <span
                     className={`text-[10px] ${
                       isAI ? 'text-stone-400' : 'text-lavender-200'
                     }`}
                   >
                     {msg.timestamp}
-                  </div>
+                  </span>
                 </div>
               </div>
             </div>
           );
         })}
 
-        {/* AI Typing indicator */}
-        {isSending && (
-          <div className="flex items-center gap-2 justify-start animate-slide-up">
-            <div className="w-7 h-7 rounded-full bg-lavender-200 text-lavender-700 flex items-center justify-center shrink-0">
-              <Heart className="w-3.5 h-3.5 fill-lavender-400" />
+        {/* AI Typing Indicator */}
+        {(isSending || isAiTyping) && (
+          <div className="flex items-center gap-2 justify-start animate-fade-in">
+            <div className="w-8 h-8 rounded-full bg-lavender-100 border border-lavender-200 flex items-center justify-center shrink-0">
+              <span className="text-sm">🌸</span>
             </div>
-            <div className="bg-white border border-stone-200/60 rounded-2xl rounded-bl-xs px-4 py-3 shadow-xs flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-lavender-400 animate-bounce"></span>
-              <span className="w-2 h-2 rounded-full bg-lavender-500 animate-bounce [animation-delay:0.15s]"></span>
-              <span className="w-2 h-2 rounded-full bg-lavender-600 animate-bounce [animation-delay:0.3s]"></span>
+            <div className="bg-white border border-stone-200/80 rounded-3xl rounded-bl-sm px-4 py-2.5 shadow-2xs flex items-center gap-2">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 rounded-full bg-lavender-400 animate-bounce"></span>
+                <span className="w-2 h-2 rounded-full bg-lavender-500 animate-bounce [animation-delay:0.15s]"></span>
+                <span className="w-2 h-2 rounded-full bg-lavender-600 animate-bounce [animation-delay:0.3s]"></span>
+              </div>
+              <span className="text-xs text-stone-500 font-medium">
+                {isPolish ? 'Siostra pisze...' : isUkrainian ? 'Сестричка думає...' : isEnglish ? 'Sister is typing...' : 'Сестренка думает...'}
+              </span>
             </div>
           </div>
         )}
 
-        {/* Active Speech Recognition Visual Banner */}
+        {/* Live Speech Recognition Floating Banner */}
         {isListening && (
-          <div className="bg-gradient-to-r from-peach-100 via-lavender-100 to-mint-100 border-2 border-lavender-400 rounded-2xl p-3.5 shadow-md animate-pulse flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-lavender-600 text-white flex items-center justify-center shrink-0 animate-bounce">
+          <div className="bg-gradient-to-r from-rose-50 via-lavender-50 to-mint-50 border-2 border-lavender-300 rounded-3xl p-3 shadow-md animate-pulse flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0 animate-bounce shadow-xs">
               <Mic className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-extrabold text-stone-800 text-xs sm:text-sm flex items-center gap-1.5">
-                <span>Я слушаю тебя, говори...</span>
+                <span>{isPolish ? 'Słucham Cię... Mów 🌸' : isUkrainian ? 'Слухаю тебе... Говори 🌸' : isEnglish ? 'Listening to you... Speak 🌸' : 'Слушаю тебя... Говори 🌸'}</span>
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
               </div>
-              <p className="text-xs text-stone-600 truncate italic mt-0.5">
-                {interimTranscript || 'Скажи свой вопрос вслух...'}
+              <p className="text-xs text-stone-600 italic mt-0.5 leading-snug">
+                {interimTranscript || (isPolish ? 'Powiedz swoje pytanie na głos...' : isUkrainian ? 'Скажи своє запитання вголос...' : isEnglish ? 'Say your question out loud...' : 'Скажи свой вопрос вслух...')}
               </p>
             </div>
             <button
               onClick={stopListening}
-              className="px-2.5 py-1 bg-white hover:bg-stone-50 border border-stone-200 rounded-lg text-xs font-bold text-stone-700"
+              className="px-3 py-1.5 bg-white hover:bg-stone-100 border border-stone-200 rounded-full text-xs font-bold text-stone-700 shadow-2xs active:scale-95"
             >
-              Стоп
+              {isPolish ? 'Gotowe' : isUkrainian ? 'Готово' : isEnglish ? 'Done' : 'Готово'}
             </button>
           </div>
         )}
 
-        {/* Mic error banner if any */}
+        {/* Mic Error Notice */}
         {micError && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-2.5 rounded-xl flex items-center justify-between">
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-2.5 rounded-2xl flex items-center justify-between">
             <span>{micError}</span>
             <button
               onClick={() => stopListening()}
-              className="font-bold underline text-[11px]"
+              className="font-bold underline text-[11px] px-2 py-0.5"
             >
-              Понятно
+              OK
             </button>
           </div>
         )}
@@ -390,95 +500,111 @@ export const ChatAssistant = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Ice-breakers pills with voice readout */}
-      <div className="bg-white/95 px-3 pt-2.5 pb-1 border-t border-stone-200/60 shrink-0">
-        <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-1.5 px-1 flex items-center justify-between">
-          <span>Подсказки для вопроса:</span>
-          {ageGroup === '8-9' && (
-            <span className="text-[10px] text-lavender-600 font-semibold">Нажми на 🔊 чтобы послушать</span>
-          )}
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-1.5 no-scrollbar">
-          {iceBreakers.map((prompt, i) => {
-            const promptId = `prompt-${i}`;
-            const isPromptSpeaking = isSpeaking && speakingId === promptId;
-            return (
-              <div
-                key={i}
-                className="shrink-0 flex items-center bg-stone-100 hover:bg-lavender-50 border border-stone-200/80 hover:border-lavender-300 rounded-full pl-3 pr-1 py-1 transition shadow-2xs group"
-              >
-                <button
-                  type="button"
-                  onClick={() => handleSend(prompt.text)}
-                  className="text-stone-700 hover:text-lavender-900 text-xs font-semibold mr-1.5 text-left"
-                >
-                  💬 {prompt.text}
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => speakPrompt(prompt.text, promptId, e)}
-                  className={`w-6 h-6 rounded-full flex items-center justify-center transition ${
-                    isPromptSpeaking
-                      ? 'bg-lavender-500 text-white animate-pulse'
-                      : 'hover:bg-white text-stone-400 hover:text-lavender-600'
-                  }`}
-                  title="Прослушать подсказку"
-                >
-                  <Volume2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            );
-          })}
+      {/* 4. Quick Question Chips (Delightful, One-Tap Prompt Pills) */}
+      <div className="bg-white/95 px-3 py-2 border-t border-stone-200/60 shrink-0">
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
+          {iceBreakers.map((prompt, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => handleSend(prompt.text)}
+              className="shrink-0 flex items-center gap-1.5 bg-lavender-50 hover:bg-lavender-100 active:bg-lavender-200 border border-lavender-200/80 rounded-full px-3.5 py-1.5 transition text-left active:scale-95 shadow-2xs"
+            >
+              <span className="text-stone-800 text-xs font-semibold whitespace-nowrap">
+                {prompt.text}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Message Input Box with Voice Mic Button */}
+      {/* 5. Mobile-Optimized Input Bar (Thumb-Friendly, 16px Font) */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
         }}
-        className="bg-white px-3 py-2.5 border-t border-stone-200/70 flex items-center gap-2 shrink-0"
+        className="bg-white px-3 py-2.5 border-t border-stone-200/70 flex items-center gap-2 shrink-0 pb-safe"
       >
-        {/* Voice Dictation (Microphone) Button */}
+        {/* Big Tactile Microphone Button */}
         <button
           type="button"
           onClick={handleVoiceInputClick}
-          className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-xs transition-all active:scale-95 shrink-0 ${
+          className={`w-12 h-12 rounded-full flex items-center justify-center shadow-xs transition-all active:scale-90 shrink-0 ${
             isListening
               ? 'bg-red-500 hover:bg-red-600 text-white ring-4 ring-red-200 animate-pulse'
-              : 'bg-lavender-100 hover:bg-lavender-200 text-lavender-800'
+              : 'bg-gradient-to-tr from-lavender-100 to-rose-100 hover:from-lavender-200 hover:to-rose-200 text-lavender-800 border border-lavender-200'
           }`}
-          title={isListening ? 'Остановить запись голоса' : 'Сказать вопрос голосом 🎤'}
+          title={isListening ? t('stopListening') : t('tapToSpeak')}
+          aria-label={isListening ? t('stopListening') : t('tapToSpeak')}
         >
           {isListening ? (
             <Radio className="w-5 h-5 animate-spin" />
           ) : (
-            <Mic className="w-5 h-5" />
+            <Mic className="w-5 h-5 text-lavender-700" />
           )}
         </button>
 
+        {/* Text Input (16px font avoids iOS Safari viewport zoom) */}
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder={
             ageGroup === '8-9'
-              ? 'Нажми микрофон или напиши вопрос...'
-              : 'Спроси о теле или самочувствии...'
+              ? (isPolish ? 'Zadaj pytanie siostrze...' : isUkrainian ? 'Запитай про що завгодно 🌸...' : isEnglish ? 'Ask big sister anything 🌸...' : 'Спроси о чем угодно 🌸...')
+              : (isPolish ? 'Napisz pytanie...' : isUkrainian ? 'Напиши своє запитання...' : isEnglish ? 'Type your question...' : 'Напиши свой вопрос...')
           }
-          className="flex-1 bg-stone-100 border border-stone-200 rounded-2xl px-4 py-2.5 text-sm sm:text-base text-stone-800 focus:outline-none focus:ring-2 focus:ring-lavender-400 focus:bg-white transition"
+          className="flex-1 bg-stone-100 border border-stone-200 rounded-full px-4 py-3 text-[16px] text-stone-800 focus:outline-none focus:ring-2 focus:ring-lavender-400 focus:bg-white transition placeholder:text-stone-400"
         />
 
+        {/* Send Button */}
         <button
           type="submit"
           disabled={!inputText.trim() || isSending}
-          className="w-11 h-11 rounded-2xl bg-lavender-600 hover:bg-lavender-700 disabled:opacity-40 text-white flex items-center justify-center shadow-xs transition active:scale-95 shrink-0"
-          title="Отправить вопрос"
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-lavender-600 to-indigo-600 hover:from-lavender-700 hover:to-indigo-700 disabled:opacity-35 text-white flex items-center justify-center shadow-xs transition active:scale-95 shrink-0"
+          title={isPolish ? 'Wyślij' : isUkrainian ? 'Надіслати' : isEnglish ? 'Send' : 'Отправить'}
+          aria-label={isPolish ? 'Wyślij' : isUkrainian ? 'Надіслати' : isEnglish ? 'Send' : 'Отправить'}
         >
-          <Send className="w-4 h-4 ml-0.5" />
+          <Send className="w-5 h-5 ml-0.5" />
         </button>
       </form>
+
+      {/* Clear Chat Confirmation Modal */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 animate-scale-up">
+            <h3 className="font-extrabold text-lg text-stone-800">
+              {t('clearConfirmTitle')}
+            </h3>
+            <p className="text-sm text-stone-600 leading-relaxed">
+              {t('clearConfirmText')}
+            </p>
+            <div className="flex gap-2 justify-end pt-2">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="px-4 py-2.5 rounded-full text-stone-600 hover:bg-stone-100 text-sm font-semibold transition active:scale-95"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                onClick={confirmClearChat}
+                className="px-5 py-2.5 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition shadow-xs active:scale-95"
+              >
+                {t('delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-stone-900/90 backdrop-blur-xs text-white px-4 py-2 rounded-full text-xs font-semibold shadow-xl flex items-center gap-2 animate-fade-in pointer-events-none">
+          <span>🌸</span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };

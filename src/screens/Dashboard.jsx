@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useVoice } from '../context/VoiceContext';
-import { STORIES_DATA, DAILY_MYTHS_BY_AGE } from '../data/mockData';
+import { getLocalizedStories, getLocalizedMyths } from '../data/mockDataLocalized';
+import { ParentGateModal } from '../components/ParentGateModal';
 import {
   Sparkles,
   Droplet,
   Heart,
   MessageCircle,
-  HelpCircle,
-  CheckCircle,
   CheckCircle2,
   Clock,
   ChevronRight,
   ShieldCheck,
   Shield,
-  Calculator,
   RefreshCw,
   Flame,
-  Info,
   Volume2,
   VolumeX,
   Mic,
-  Sliders,
   Globe
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -33,8 +29,9 @@ export const Dashboard = () => {
     completedStories,
     ageGroup,
     setAgeGroup,
-    goToChatWithPrompt,
-    triggerPanic
+    appLanguage,
+    setAppLanguage,
+    t
   } = useApp();
 
   const {
@@ -43,22 +40,25 @@ export const Dashboard = () => {
     isSpeaking,
     speakingId,
     voiceEnabled,
-    setVoiceEnabled,
-    setIsSettingsOpen
+    setVoiceEnabled
   } = useVoice();
 
-  // Filter stories by current age group
-  const visibleStories = STORIES_DATA.filter((story) =>
+  // Filter stories by current age group and active language
+  const localizedStories = getLocalizedStories(appLanguage);
+  const visibleStories = localizedStories.filter((story) =>
     story.targetAges ? story.targetAges.includes(ageGroup) : true
   );
 
   const completedInAge = visibleStories.filter((s) => completedStories.includes(s.id)).length;
 
-  // Daily Myth State by Age
-  const [currentMythIndex, setCurrentMythIndex] = useState(0);
-  const [mythAnswerState, setMythAnswerState] = useState(null); // 'revealed' | null
+  // Parental Gate Modal State
+  const [showParentGate, setShowParentGate] = useState(false);
 
-  const mythsList = DAILY_MYTHS_BY_AGE[ageGroup] || DAILY_MYTHS_BY_AGE.default;
+  // Daily Myth State by Age and Language
+  const [currentMythIndex, setCurrentMythIndex] = useState(0);
+  const [mythAnswerState, setMythAnswerState] = useState(null);
+
+  const mythsList = getLocalizedMyths(ageGroup, appLanguage);
   const currentMyth = mythsList[currentMythIndex % mythsList.length];
 
   const handleMythAnswer = (userChoice) => {
@@ -99,130 +99,262 @@ export const Dashboard = () => {
         return {
           badge: 'bg-peach-100 text-peach-800 border-peach-200',
           gradient: 'from-peach-50 to-peach-100/60 hover:to-peach-200/50',
-          border: 'border-peach-200/80',
-          ring: 'ring-peach-300'
+          border: 'border-peach-200/80'
         };
       case 'mint':
         return {
           badge: 'bg-mint-100 text-mint-800 border-mint-200',
           gradient: 'from-mint-50 to-mint-100/60 hover:to-mint-200/50',
-          border: 'border-mint-200/80',
-          ring: 'ring-mint-300'
+          border: 'border-mint-200/80'
         };
       case 'lavender':
         return {
           badge: 'bg-lavender-100 text-lavender-800 border-lavender-200',
           gradient: 'from-lavender-50 to-lavender-100/60 hover:to-lavender-200/50',
-          border: 'border-lavender-200/80',
-          ring: 'ring-lavender-300'
+          border: 'border-lavender-200/80'
         };
       default:
         return {
           badge: 'bg-stone-100 text-stone-800 border-stone-200',
           gradient: 'from-stone-50 to-stone-100',
-          border: 'border-stone-200',
-          ring: 'ring-stone-300'
+          border: 'border-stone-200'
         };
     }
   };
 
+  const isPolish = appLanguage === 'pl';
+  const isUkrainian = appLanguage === 'uk';
+  const isEnglish = appLanguage === 'en';
+
   return (
-    <div className="min-h-screen bg-stone-50/70 pb-20 pt-4 px-4 sm:px-6 max-w-xl mx-auto space-y-6">
-      {/* Top Bar: Subtle Safe Status & Age Pill */}
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-mint-300 to-lavender-300 flex items-center justify-center shadow-xs">
-            <span className="text-sm">🌸</span>
+    <div className="min-h-screen bg-stone-50/70 pb-20 pt-3 px-3.5 sm:px-6 max-w-xl mx-auto space-y-4">
+      {/* 1. Mobile-First Clean Top Header */}
+      <header className="space-y-2.5 pt-1">
+        {/* Row 1: Brand & Highly Visible Parent Mode Button */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Brand / Title */}
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-200 via-lavender-200 to-mint-200 flex items-center justify-center shadow-xs shrink-0">
+              <span className="text-base">🌸</span>
+            </div>
+            <div>
+              <h1 className="text-sm sm:text-base font-extrabold text-stone-800 leading-tight">
+                {isPolish ? 'Siostra' : isUkrainian ? 'Сестричка' : isEnglish ? 'Sister' : 'Сестренка'}
+              </h1>
+              <div className="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>{isPolish ? '100% poufnie' : isUkrainian ? '100% приватно' : isEnglish ? '100% private' : '100% приватно'}</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <div className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-              <span>Привет! Твое пространство</span>
+
+          {/* Parent Mode Quick Button - Always 100% visible on any screen */}
+          <button
+            onClick={() => setShowParentGate(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border border-amber-300 text-amber-950 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
+            title={t('parentModeBtn')}
+            aria-label={t('parentModeBtn')}
+          >
+            <span className="text-sm">👨‍👩‍👧</span>
+            <span className="text-xs">{t('parentModeBtn')}</span>
+          </button>
+        </div>
+
+        {/* Row 2: One-Click Segmented Language Switcher + Age & Sound */}
+        <div className="flex items-center justify-between gap-1.5 bg-white p-1 rounded-2xl border border-stone-200 shadow-2xs">
+          {/* 4-Language Segmented Switcher (RU / UA / PL / EN) */}
+          <div className="flex items-center bg-stone-100 rounded-xl p-0.5 text-xs font-bold">
+            {[
+              { code: 'ru', label: 'RU', flag: '🌸' },
+              { code: 'uk', label: 'UA', flag: '🌻' },
+              { code: 'pl', label: 'PL', flag: '🇵🇱' },
+              { code: 'en', label: 'EN', flag: '✨' }
+            ].map((lang) => {
+              const isActive = appLanguage === lang.code;
+              return (
+                <button
+                  key={lang.code}
+                  onClick={() => setAppLanguage(lang.code)}
+                  className={`px-2 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                    isActive
+                      ? 'bg-white text-stone-900 shadow-xs'
+                      : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                  aria-pressed={isActive}
+                  title={lang.code.toUpperCase()}
+                >
+                  <span className="text-[11px]">{lang.flag}</span>
+                  <span>{lang.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right Controls: Age Group & Sound Toggle */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Age Group Selector */}
+            <div className="flex items-center bg-stone-100 rounded-xl px-2 py-1 text-xs text-stone-700">
+              <span className="text-xs mr-0.5">👧</span>
+              <select
+                value={ageGroup}
+                onChange={(e) => {
+                  setAgeGroup(e.target.value);
+                  setMythAnswerState(null);
+                  setCurrentMythIndex(0);
+                  stopSpeaking();
+                }}
+                className="bg-transparent font-bold text-stone-800 focus:outline-none cursor-pointer text-xs"
+                aria-label={t('ageSelect')}
+              >
+                <option value="8-9">{isPolish ? '8–9 lat' : isUkrainian ? '8–9 р.' : isEnglish ? '8–9 yrs' : '8–9 лет'}</option>
+                <option value="10-12">{isPolish ? '10–12 lat' : isUkrainian ? '10–12 р.' : isEnglish ? '10–12 yrs' : '10–12 лет'}</option>
+                <option value="13-15">{isPolish ? '13–15 lat' : isUkrainian ? '13–15 р.' : isEnglish ? '13–15 yrs' : '13–15 лет'}</option>
+                <option value="16+">{isPolish ? '16+ lat' : isUkrainian ? '16+ р.' : isEnglish ? '16+ yrs' : '16+ лет'}</option>
+              </select>
             </div>
-            <div className="text-[11px] text-stone-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>Офлайн режим • Приватно</span>
+
+            {/* Sound Toggle */}
+            <button
+              onClick={() => {
+                const next = !voiceEnabled;
+                setVoiceEnabled(next);
+                if (!next) stopSpeaking();
+              }}
+              className={`w-7 h-7 rounded-xl flex items-center justify-center transition active:scale-95 ${
+                voiceEnabled
+                  ? 'bg-lavender-100 text-lavender-800 border border-lavender-200'
+                  : 'bg-stone-100 text-stone-400'
+              }`}
+              title={voiceEnabled ? t('voiceEnabled') : t('voiceDisabled')}
+              aria-label={voiceEnabled ? t('voiceEnabled') : t('voiceDisabled')}
+            >
+              {voiceEnabled ? (
+                <Volume2 className="w-3.5 h-3.5 text-lavender-700" />
+              ) : (
+                <VolumeX className="w-3.5 h-3.5 text-stone-400" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* 2. HERO CARD (Placed Prominently at Top): Sister Chat with Voice */}
+      <div
+        onClick={() => setScreen('chat')}
+        className="relative overflow-hidden bg-gradient-to-br from-lavender-500 via-rose-400 to-indigo-600 rounded-3xl p-5 text-white shadow-md hover:shadow-xl transition-all cursor-pointer group active:scale-99"
+      >
+        <div className="absolute -right-8 -bottom-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div className="flex items-start justify-between relative z-10">
+          <div className="space-y-2 max-w-[270px] sm:max-w-xs">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-[11px] font-bold text-white shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+              <span>
+                {isPolish
+                  ? (ageGroup === '8-9' ? 'Dobra Starsza Siostra 🌸' : 'Czat z Siostrą • 100% Poufnie')
+                  : isUkrainian
+                  ? (ageGroup === '8-9' ? 'Добра Старша Сестра 🌸' : 'Чат із Сестричкою • 100% Приватно')
+                  : isEnglish
+                  ? (ageGroup === '8-9' ? 'Gentle Big Sister 🌸' : 'Chat with Sister • 100% Private')
+                  : (ageGroup === '8-9' ? 'Добрая Старшая Сестра 🌸' : 'Чат с Сестренкой • 100% Приватно')}
+              </span>
             </div>
+
+            <h2 className="text-xl sm:text-2xl font-black leading-snug text-white">
+              {isPolish
+                ? (ageGroup === '8-9' ? 'Porozmawiajmy! ✨' : 'Zapytaj o cokolwiek')
+                : isUkrainian
+                ? (ageGroup === '8-9' ? 'Поговори зі мною! ✨' : 'Запитай про що завгодно')
+                : isEnglish
+                ? (ageGroup === '8-9' ? "Let's talk! ✨" : 'Ask about anything')
+                : (ageGroup === '8-9' ? 'Поговори со мной! ✨' : 'Спроси о чем угодно')}
+            </h2>
+
+            <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
+              {isPolish
+                ? (ageGroup === '8-9'
+                    ? 'O ząbkach, emocjach, ciele lub sekretach. Odpowiadam ciepło i prosto!'
+                    : 'O ciele, nastroju, przyjaźni czy sekretach. Bez oceniania i w 100% anonimowo.')
+                : isUkrainian
+                ? (ageGroup === '8-9'
+                    ? 'Про зубки, тіло, настрій чи секрети. Відповідаю лагідно і зрозуміло!'
+                    : 'Про тіло, настрій, дружбу чи секрети. Без засудження і на 100% анонімно.')
+                : isEnglish
+                ? (ageGroup === '8-9'
+                    ? 'About teeth, feelings, body changes or secrets. Warm and simple answers!'
+                    : 'About your body, mood, friendships or secrets. Judgment-free and 100% private.')
+                : (ageGroup === '8-9'
+                    ? 'О зубках, теле, настроении или секретах. Отвечаю ласково и понятно!'
+                    : 'О теле, настроении, дружбе или секретах. Без осуждения и на 100% анонимно.')}
+            </p>
+          </div>
+
+          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+            <span className="text-2xl">🌸</span>
           </div>
         </div>
 
-        {/* Top Controls: Voice Toggle & Age Filter */}
-        <div className="flex items-center gap-2">
-          {/* Global Voice Toggle */}
-          <button
-            onClick={() => {
-              const next = !voiceEnabled;
-              setVoiceEnabled(next);
-              if (!next) stopSpeaking();
-            }}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition border shadow-2xs ${
-              voiceEnabled
-                ? 'bg-lavender-100 border-lavender-200 text-lavender-800'
-                : 'bg-white border-stone-200 text-stone-400'
-            }`}
-            title={voiceEnabled ? 'Озвучка текста включена' : 'Озвучка текста выключена'}
-          >
-            {voiceEnabled ? (
-              <Volume2 className="w-3.5 h-3.5 text-lavender-600" />
-            ) : (
-              <VolumeX className="w-3.5 h-3.5" />
-            )}
-            <span className="text-[11px] font-bold">{voiceEnabled ? 'Голос' : 'Без звука'}</span>
-          </button>
-
-          {/* Voice Settings Button */}
-          {voiceEnabled && (
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="w-7 h-7 rounded-full bg-lavender-100 hover:bg-lavender-200 border border-lavender-200 text-lavender-700 flex items-center justify-center transition shadow-2xs"
-              title="Настройки голоса и языка"
-              aria-label="Настройки голоса и языка"
-            >
-              <Sliders className="w-3.5 h-3.5" />
-            </button>
-          )}
-
-          {/* Age Filter Toggle */}
-          <div className="flex items-center gap-1 bg-white border border-stone-200 rounded-full px-2 py-0.5 text-xs text-stone-600 shadow-2xs">
-            <span className="text-[11px] font-medium text-stone-400">Возраст:</span>
-            <select
-              value={ageGroup}
-              onChange={(e) => {
-                setAgeGroup(e.target.value);
-                setMythAnswerState(null);
-                setCurrentMythIndex(0);
-                stopSpeaking();
-              }}
-              className="bg-transparent font-bold text-stone-700 focus:outline-none cursor-pointer text-xs"
-            >
-              <option value="8-9">8–9 лет</option>
-              <option value="10-12">10–12 лет</option>
-              <option value="13-15">13–15 лет</option>
-              <option value="16+">16+ лет</option>
-            </select>
-          </div>
+        {/* Tactile Action Button */}
+        <div className="mt-4 pt-3 border-t border-white/20 flex items-center justify-between text-xs font-semibold relative z-10">
+          <span className="flex items-center gap-1 text-white/90 text-[11px]">
+            <Mic className="w-3.5 h-3.5 text-rose-200" />
+            <span>
+              {isPolish
+                ? 'Można mówić głosem'
+                : isUkrainian
+                ? 'Можна говорити голосом'
+                : isEnglish
+                ? 'Voice input available'
+                : 'Можно говорить голосом'}
+            </span>
+          </span>
+          <span className="flex items-center gap-1 bg-white text-stone-900 px-3.5 py-1.5 rounded-full text-xs font-extrabold shadow-sm group-hover:bg-rose-50 transition">
+            <span>
+              {isPolish
+                ? 'Otwórz czat'
+                : isUkrainian
+                ? 'Поговорити'
+                : isEnglish
+                ? 'Chat now'
+                : 'Поговорить'}
+            </span>
+            <ChevronRight className="w-4 h-4 ml-0.5" />
+          </span>
         </div>
       </div>
 
-      {/* BLOCK 1: Micro-learning Stories Carousel */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <h2 className="text-base sm:text-lg font-black text-stone-800 flex items-center gap-1.5">
-              <span>{ageGroup === '8-9' ? 'Секреты тела и дружбы' : 'Истории и факты'}</span>
+      {/* 3. STORIES SECTION (Micro-Learning Carousel) */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between px-1">
+          <div>
+            <h2 className="text-base sm:text-lg font-black text-stone-800 flex items-center gap-2">
+              <span>
+                {isPolish
+                  ? 'Ciekawe historie 📖'
+                  : isUkrainian
+                  ? 'Цікаві історії 📖'
+                  : isEnglish
+                  ? 'Helpful Stories 📖'
+                  : 'Полезные истории 📖'}
+              </span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-mint-100 text-mint-800 font-bold">
-                {completedInAge}/{visibleStories.length} пройдено
+                {completedInAge}/{visibleStories.length} {t('completedStories')}
               </span>
             </h2>
             <p className="text-xs text-stone-500">
-              {ageGroup === '8-9'
-                ? 'Добрые и понятные карточки о теле, эмоциях и гигиене'
-                : 'Короткие карточки без сложных терминов за 1-2 минуты'}
+              {isPolish
+                ? (ageGroup === '8-9' ? 'Krótkie i proste karty o ciele' : 'Krótkie karty bez trudnych słów')
+                : isUkrainian
+                ? (ageGroup === '8-9' ? 'Короткі та добрі картки про тіло' : 'Короткі картки без складних термінів')
+                : isEnglish
+                ? (ageGroup === '8-9' ? 'Gentle & simple cards about your body' : 'Bite-sized cards without complex terms')
+                : (ageGroup === '8-9' ? 'Короткие и добрые карточки о теле' : 'Короткие карточки без сложных терминов')}
             </p>
           </div>
         </div>
 
         {/* Horizontal Carousel */}
-        <div className="flex gap-3.5 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth snap-x snap-mandatory">
+        <div className="flex gap-3 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth snap-x snap-mandatory">
           {visibleStories.map((story) => {
             const isCompleted = completedStories.includes(story.id);
             const theme = getCategoryTheme(story.categoryColor);
@@ -231,17 +363,17 @@ export const Dashboard = () => {
               <div
                 key={story.id}
                 onClick={() => openStory(story.id)}
-                className={`snap-center shrink-0 w-[240px] sm:w-[260px] p-4 rounded-3xl border bg-gradient-to-b ${theme.gradient} ${theme.border} shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-4 relative group active:scale-98`}
+                className={`snap-center shrink-0 w-[240px] sm:w-[260px] p-4 rounded-3xl border bg-gradient-to-b ${theme.gradient} ${theme.border} shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-3 relative group active:scale-98`}
               >
-                {/* Completed badge top right */}
+                {/* Completed badge */}
                 {isCompleted && (
-                  <div className="absolute top-3.5 right-3.5 bg-white text-mint-700 p-1 rounded-full shadow-xs flex items-center gap-1 text-[10px] font-bold px-1.5">
+                  <div className="absolute top-3.5 right-3.5 bg-white text-mint-700 p-1 rounded-full shadow-2xs flex items-center gap-1 text-[10px] font-bold px-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-mint-600" />
-                    <span>Пройдено</span>
+                    <span>{isPolish ? 'Ukończono' : isUkrainian ? 'Пройдено' : isEnglish ? 'Done' : 'Пройдено'}</span>
                   </div>
                 )}
 
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-white rounded-2xl shadow-2xs">
                       {getCategoryIcon(story.categoryIcon)}
@@ -252,10 +384,10 @@ export const Dashboard = () => {
                   </div>
 
                   <div>
-                    <h3 className="font-extrabold text-stone-800 text-base leading-snug group-hover:text-stone-900">
+                    <h3 className="font-extrabold text-stone-800 text-base leading-snug">
                       {story.title}
                     </h3>
-                    <p className="text-xs text-stone-600 mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                       {story.subtitle}
                     </p>
                   </div>
@@ -282,15 +414,15 @@ export const Dashboard = () => {
                       className={`p-1.5 rounded-full transition shadow-2xs ${
                         isSpeaking && speakingId === `card-${story.id}`
                           ? 'bg-lavender-500 text-white animate-pulse'
-                          : 'bg-white/80 hover:bg-white text-stone-500 hover:text-lavender-700'
+                          : 'bg-white/90 hover:bg-white text-stone-600 hover:text-lavender-700'
                       }`}
-                      title="Послушать о чем эта история"
+                      title={isPolish ? 'Posłuchaj' : isUkrainian ? 'Послухати' : isEnglish ? 'Listen' : 'Послушать'}
                     >
                       <Volume2 className="w-3.5 h-3.5" />
                     </button>
 
-                    <span className="font-bold text-stone-700 flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform text-xs">
-                      <span>Открыть</span>
+                    <span className="font-bold text-stone-700 flex items-center gap-0.5 text-xs">
+                      <span>{isPolish ? 'Otwórz' : isUkrainian ? 'Відкрити' : isEnglish ? 'Open' : 'Открыть'}</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
@@ -301,71 +433,27 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* BLOCK 2: Quick Access to AI Sister Assistant */}
-      <div className="space-y-2">
-        <div
-          onClick={() => setScreen('chat')}
-          className="relative overflow-hidden bg-gradient-to-r from-lavender-500 via-lavender-600 to-indigo-600 rounded-3xl p-5 text-white shadow-md hover:shadow-xl transition-all cursor-pointer group active:scale-99"
-        >
-          {/* Subtle background glow */}
-          <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-
-          <div className="flex items-start justify-between relative z-10">
-            <div className="space-y-2 max-w-[280px] sm:max-w-xs">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-[11px] font-bold text-lavender-100">
-                <Sparkles className="w-3 h-3 text-peach-300" />
-                <span>{ageGroup === '8-9' ? 'Добрая Старшая Сестра' : 'Digital Big Sister • 100% Приватно'}</span>
-              </div>
-
-              <h3 className="text-lg sm:text-xl font-black leading-tight text-white">
-                {ageGroup === '8-9' ? 'Спроси Сестренку (Безопасно)' : 'Задай вопрос Ассистенту (Анонимно)'}
-              </h3>
-
-              <p className="text-xs sm:text-sm text-lavender-100 leading-relaxed font-normal">
-                {ageGroup === '8-9'
-                  ? 'Спроси о зубках, страхах, дружбе или правиле купальника. Отвечаем ласково и просто!'
-                  : 'Спроси о том, что неловко обсудить вслух. Отвечаем по-доброму, как старшая сестра.'}
-              </p>
-            </div>
-
-            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform">
-              <MessageCircle className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between text-xs font-semibold relative z-10">
-            <span className="text-lavender-200">
-              {ageGroup === '8-9' ? 'Только добрые и полезные ответы' : 'Без регистрации • Без осуждения'}
-            </span>
-            <span className="flex items-center gap-1 bg-white text-lavender-900 px-3 py-1.5 rounded-full text-xs font-bold shadow-xs">
-              <span>Открыть чат</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* BLOCK 3: Myth of the Day Quiz Card */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
+      {/* 4. MYTH OF THE DAY (Interactive Game) */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5">
             <Flame className="w-4 h-4 text-peach-600" />
             <h2 className="text-base font-extrabold text-stone-800">
-              Миф дня
+              {t('mythsTitle')}
             </h2>
           </div>
 
           <button
             onClick={nextMyth}
-            className="text-xs text-stone-500 hover:text-stone-800 flex items-center gap-1 font-semibold px-2 py-1 rounded hover:bg-stone-100 transition"
+            className="text-xs text-stone-600 hover:text-stone-900 flex items-center gap-1 font-semibold px-2.5 py-1 rounded-full hover:bg-stone-100 transition active:scale-95"
           >
             <RefreshCw className="w-3 h-3" />
-            <span>Другой факт</span>
+            <span>{t('nextMyth')}</span>
           </button>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-xs space-y-4">
-          <div className="space-y-1.5">
+        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-xs space-y-3.5">
+          <div className="space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-peach-600 uppercase tracking-wider">
                 {currentMyth.dateLabel}
@@ -378,7 +466,16 @@ export const Dashboard = () => {
                     stopSpeaking();
                   } else {
                     if (!mythAnswerState) {
-                      speak(`Миф дня. ${currentMyth.question}. Это правда или миф?`, mythId);
+                      speak(
+                        isPolish
+                          ? `Mit czy prawda. ${currentMyth.question}. Czy to prawda czy mit?`
+                          : isUkrainian
+                          ? `Міф чи правда. ${currentMyth.question}. Це правда чи міф?`
+                          : isEnglish
+                          ? `Fact or myth. ${currentMyth.question}. Is this a fact or a myth?`
+                          : `Миф дня. ${currentMyth.question}. Это правда или миф?`,
+                        mythId
+                      );
                     } else {
                       speak(`${currentMyth.shortAnswer}. ${currentMyth.fullExplanation}`, mythId);
                     }
@@ -387,39 +484,40 @@ export const Dashboard = () => {
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition ${
                   isSpeaking && speakingId === `myth-${currentMythIndex}`
                     ? 'bg-lavender-500 text-white animate-pulse'
-                    : 'bg-stone-100 hover:bg-lavender-100 text-stone-600 hover:text-lavender-800'
+                    : 'bg-stone-100 hover:bg-lavender-100 text-stone-600'
                 }`}
-                title="Прослушать миф дня"
+                title={isPolish ? 'Posłuchaj mitu' : isUkrainian ? 'Послухати міф' : isEnglish ? 'Listen to myth' : 'Прослушать миф'}
               >
                 <Volume2 className="w-3.5 h-3.5 text-lavender-600" />
                 <span className="text-[11px]">
-                  {isSpeaking && speakingId === `myth-${currentMythIndex}` ? 'Читаю...' : 'Послушать'}
+                  {isSpeaking && speakingId === `myth-${currentMythIndex}`
+                    ? (isPolish ? 'Czytam...' : isUkrainian ? 'Читаю...' : isEnglish ? 'Reading...' : 'Читаю...')
+                    : (isPolish ? 'Posłuchaj' : isUkrainian ? 'Послухати' : isEnglish ? 'Listen' : 'Послушать')}
                 </span>
               </button>
             </div>
-            <h4 className="text-base font-bold text-stone-800 leading-snug">
+            <h3 className="text-base font-bold text-stone-800 leading-snug">
               {currentMyth.question}
-            </h4>
+            </h3>
           </div>
 
-          {/* Interactive choices if not revealed */}
+          {/* Interactive Choices */}
           {!mythAnswerState ? (
             <div className="grid grid-cols-2 gap-2.5 pt-1">
               <button
                 onClick={() => handleMythAnswer(true)}
-                className="py-2.5 px-4 rounded-xl border border-stone-200 hover:border-mint-400 hover:bg-mint-50/70 text-stone-700 font-bold text-sm transition shadow-2xs active:scale-95"
+                className="py-3 px-4 rounded-2xl border border-stone-200 hover:border-mint-400 hover:bg-mint-50/70 text-stone-800 font-extrabold text-sm transition shadow-2xs active:scale-95"
               >
-                👍 Это правда
+                👍 {t('truthBtn')}
               </button>
               <button
                 onClick={() => handleMythAnswer(false)}
-                className="py-2.5 px-4 rounded-xl border border-stone-200 hover:border-peach-400 hover:bg-peach-50/70 text-stone-700 font-bold text-sm transition shadow-2xs active:scale-95"
+                className="py-3 px-4 rounded-2xl border border-stone-200 hover:border-peach-400 hover:bg-peach-50/70 text-stone-800 font-extrabold text-sm transition shadow-2xs active:scale-95"
               >
-                🙅‍♀️ Это миф
+                🙅‍♀️ {t('mythBtn')}
               </button>
             </div>
           ) : (
-            /* Revealed Explanation */
             <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80 space-y-2 animate-slide-up">
               <div className="flex items-center gap-1.5 font-bold text-sm text-stone-800">
                 <span className="text-base">{mythAnswerState === currentMyth.isFact ? '🎯' : '💡'}</span>
@@ -433,7 +531,7 @@ export const Dashboard = () => {
                   onClick={nextMyth}
                   className="text-xs text-mint-700 hover:text-mint-800 font-bold"
                 >
-                  Следующий миф ➔
+                  {isPolish ? 'Następny mit ➔' : isUkrainian ? 'Наступний факт ➔' : isEnglish ? 'Next fact ➔' : 'Следующий факт ➔'}
                 </button>
               </div>
             </div>
@@ -441,14 +539,30 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* Bottom Safe Information Footnote */}
+      {/* Parental Gate Modal */}
+      <ParentGateModal
+        isOpen={showParentGate}
+        onClose={() => setShowParentGate(false)}
+        onSuccess={() => {
+          setShowParentGate(false);
+          setScreen('parent');
+        }}
+        language={appLanguage}
+      />
+
+      {/* 6. Minimal, Reassuring Footer */}
       <div className="pt-2 text-center text-xs text-stone-400 space-y-1">
         <div className="flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-mint-600" />
-          <span>Все данные сохраняются исключительно на твоем телефоне</span>
-        </div>
-        <div className="text-[11px] text-stone-400">
-          Open Source проект • ПО: <span className="font-semibold text-stone-500">MIT</span> • Контент: <span className="font-semibold text-stone-500">CC-BY 4.0</span>
+          <ShieldCheck className="w-4 h-4 text-mint-600 shrink-0" />
+          <span>
+            {isPolish
+              ? 'Wszystkie dane pozostają wyłącznie w pamięci Twojego telefonu'
+              : isUkrainian
+              ? 'Усі дані зберігаються виключно в пам’яті твого телефону'
+              : isEnglish
+              ? 'All data remains strictly stored on your personal device'
+              : 'Все данные сохраняются исключительно на твоем телефоне'}
+          </span>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { useVoice } from '../context/VoiceContext';
-import { STORIES_DATA } from '../data/mockData';
+import { getLocalizedStories } from '../data/mockDataLocalized';
 import confetti from 'canvas-confetti';
 import {
   X,
@@ -26,7 +26,9 @@ export const StoriesPlayer = () => {
     activeStoryId,
     setScreen,
     markStoryComplete,
-    goToChatWithPrompt
+    goToChatWithPrompt,
+    appLanguage,
+    t
   } = useApp();
 
   const {
@@ -38,7 +40,11 @@ export const StoriesPlayer = () => {
     setIsSettingsOpen
   } = useVoice();
 
-  const story = STORIES_DATA.find((s) => s.id === activeStoryId) || STORIES_DATA[0];
+  const isPolish = appLanguage === 'pl';
+  const isUkrainian = appLanguage === 'uk';
+  const isEnglish = appLanguage === 'en';
+  const localizedStories = getLocalizedStories(appLanguage);
+  const story = localizedStories.find((s) => s.id === activeStoryId) || localizedStories[0];
   const slides = story.slides;
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -58,17 +64,24 @@ export const StoriesPlayer = () => {
     if (slide.type === 'intro') {
       return `${story.title}. ${story.subtitle || ''}`;
     }
-    if (slide.type === 'theory') {
-      return `${slide.headline}. ${slide.text}. ${slide.tip ? `Совет: ${slide.tip}` : ''}`;
+    if (slide.type === 'theory' || slide.type === 'fact') {
+      const tipLabel = isPolish ? 'Wskazówka: ' : isUkrainian ? 'Порада: ' : isEnglish ? 'Tip: ' : 'Совет: ';
+      return `${slide.headline || slide.title || ''}. ${slide.text || ''}. ${slide.tip ? `${tipLabel}${slide.tip}` : ''}`;
     }
     if (slide.type === 'quiz') {
-      return `Вопрос. Правда или миф: ${slide.question}. Нажми на экране: это правда, или это миф!`;
+      return isPolish
+        ? `Pytanie. Prawda czy mit: ${slide.question}. Wybierz na ekranie: to prawda, czy to mit!`
+        : isUkrainian
+        ? `Запитання. Правда чи міф: ${slide.question}. Обери на екрані: це правда чи міф!`
+        : isEnglish
+        ? `Question. Fact or myth: ${slide.question}. Choose on screen: is it a fact or a myth!`
+        : `Вопрос. Правда или миф: ${slide.question}. Нажми на экране: это правда, или это миф!`;
     }
     if (slide.type === 'completion') {
       return `${slide.title}. ${slide.text}. ${slide.ctaText || ''}`;
     }
     return '';
-  }, [story]);
+  }, [story, isPolish, isUkrainian, isEnglish]);
 
   // Read slide aloud automatically if voiceEnabled is true
   useEffect(() => {
@@ -203,7 +216,10 @@ export const StoriesPlayer = () => {
   const handleQuizChoice = (idx, isCorrect) => {
     setQuizAnswer({ selectedIndex: idx, isCorrect });
     if (voiceEnabled) {
-      const resultText = (isCorrect ? 'Правильно! ' : 'Это миф! ') + (currentSlide.explanation || '');
+      const prefix = isCorrect
+        ? (isPolish ? 'Prawidłowo! ' : isUkrainian ? 'Правильно! ' : 'Правильно! ')
+        : (isPolish ? 'To mit! ' : isUkrainian ? 'Це міф! ' : 'Это миф! ');
+      const resultText = prefix + (currentSlide.explanation || '');
       speak(resultText, `quiz-result-${currentIndex}`);
     }
     if (isCorrect) {
@@ -282,17 +298,17 @@ export const StoriesPlayer = () => {
           </div>
 
           {/* Story Meta & Controls */}
-          <div className="flex items-center justify-between text-stone-800">
-            <div className="flex items-center gap-2">
-              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${themeClasses.badge}`}>
+          <div className="flex items-center justify-between text-stone-800 gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shadow-2xs shrink-0 ${themeClasses.badge}`}>
                 {story.categoryTitle}
               </span>
-              <span className="text-xs font-semibold text-stone-700 line-clamp-1 max-w-[170px]">
+              <span className="text-xs font-semibold text-stone-700 leading-snug">
                 {story.title}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -311,7 +327,11 @@ export const StoriesPlayer = () => {
                     ? 'bg-white/90 text-lavender-700 hover:bg-white'
                     : 'bg-white/60 text-stone-400 hover:bg-white'
                 }`}
-                title={isSpeaking ? 'Остановить чтение вслух' : 'Прослушать этот слайд голосом'}
+                title={
+                  isSpeaking
+                    ? (isPolish ? 'Zatrzymaj czytanie' : isUkrainian ? 'Зупинити читання' : isEnglish ? 'Stop reading' : 'Остановить чтение вслух')
+                    : (isPolish ? 'Posłuchaj tego slajdu' : isUkrainian ? 'Послухати цей слайд' : isEnglish ? 'Listen to this slide' : 'Прослушать этот слайд голосом')
+                }
               >
                 {isSpeaking ? (
                   <Volume2 className="w-4 h-4 animate-bounce" />
@@ -322,20 +342,7 @@ export const StoriesPlayer = () => {
                 )}
               </button>
 
-              {voiceEnabled && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    stopSpeaking();
-                    setIsSettingsOpen(true);
-                  }}
-                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-700 flex items-center justify-center shadow-xs transition-all"
-                  title="Настройки голоса и языка"
-                  aria-label="Настройки голоса и языка"
-                >
-                  <Sliders className="w-4 h-4 text-stone-600" />
-                </button>
-              )}
+
 
               <button
                 onClick={(e) => {
@@ -344,7 +351,7 @@ export const StoriesPlayer = () => {
                   setScreen('dashboard');
                 }}
                 className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-700 flex items-center justify-center shadow-xs transition-all"
-                title="Закрыть историю"
+                title={isPolish ? 'Zamknij historię' : isUkrainian ? 'Закрити історію' : isEnglish ? 'Close story' : 'Закрыть историю'}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -378,7 +385,7 @@ export const StoriesPlayer = () => {
               </p>
 
               <div className="text-xs text-stone-400 font-medium">
-                Тапни справа ➔ чтобы листать
+                {isPolish ? 'Dotknij po prawej ➔ aby przejść dalej' : isUkrainian ? 'Торкнися праворуч ➔ щоб гортати' : 'Тапни справа ➔ чтобы листать'}
               </div>
             </div>
           )}
@@ -387,7 +394,11 @@ export const StoriesPlayer = () => {
           {currentSlide.type === 'fact' && (
             <div className="space-y-5 max-w-sm mx-auto animate-slide-up">
               <div className="inline-block px-3 py-1 bg-white/85 rounded-full text-xs font-bold text-stone-600 border border-stone-200/70 shadow-2xs">
-                Факт #{currentIndex} из {slides.length}
+                {isPolish
+                  ? `Fakt #${currentIndex} z ${slides.length}`
+                  : isUkrainian
+                  ? `Факт #${currentIndex} із ${slides.length}`
+                  : `Факт #${currentIndex} из ${slides.length}`}
               </div>
 
               <h2 className="text-xl sm:text-2xl font-black text-stone-800 tracking-tight leading-snug">
@@ -408,7 +419,9 @@ export const StoriesPlayer = () => {
 
                 {currentSlide.tip && (
                   <div className="mt-3 pt-3 border-t border-stone-100 flex items-start gap-2 text-xs text-stone-500">
-                    <span className="font-bold text-stone-700 shrink-0">💡 Совет:</span>
+                    <span className="font-bold text-stone-700 shrink-0">
+                      {isPolish ? '💡 Wskazówka:' : isUkrainian ? '💡 Порада:' : isEnglish ? '💡 Tip:' : '💡 Совет:'}
+                    </span>
                     <span>{currentSlide.tip}</span>
                   </div>
                 )}
@@ -425,7 +438,7 @@ export const StoriesPlayer = () => {
 
               <div className="space-y-1">
                 <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">
-                  Проверь себя
+                  {isPolish ? 'Sprawdź się' : isUkrainian ? 'Перевір себе' : isEnglish ? 'Check yourself' : 'Проверь себя'}
                 </span>
                 <h2 className="text-lg sm:text-xl font-bold text-stone-800 leading-snug">
                   {currentSlide.question}
@@ -472,7 +485,11 @@ export const StoriesPlayer = () => {
               {quizAnswer && (
                 <div className="bg-white/95 p-4 rounded-2xl border border-stone-200 shadow-sm text-left animate-slide-up space-y-1.5">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-mint-700">
-                    <span>{quizAnswer.isCorrect ? '🎉 Правильно!' : '💡 Почти! Вот как на самом деле:'}</span>
+                    <span>
+                      {quizAnswer.isCorrect
+                        ? (isPolish ? '🎉 Prawidłowo!' : isUkrainian ? '🎉 Правильно!' : isEnglish ? '🎉 Correct!' : '🎉 Правильно!')
+                        : (isPolish ? '💡 Blisko! Oto jak jest w rzeczywistości:' : isUkrainian ? '💡 Майже! Ось як насправді:' : isEnglish ? '💡 Close! Here is what really happens:' : '💡 Почти! Вот как на самом деле:')}
+                    </span>
                   </div>
                   <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                     {currentSlide.explanation}
@@ -484,7 +501,7 @@ export const StoriesPlayer = () => {
                     }}
                     className="w-full mt-2 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-xl text-xs font-bold transition shadow-xs"
                   >
-                    Продолжить ➔
+                    {isPolish ? 'Kontynuuj ➔' : isUkrainian ? 'Продовжити ➔' : isEnglish ? 'Continue ➔' : 'Продолжить ➔'}
                   </button>
                 </div>
               )}
@@ -510,10 +527,18 @@ export const StoriesPlayer = () => {
               <div className="p-4 bg-white/90 rounded-2xl border border-stone-200/70 shadow-sm text-left space-y-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-stone-500 uppercase">
                   <MessageCircle className="w-4 h-4 text-lavender-600" />
-                  <span>Личный диалог с сестрой</span>
+                  <span>
+                    {isPolish ? 'Prywatna rozmowa ze starszą siostrą' : isUkrainian ? 'Особистий діалог із сестрою' : isEnglish ? 'Private talk with big sister' : 'Личный диалог с сестрой'}
+                  </span>
                 </div>
                 <p className="text-xs text-stone-600">
-                  У тебя может быть свой личный вопрос, о котором неловко спросить других. Наш чат полностью анонимен.
+                  {isPolish
+                    ? 'Możesz mieć intymne pytanie, o które krępujesz się zapytać kogoś innego. Nasz czat jest w 100% bezpieczny i poufny.'
+                    : isUkrainian
+                    ? 'У тебе може бути своє особисте запитання, про яке незручно запитати інших. Наш чат повністю анонімний.'
+                    : isEnglish
+                    ? 'You might have a personal question that feels hard to ask others. Our chat is 100% private and gentle.'
+                    : 'У тебя может быть свой личный вопрос, о котором неловко спросить других. Наш чат полностью анонимен.'}
                 </p>
                 <button
                   type="button"
@@ -524,7 +549,7 @@ export const StoriesPlayer = () => {
                   className="w-full py-3 px-4 bg-gradient-to-r from-lavender-600 to-lavender-500 hover:from-lavender-700 hover:to-lavender-600 text-white rounded-xl font-bold text-xs sm:text-sm transition shadow-sm flex items-center justify-center gap-2"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>{currentSlide.ctaText || 'Спросить нашего бота'}</span>
+                  <span>{currentSlide.ctaText || (isPolish ? 'Zapytaj w czacie' : isUkrainian ? 'Запитати в чаті' : isEnglish ? 'Ask in chat' : 'Спросить сестру')}</span>
                 </button>
               </div>
 
@@ -536,7 +561,7 @@ export const StoriesPlayer = () => {
                 }}
                 className="text-xs text-stone-500 hover:text-stone-800 font-semibold underline underline-offset-4"
               >
-                Вернуться на главную
+                {isPolish ? 'Wróć do strony głównej' : isUkrainian ? 'Повернутися на головну' : isEnglish ? 'Back to home' : 'Вернуться на главную'}
               </button>
             </div>
           )}
@@ -555,7 +580,7 @@ export const StoriesPlayer = () => {
             }`}
           >
             <ChevronLeft className="w-4 h-4" />
-            <span>Назад</span>
+            <span>{isPolish ? 'Wstecz' : isUkrainian ? 'Назад' : isEnglish ? 'Back' : 'Назад'}</span>
           </button>
 
           <span className="text-[11px] font-bold text-stone-600 bg-white/60 px-2.5 py-0.5 rounded-full">
@@ -570,7 +595,11 @@ export const StoriesPlayer = () => {
             }}
             className="flex items-center gap-1 font-semibold px-2 py-1 rounded hover:bg-white/50 text-stone-700"
           >
-            <span>{currentIndex === slides.length - 1 ? 'Готово' : 'Дальше'}</span>
+            <span>
+              {currentIndex === slides.length - 1
+                ? (isPolish ? 'Gotowe' : isUkrainian ? 'Готово' : isEnglish ? 'Done' : 'Готово')
+                : (isPolish ? 'Dalej' : isUkrainian ? 'Далі' : isEnglish ? 'Next' : 'Дальше')}
+            </span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

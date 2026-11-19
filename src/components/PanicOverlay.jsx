@@ -3,8 +3,11 @@ import { useApp } from '../context/AppContext';
 import { Lock, FileText, Delete, RotateCcw, X, ShieldAlert } from 'lucide-react';
 
 export const PanicOverlay = () => {
-  const { isPanicOpen, closePanic, panicType } = useApp();
+  const { isPanicOpen, closePanic, panicType, appLanguage } = useApp();
   const [activeTab, setActiveTab] = useState(panicType || 'calculator');
+
+  const isPolish = appLanguage === 'pl';
+  const isUkrainian = appLanguage === 'uk';
 
   // Calculator State
   const [display, setDisplay] = useState('0');
@@ -13,9 +16,13 @@ export const PanicOverlay = () => {
   const [clearTapCount, setClearTapCount] = useState(0);
 
   // Notes State
-  const [notesText, setNotesText] = useState(
-    'План домашнего задания на неделю:\n1. Алгебра — №142, 145 (стр. 48)\n2. Биология — прочитать параграф 12 про клетки\n3. Английский язык — выучить 10 неправильных глаголов\n4. Литература — читать рассказ Тургенева'
-  );
+  const defaultNotes = isPolish
+    ? 'Plan lekcji i zadań na ten tydzień:\n1. Matematyka — zadania ze strony 48\n2. Biologia — komórki roślinne i zwierzęce\n3. Język angielski — 10 nieregularnych czasowników'
+    : isUkrainian
+    ? 'План домашнього завдання на тиждень:\n1. Алгебра — №142, 145 (стор. 48)\n2. Біологія — прочитати параграф 12 про клітини\n3. Англійська мова — вивчити 10 неправильних дієслів\n4. Література — читати оповідання'
+    : 'План домашнего задания на неделю:\n1. Алгебра — №142, 145 (стр. 48)\n2. Биология — прочитать параграф 12 про клетки\n3. Английский язык — выучить 10 неправильных глаголов\n4. Литература — читать рассказ Тургенева';
+
+  const [notesText, setNotesText] = useState(defaultNotes);
 
   if (!isPanicOpen) return null;
 
@@ -74,7 +81,9 @@ export const PanicOverlay = () => {
           <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-60"></div>
           <div className="w-3 h-3 rounded-full bg-green-500 opacity-60"></div>
           <span className="text-xs text-neutral-400 font-mono ml-2">
-            {activeTab === 'calculator' ? 'Калькулятор • v2.4' : 'Мои Учебные Заметки'}
+            {activeTab === 'calculator'
+              ? (isPolish ? 'Kalkulator • v2.4' : isUkrainian ? 'Калькулятор • v2.4' : 'Калькулятор • v2.4')
+              : (isPolish ? 'Moje Notatki Szkolne' : isUkrainian ? 'Мої Навчальні Нотатки' : 'Мои Учебные Заметки')}
           </span>
         </div>
 
@@ -83,17 +92,19 @@ export const PanicOverlay = () => {
           <button
             onClick={() => setActiveTab(activeTab === 'calculator' ? 'notes' : 'calculator')}
             className="text-xs text-neutral-400 hover:text-white px-2 py-1 rounded bg-neutral-800 transition"
-            title="Переключить режим маскировки"
+            title={isPolish ? 'Przełącz kamuflaż' : isUkrainian ? 'Перемкнути маскування' : 'Переключить режим маскировки'}
           >
-            {activeTab === 'calculator' ? 'Блокнот' : 'Калькулятор'}
+            {activeTab === 'calculator'
+              ? (isPolish ? 'Notatnik' : isUkrainian ? 'Блокнот' : 'Блокнот')
+              : (isPolish ? 'Kalkulator' : isUkrainian ? 'Калькулятор' : 'Калькулятор')}
           </button>
           {/* Safe exit button with tooltip */}
           <button
             onClick={closePanic}
             className="text-xs text-neutral-400 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 transition"
-            title="Вернуться в приложение (Esc)"
+            title={isPolish ? 'Powrót do aplikacji (Esc)' : isUkrainian ? 'Повернутися в додаток (Esc)' : 'Вернуться в приложение (Esc)'}
           >
-            <span>Выйти из режима SOS</span>
+            <span>{isPolish ? 'Wyjdź z trybu SOS' : isUkrainian ? 'Вийти з режиму SOS' : 'Выйти из режима SOS'}</span>
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -215,7 +226,13 @@ export const PanicOverlay = () => {
               <FileText className="w-5 h-5 text-blue-400" />
               <input
                 type="text"
-                defaultValue="Школьные заметки (Домашнее задание)"
+                defaultValue={
+                  isPolish
+                    ? 'Notatki szkolne (Zadania domowe)'
+                    : isUkrainian
+                    ? 'Шкільні нотатки (Домашнє завдання)'
+                    : 'Школьные заметки (Домашнее задание)'
+                }
                 className="bg-transparent font-bold text-white text-sm focus:outline-none w-full"
               />
             </div>
@@ -223,11 +240,26 @@ export const PanicOverlay = () => {
               value={notesText}
               onChange={(e) => setNotesText(e.target.value)}
               className="w-full flex-1 bg-transparent text-neutral-300 text-sm focus:outline-none resize-none leading-relaxed font-sans"
-              placeholder="Начните писать учебные заметки..."
+              placeholder={
+                isPolish
+                  ? 'Zacznij pisać notatki szkolne...'
+                  : isUkrainian
+                  ? 'Почніть писати навчальні нотатки...'
+                  : 'Начните писать учебные заметки...'
+              }
             />
             <div className="text-[11px] text-neutral-500 pt-2 flex justify-between">
-              <span>Сохранено локально в памяти</span>
-              <span>Слов: {notesText.split(/\s+/).filter(Boolean).length}</span>
+              <span>
+                {isPolish
+                  ? 'Zapisano lokalnie w pamięci'
+                  : isUkrainian
+                  ? 'Збережено локально в пам’яті'
+                  : 'Сохранено локально в памяти'}
+              </span>
+              <span>
+                {isPolish ? 'Słów: ' : isUkrainian ? 'Слів: ' : 'Слов: '}
+                {notesText.split(/\s+/).filter(Boolean).length}
+              </span>
             </div>
           </div>
         </div>
@@ -235,7 +267,13 @@ export const PanicOverlay = () => {
 
       {/* Secret Bottom Tip */}
       <div className="text-center text-[11px] text-neutral-600 pt-2 flex items-center justify-center gap-1">
-        <span>Камуфляж включен. Нажмите «Esc» или крестик вверху, чтобы вернуться.</span>
+        <span>
+          {isPolish
+            ? 'Kamuflaż włączony. Naciśnij «Esc» lub krzyżyk u góry, aby wrócić.'
+            : isUkrainian
+            ? 'Камуфляж увімкнено. Натисніть «Esc» або хрестик вгорі, щоб повернутися.'
+            : 'Камуфляж включен. Нажмите «Esc» или крестик вверху, чтобы вернуться.'}
+        </span>
       </div>
     </div>
   );

@@ -5,6 +5,9 @@ import {
   DAILY_MYTHS_BY_AGE,
   SAFE_AI_FALLBACKS
 } from '../data/mockData';
+import { callAIChat } from '../services/aiChatService';
+import { detectLanguage, LANG_VOICE_MAP } from '../services/languageDetector';
+import { TRANSLATIONS, getTranslation } from '../i18n/translations';
 
 const AppContext = createContext();
 
@@ -13,26 +16,26 @@ const STORAGE_KEYS = {
   AGE_GROUP: 'sisterhood_age_group_v1',
   COMPLETED_STORIES: 'sisterhood_completed_stories_v1',
   CHAT_MESSAGES: 'sisterhood_chat_messages_v1',
+  APP_LANG: 'sisterhood_app_lang_v1',
 };
 
-const getWelcomeMessage = (age) => {
-  if (age === '8-9') {
-    return {
-      id: 'welcome-msg',
-      sender: 'ai',
-      text: 'Привет, солнышко! 🌸 Я твоя добрая старшая сестренка. Здесь можно спросить обо всем: о секретах тела, зубках, дружбе в школе или если тебе страшно. Никто не увидит наши сообщения!',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-  }
+const getWelcomeMessage = (age, lang = 'ru') => {
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.ru;
+  const isKid = age === '8-9';
   return {
     id: 'welcome-msg',
     sender: 'ai',
-    text: 'Привет, милая! Я твоя виртуальная старшая сестра 🌸 Здесь можно задать любой вопрос о теле, настроении или взрослении без стеснения и страха. Всё останется между нами!',
+    text: isKid ? dict.welcomeKid : dict.welcomeGeneral,
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 };
 
 export const AppProvider = ({ children }) => {
+  // App Language ('ru' | 'pl' | 'en')
+  const [appLanguage, setAppLanguageState] = useState(() => {
+    return localStorage.getItem(STORAGE_KEYS.APP_LANG) || 'ru';
+  });
+
   // Age group state ('8-9' | '10-12' | '13-15' | '16+')
   const [ageGroup, setAgeGroupState] = useState(() => {
     return localStorage.getItem(STORAGE_KEYS.AGE_GROUP) || '13-15';
@@ -64,15 +67,49 @@ export const AppProvider = ({ children }) => {
   const [chatMessages, setChatMessages] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES);
-      return stored ? JSON.parse(stored) : [getWelcomeMessage(localStorage.getItem(STORAGE_KEYS.AGE_GROUP) || '13-15')];
+      const currentAge = localStorage.getItem(STORAGE_KEYS.AGE_GROUP) || '13-15';
+      const currentLang = localStorage.getItem(STORAGE_KEYS.APP_LANG) || 'ru';
+      return stored ? JSON.parse(stored) : [getWelcomeMessage(currentAge, currentLang)];
     } catch {
-      return [getWelcomeMessage('13-15')];
+      return [getWelcomeMessage('13-15', 'ru')];
     }
   });
+
+  const setAppLanguage = (newLang) => {
+    setAppLanguageState(newLang);
+    try {
+      localStorage.setItem(STORAGE_KEYS.APP_LANG, newLang);
+    } catch (e) {}
+
+    // Also sync voice language if matching
+    const voiceLangMap = { ru: 'ru-RU', uk: 'uk-UA', pl: 'pl-PL', en: 'en-US' };
+    if (voiceLangMap[newLang]) {
+      try {
+        const storedVoice = localStorage.getItem('sisterhood_voice_settings_v1');
+        const parsed = storedVoice ? JSON.parse(storedVoice) : {};
+        parsed.lang = voiceLangMap[newLang];
+        localStorage.setItem('sisterhood_voice_settings_v1', JSON.stringify(parsed));
+      } catch (e) {}
+    }
+
+    // If chat only contains the initial welcome message, translate it!
+    setChatMessages((prev) => {
+      if (prev.length === 1 && prev[0].id === 'welcome-msg') {
+        return [getWelcomeMessage(ageGroup, newLang)];
+      }
+      return prev;
+    });
+  };
+
+  const t = (key) => getTranslation(appLanguage, key);
 
   // Panic Button / Stealth Overlay State
   const [isPanicOpen, setIsPanicOpen] = useState(false);
   const [panicType, setPanicType] = useState('calculator'); // 'calculator' or 'notes'
+
+  // AI Chat generation state
+  const [isAiTyping, setIsAiTyping] = useState(false);
+  const [aiStatus, setAiStatus] = useState({ isOnline: true, mode: 'ready' });
 
   const setAgeGroup = (newAge) => {
     setAgeGroupState(newAge);
@@ -155,7 +192,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const clearChatHistory = () => {
-    setChatMessages([getWelcomeMessage(ageGroup)]);
+    setChatMessages([getWelcomeMessage(ageGroup, appLanguage)]);
     localStorage.removeItem(STORAGE_KEYS.CHAT_MESSAGES);
   };
 
@@ -165,98 +202,106 @@ export const AppProvider = ({ children }) => {
   };
 
   // Safe client-side assistant logic adapted by age group:
-  // For 8-9 years:
-  // - Warm, simple words, short sentences (2-3 sentences), lots of comforting emojis.
-  // - Focus on swimsuit rule, boundaries, hygiene, teeth, sleep, friendship, emotions.
-  // - Telling parents/teachers as first line of safety.
-  // For 10-15+ years:
-  // - Empathetic older sister answering puberty questions respectfully without diagnosis.
+  // Real multi-turn AI Chat or intelligent local fallback
   const sendChatMessage = async (userText) => {
     if (!userText.trim()) return;
 
+    const trimmedText = userText.trim();
     const userMsg = {
       id: 'msg-' + Date.now(),
       sender: 'user',
-      text: userText.trim(),
+      text: trimmedText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     setChatMessages((prev) => [...prev, userMsg]);
+    setIsAiTyping(true);
 
-    // Simulate short thinking delay for natural conversational feel
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const lower = userText.toLowerCase();
-        let replyText = '';
+    // Auto-detect if child communicates in a different language
+    const detectedLang = detectLanguage(trimmedText);
+    let switchedLanguage = null;
+    if (detectedLang && ['uk', 'pl', 'en', 'ru'].includes(detectedLang) && detectedLang !== appLanguage) {
+      setAppLanguage(detectedLang);
+      switchedLanguage = detectedLang;
+    }
 
-        // Safety trigger: pain / medical urgency
-        if (lower.includes('очень болит') || lower.includes('невыносим') || lower.includes('скорая') || lower.includes('рвота') || lower.includes('температур')) {
-          replyText = ageGroup === '8-9'
-            ? 'Солнышко, когда что-то сильно болит — сразу же позови маму, папу или учительницу! Они дадут тебе нужное лекарство или позовут доброго доктора. Не терпи боль в одиночку, взрослые обязательно помогут 🫂'
-            : 'Милая, если боль очень сильная и не проходит, пожалуйста, не терпи её в одиночку! Обязательно скажи маме, папе или школьной медсестре прямо сейчас — они дадут нужное лекарство или помогут показаться врачу. Я всегда рядом, но твоё здоровье сейчас на первом месте 🫂';
+    try {
+      // Determine active voice/language code
+      const effectiveLangCode = switchedLanguage || appLanguage;
+      let selectedLang = LANG_VOICE_MAP[effectiveLangCode] || 'ru-RU';
+      try {
+        const storedVoice = localStorage.getItem('sisterhood_voice_settings_v1');
+        if (storedVoice) {
+          const parsed = JSON.parse(storedVoice);
+          if (parsed.lang && !switchedLanguage) selectedLang = parsed.lang;
         }
-        // Safety trigger: violence / abuse / severe distress
-        else if (lower.includes('бьют') || lower.includes('обижают') || lower.includes('трогает') || lower.includes('насили') || lower.includes('умереть') || lower.includes('страшно жить')) {
-          replyText = ageGroup === '8-9'
-            ? 'Ты в полной безопасности со мной, и ты ни в чем-ни в чем не виновата! Если кто-то обижает или трогает тебя — немедленно расскажи маме, папе или любимой учительнице. Ты самая смелая девочка, и взрослые тебя защитят!'
-            : 'Ты в безопасности со мной, и ты ни в чем не виновата! Пожалуйста, обязательно поделись этим с взрослым, которому доверяешь (учительнице, родственнику или школьному психологу). Также есть бесплатный анонимный телефон доверия для детей 8-800-2000-122. Ты очень смелая и не одна!';
-        }
-        // Age 8-9 specific handlers
-        else if (ageGroup === '8-9') {
-          if (lower.includes('купальник') || lower.includes('трогает') || lower.includes('секрет')) {
-            replyText = 'Запомни, милая: места под купальником принадлежат только тебе! Никто не может просить показать их. А если кто-то просит хранить «секрет» о прикосновениях — сразу беги к маме или папе. Ты умница!';
-          } else if (lower.includes('зуб') || lower.includes('молочн')) {
-            replyText = 'Шатающийся зубик — это верный знак, что ты растешь! Молочный зуб уступает место новому, крепкому зубу. Положи выпавший зубик под подушку и не забывай чистить зубки утром и вечером ✨';
-          } else if (lower.includes('темнот') || lower.includes('страш') || lower.includes('боюсь')) {
-            replyText = 'Бояться — это нормально, даже взрослые иногда боятся! Попроси маму включить ночник и оставить дверь открытой. Обними мягкую игрушку — она будет охранять твои сны 🧸';
-          } else if (lower.includes('подруг') || lower.includes('поссорил') || lower.includes('дразн') || lower.includes('школ')) {
-            replyText = 'Обижаться очень грустно, солнышко. Если подружка дразнит, скажи твердо: «Мне не нравится, перестань!». А если поссорились — попробуй первой сказать: «Давай играть дружно, я соскучилась». Дружба сильнее ссор 💜';
-          } else if (lower.includes('руки') || lower.includes('мыл') || lower.includes('гигиен')) {
-            replyText = 'Мыло смывает невидимых микробов-букашек! Мой ручки с теплой водичкой и напевай про себя песенку 20 секунд перед каждым обедом 🧼';
-          } else {
-            replyText = 'Спасибо, что спросила меня, солнышко! Твое тело растет здоровым и красивым каждый день. Если есть секрет или вопрос, который тебя волнует — напиши мне еще, я всегда помогу 🌸';
-          }
-        }
-        // Age 10-15+ handlers
-        else {
-          const iceBreakers = ICE_BREAKER_PROMPTS_BY_AGE.default;
-          const match = iceBreakers.find((p) => 
-            lower.includes(p.text.toLowerCase().slice(0, 15)) ||
-            (p.tag === 'Тело' && (lower.includes('грудь') || lower.includes('сосок') || lower.includes('размер'))) ||
-            (p.tag === 'Общение' && (lower.includes('как сказать маме') || lower.includes('сказать родителям'))) ||
-            (p.tag === 'Здоровье' && (lower.includes('болит живот') || lower.includes('тянет низ'))) ||
-            (p.tag === 'Возраст' && (lower.includes('когда начнутся') || lower.includes('первые месячные') || lower.includes('во сколько лет')))
-          );
+      } catch (e) {}
 
-          if (match) {
-            replyText = match.answer;
-          } else if (lower.includes('тампон') || lower.includes('прокладк')) {
-            replyText = 'Начинать лучше всего с мягких тонких прокладок (размер Normal или 2-3 капельки) — с ними проще всего обращаться! Тампоны тоже можно пробовать (размера Mini), но только когда ты будешь чувствовать себя уверенно. Главное — менять средство каждые 3–4 часа 🌿';
-          } else if (lower.includes('пмс') || lower.includes('плач') || lower.includes('злюсь') || lower.includes('настроени')) {
-            replyText = 'Перепады настроения — это проделки гормонов, которые сейчас перестраивают твое тело. Ты совершенно нормальная, и злиться или грустить — тоже часть взросления! Налей теплый чай, укутайся в плед и дай себе отдохнуть 💜';
-          } else if (lower.includes('выделени') || lower.includes('белье') || lower.includes('пятно')) {
-            replyText = 'Белые или прозрачные выделения без резкого запаха — это признак того, что организм правильно развивается и очищает сам себя. Часто они появляются за несколько месяцев до первой менструации. Ежедневные прокладки помогут чувствовать свежесть!';
-          } else {
-            replyText = 'Спасибо, что доверяешь мне этот вопрос! Твое тело развивается в своем собственном, абсолютно правильном ритме. Помни: любые изменения — это естественно и не повод для страха. Если есть что-то конкретное, что беспокоит сильнее всего, напиши мне подробнее 🌸';
-          }
-        }
+      const aiResult = await callAIChat({
+        userMessage: trimmedText,
+        chatMessages,
+        ageGroup,
+        selectedLang,
+        onStatusChange: (status) => setAiStatus(status)
+      });
 
-        const aiMsg = {
-          id: 'ai-' + Date.now(),
-          sender: 'ai',
-          text: replyText,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
+      // If AI service itself refined the detected language
+      if (!switchedLanguage && aiResult.detectedLang && ['uk', 'pl', 'en', 'ru'].includes(aiResult.detectedLang) && aiResult.detectedLang !== appLanguage) {
+        setAppLanguage(aiResult.detectedLang);
+        switchedLanguage = aiResult.detectedLang;
+      }
 
-        setChatMessages((prev) => [...prev, aiMsg]);
-        resolve(aiMsg);
-      }, 600);
-    });
+      const aiMsg = {
+        id: 'ai-' + Date.now(),
+        sender: 'ai',
+        text: aiResult.text,
+        isAIGenerated: aiResult.isAIGenerated,
+        modelUsed: aiResult.modelUsed,
+        switchedLanguage,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setChatMessages((prev) => [...prev, aiMsg]);
+      return aiMsg;
+    } catch (err) {
+      console.warn('AI chat error handled with gentle fallback:', err);
+      const curLang = switchedLanguage || appLanguage;
+      const fallbackText = curLang === 'uk'
+        ? (ageGroup === '8-9'
+            ? 'Сонечко, я завжди з тобою 🌸 Якщо в тебе є запитання або таємниця — я з радістю відповім!'
+            : 'Люба, дякую за запитання! Твоє тіло розвивається у своєму власному ритмі. Напиши мені сміливо, якщо щось тебе турбує 💜')
+        : curLang === 'pl'
+        ? (ageGroup === '8-9'
+            ? 'Słoneczko, zawsze jestem przy Tobie 🌸 Jeśli masz pytanko lub sekret — z radością odpowiem!'
+            : 'Kochana, dziękuję za pytanie! Twoje ciało rozwija się w swoim własnym tempie. Napisz mi śmiało, jeśli coś Cię nurtuje 💜')
+        : curLang === 'en'
+        ? (ageGroup === '8-9'
+            ? 'Sweetheart, I am always right here for you 🌸 If you have a question or secret, I will gladly answer!'
+            : 'Dear, thank you for your question! Your body grows and develops at its own unique pace. Feel free to ask me anything on your mind 💜')
+        : (ageGroup === '8-9'
+            ? 'Солнышко, я всегда с тобой 🌸 Если у тебя есть вопросик или секрет — я с радостью отвечу!'
+            : 'Милая, спасибо за вопрос! Твое тело развивается в гармонии и в своем собственном ритме. Напиши мне подробнее, если что-то тебя беспокоит 💜');
+
+      const fallbackMsg = {
+        id: 'ai-' + Date.now(),
+        sender: 'ai',
+        text: fallbackText,
+        switchedLanguage,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages((prev) => [...prev, fallbackMsg]);
+      return fallbackMsg;
+    } finally {
+      setIsAiTyping(false);
+    }
   };
 
   return (
     <AppContext.Provider
       value={{
+        appLanguage,
+        setAppLanguage,
+        t,
         screen,
         setScreen,
         activeStoryId,
@@ -277,7 +322,9 @@ export const AppProvider = ({ children }) => {
         clearChatHistory,
         initialChatPrompt,
         setInitialChatPrompt,
-        goToChatWithPrompt
+        goToChatWithPrompt,
+        isAiTyping,
+        aiStatus
       }}
     >
       {children}
