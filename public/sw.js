@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sisterhood-cache-v1';
+const CACHE_NAME = 'heysis-cache-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

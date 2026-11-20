@@ -1,4 +1,4 @@
-# 🌸 SisterHood («Твоя Тайна» / «My Notes»)
+# 🌸 HeySis («Твоя Тайна» / «My Notes»)
 
 > **Open Source Privacy-First PWA** for adolescent girls' health education, puberty guidance, and safe digital support.
 
@@ -6,13 +6,13 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/Content_&_Design-CC--BY--4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Offline--First-green.svg)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 [![UNICEF Safe AI Aligned](https://img.shields.io/badge/Safety-UNICEF_Aligned-purple.svg)](https://www.unicef.org)
-[![Live Demo](https://img.shields.io/badge/Demo-Live_PWA-success.svg)](https://gingervik.github.io/sisterhood/)
+[![Live Demo](https://img.shields.io/badge/Demo-Live_PWA-success.svg)](https://gingervik.github.io/heysis/)
 
 ---
 
 ## 📖 О проекте (About)
 
-**SisterHood** — это прогрессивное веб-приложение (PWA) с открытым исходным кодом, созданное для безопасного, анонимного и бережного просвещения девочек-подростков (10–15 лет). Проект объединяет доказательную медицину, педагогику взросления и цифровой камуфляж для защиты личных границ ребенка в консервативных или небезопасных условиях.
+**HeySis** — это прогрессивное веб-приложение (PWA) с открытым исходным кодом, созданное для безопасного, анонимного и бережного просвещения девочек-подростков (10–15 лет). Проект объединяет доказательную медицину, педагогику взросления и цифровой камуфляж для защиты личных границ ребенка в консервативных или небезопасных условиях.
 
 ### Ключевые возможности:
 - 📱 **PWA & Stealth Mode (Камуфляж)**: устанавливается под нейтральным именем **«My Notes»** с синей иконкой школьного блокнота.
@@ -48,8 +48,8 @@
 
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/gingervik/sisterhood.git
-cd sisterhood
+git clone https://github.com/gingervik/heysis.git
+cd heysis
 
 # 2. Установить зависимости
 npm install

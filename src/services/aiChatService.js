@@ -85,7 +85,7 @@ export const buildParentSystemPrompt = (ageGroup, lang = 'ru-RU') => {
 
   const profile = ageProfiles[ageGroup] || ageProfiles['10-12'];
 
-  return `Ты — ведущий детский психолог, доказательный педиатр и семейный консультант в приложении SisterHood.
+  return `Ты — ведущий детский психолог, доказательный педиатр и семейный консультант в приложении HeySis.
 Твой собеседник: родитель (мама или папа) девочки в возрасте ${ageGroup} лет.
 Базовый язык общения: ${targetLanguage}.
 
@@ -234,7 +234,7 @@ export const generateParentLocalFallbackReply = (userMessage, ageGroup = '10-12'
   if (ageGroup === '13-15') {
     if (isUa) {
       if (lower.includes('нерегулярн') || lower.includes('цикл') || lower.includes('затримк')) {
-        return 'У перші 1–2 роки після менархе нерегулярний цикл — це абсолютна фізіологічна норма. Гормональна система гіпоталамус-гіпофіз-яєчники тільки дозріває. Просто спокійно фіксуйте дати в календарику додатку SisterHood 💜';
+        return 'У перші 1–2 роки після менархе нерегулярний цикл — це абсолютна фізіологічна норма. Гормональна система гіпоталамус-гіпофіз-яєчники тільки дозріває. Просто спокійно фіксуйте дати в календарику додатку HeySis 💜';
       }
       if (lower.includes('біль') || lower.includes('живіт') || lower.includes('спазм') || lower.includes('болить')) {
         return 'При менструальних спазмах допоможуть тепла грілка на низ живота, теплий травʼяний чай, зручна поза «ембріона» та відпочинок. Якщо біль заважає вчитися — проконсультуйтеся з педіатром щодо вікового дозування ібупрофену 🌿';
@@ -249,7 +249,7 @@ export const generateParentLocalFallbackReply = (userMessage, ageGroup = '10-12'
 
     if (isPl) {
       if (lower.includes('nieregularn') || lower.includes('cykl')) {
-        return 'W pierwszych 1–2 latach po menarche nieregularny cykl jest całkowitą normą fizjologiczną. Układ hormonalny dopiero dojrzewa. Wystarczy spokojnie zapisywać daty w kalendarzu SisterHood 💜';
+        return 'W pierwszych 1–2 latach po menarche nieregularny cykl jest całkowitą normą fizjologiczną. Układ hormonalny dopiero dojrzewa. Wystarczy spokojnie zapisywać daty w kalendarzu HeySis 💜';
       }
       if (lower.includes('ból') || lower.includes('brzuch') || lower.includes('skurcz')) {
         return 'Na skurcze menstruacyjne pomaga ciepły termofor, napar z rumianku, odpoczynek i wygodna pozycja. W razie silnego bólu skonsultuj się z pediatrą co do odpowiedniej dawki ibuprofenu 🌿';
@@ -264,7 +264,7 @@ export const generateParentLocalFallbackReply = (userMessage, ageGroup = '10-12'
 
     if (isEn) {
       if (lower.includes('irregular') || lower.includes('cycle') || lower.includes('late')) {
-        return 'During the first 1–2 years after menarche, cycle irregularity is biologically normal as the hypothalamic-pituitary-ovarian axis matures. Simply encourage logging days calmly in the SisterHood app 💜';
+        return 'During the first 1–2 years after menarche, cycle irregularity is biologically normal as the hypothalamic-pituitary-ovarian axis matures. Simply encourage logging days calmly in the HeySis app 💜';
       }
       if (lower.includes('cramp') || lower.includes('pain') || lower.includes('belly') || lower.includes('ache')) {
         return 'For menstrual cramps, a warm heating pad, chamomile tea, resting in a fetal curl, and hydration provide soothing relief. If cramps interfere with school, consult your pediatrician regarding appropriate age-based ibuprofen 🌿';
@@ -279,7 +279,7 @@ export const generateParentLocalFallbackReply = (userMessage, ageGroup = '10-12'
 
     // Russian 13-15
     if (lower.includes('нерегулярн') || lower.includes('цикл') || lower.includes('задержк')) {
-      return 'В первые 1–2 года после менархе нерегулярность цикла — абсолютная физиологическая норма. Гормональная ось только настраивается. Если нет сильной слабости или острой боли — просто спокойно отмечайте дни в календарике SisterHood 💜';
+      return 'В первые 1–2 года после менархе нерегулярность цикла — абсолютная физиологическая норма. Гормональная ось только настраивается. Если нет сильной слабости или острой боли — просто спокойно отмечайте дни в календарике HeySis 💜';
     }
     if (lower.includes('бол') || lower.includes('живот') || lower.includes('спазм')) {
       return 'При менструальных спазмах помогают теплая грелка на низ живота, травяной чай, отдых в позе эмбриона и достаточное питье. Если спазмы сильные — согласуйте с педиатром возрастной прием ибупрофена 🌿';

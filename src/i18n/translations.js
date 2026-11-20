@@ -1,10 +1,10 @@
-// Multilingual translations dictionary for SisterHood PWA
+// Multilingual translations dictionary for HeySis PWA
 // Supported languages: 'ru' (Russian), 'pl' (Polish), 'en' (English), 'uk' (Ukrainian)
 
 export const TRANSLATIONS = {
   ru: {
     // Top bar & navigation
-    appName: 'SisterHood',
+    appName: 'HeySis',
     safeSpaceTitle: 'Привет! Твое пространство',
     offlinePrivate: 'Офлайн режим • Приватно',
     quickStealth: 'Маскировка (Калькулятор)',
@@ -50,7 +50,7 @@ export const TRANSLATIONS = {
     parentModeBtn: 'Режим родителя',
     parentModeDesc: 'Шпаргалки для разговоров, подсказки психологов и чек-листы для мам и пап',
     openParentMode: 'Открыть гид',
-    footerDisclaimer: 'SisterHood — конфиденциальное приложение. Данные остаются на твоем устройстве.',
+    footerDisclaimer: 'HeySis — конфиденциальное приложение. Данные остаются на твоем устройстве.',
 
     // Stories Player
     slideOf: 'из',
@@ -106,7 +106,7 @@ export const TRANSLATIONS = {
 
   pl: {
     // Top bar & navigation
-    appName: 'SisterHood',
+    appName: 'HeySis',
     safeSpaceTitle: 'Cześć! Twoja bezpieczna przestrzeń',
     offlinePrivate: 'Tryb offline • Prywatnie',
     quickStealth: 'Kamuflaż (Kalkulator)',
@@ -152,7 +152,7 @@ export const TRANSLATIONS = {
     parentModeBtn: 'Strefa rodzica',
     parentModeDesc: 'Wskazówki do rozmów, porady psychologów i listy kontrolne dla rodziców',
     openParentMode: 'Otwórz',
-    footerDisclaimer: 'SisterHood to bezpieczna i poufna aplikacja. Wszystkie dane pozostają wyłącznie na Twoim urządzeniu.',
+    footerDisclaimer: 'HeySis to bezpieczna i poufna aplikacja. Wszystkie dane pozostają wyłącznie na Twoim urządzeniu.',
 
     // Stories Player
     slideOf: 'z',
@@ -208,7 +208,7 @@ export const TRANSLATIONS = {
 
   uk: {
     // Top bar & navigation
-    appName: 'SisterHood',
+    appName: 'HeySis',
     safeSpaceTitle: 'Привіт! Твій безпечний простір',
     offlinePrivate: 'Офлайн режим • Приватно',
     quickStealth: 'Камуфляж (Калькулятор)',
@@ -254,7 +254,7 @@ export const TRANSLATIONS = {
     parentModeBtn: 'Режим батьків',
     parentModeDesc: 'Шпаргалки для розмов, підказки психологів та чек-листи для мам і татів',
     openParentMode: 'Відкрити гід',
-    footerDisclaimer: 'SisterHood — конфіденційний застосунок. Усі дані залишаються виключно на твоєму пристрої.',
+    footerDisclaimer: 'HeySis — конфіденційний застосунок. Усі дані залишаються виключно на твоєму пристрої.',
 
     // Stories Player
     slideOf: 'із',
@@ -310,7 +310,7 @@ export const TRANSLATIONS = {
 
   en: {
     // Top bar & navigation
-    appName: 'SisterHood',
+    appName: 'HeySis',
     safeSpaceTitle: 'Hello! Your safe space',
     offlinePrivate: 'Offline mode • Private',
     quickStealth: 'Stealth (Calculator)',
@@ -356,7 +356,7 @@ export const TRANSLATIONS = {
     parentModeBtn: 'Parent Mode',
     parentModeDesc: 'Conversation scripts, psychology guides, and preparation checklists for parents',
     openParentMode: 'Open Guide',
-    footerDisclaimer: 'SisterHood is a private app. All data stays strictly on your device.',
+    footerDisclaimer: 'HeySis is a private app. All data stays strictly on your device.',
 
     // Stories Player
     slideOf: 'of',

@@ -1,4 +1,4 @@
-name: Deploy SisterHood to GitHub Pages
+name: Deploy HeySis to GitHub Pages
 
 on:
   push:

@@ -1,4 +1,4 @@
-# Project Instructions & Deployment Guide: Sisterhood PWA
+# Project Instructions & Deployment Guide: HeySis PWA
 
 ## 🚀 Deployment Instructions (Firebase Hosting)
 
