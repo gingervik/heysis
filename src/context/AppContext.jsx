@@ -30,11 +30,22 @@ const getWelcomeMessage = (age, lang = 'ru') => {
   };
 };
 
+const detectDefaultLanguage = () => {
+  if (typeof window === 'undefined') return 'en';
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.APP_LANG);
+    if (saved) return saved;
+  } catch {}
+  const navLang = (navigator.language || (navigator.languages && navigator.languages[0]) || 'en').toLowerCase();
+  if (navLang.startsWith('uk')) return 'uk';
+  if (navLang.startsWith('pl')) return 'pl';
+  if (navLang.startsWith('ru')) return 'ru';
+  return 'en';
+};
+
 export const AppProvider = ({ children }) => {
-  // App Language ('ru' | 'pl' | 'en')
-  const [appLanguage, setAppLanguageState] = useState(() => {
-    return localStorage.getItem(STORAGE_KEYS.APP_LANG) || 'ru';
-  });
+  // App Language ('en' | 'ru' | 'uk' | 'pl'), auto-detected from browser with 'en' fallback
+  const [appLanguage, setAppLanguageState] = useState(detectDefaultLanguage);
 
   // Age group state ('8-9' | '10-12' | '13-15' | '16+')
   const [ageGroup, setAgeGroupState] = useState(() => {
@@ -68,10 +79,10 @@ export const AppProvider = ({ children }) => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES);
       const currentAge = localStorage.getItem(STORAGE_KEYS.AGE_GROUP) || '13-15';
-      const currentLang = localStorage.getItem(STORAGE_KEYS.APP_LANG) || 'ru';
+      const currentLang = detectDefaultLanguage();
       return stored ? JSON.parse(stored) : [getWelcomeMessage(currentAge, currentLang)];
     } catch {
-      return [getWelcomeMessage('13-15', 'ru')];
+      return [getWelcomeMessage('13-15', 'en')];
     }
   });
 

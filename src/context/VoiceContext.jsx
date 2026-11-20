@@ -78,9 +78,15 @@ export const VoiceProvider = ({ children }) => {
 
   const [selectedLang, setSelectedLangState] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEYS.SELECTED_LANG) || 'ru-RU';
+      const saved = localStorage.getItem(STORAGE_KEYS.SELECTED_LANG);
+      if (saved) return saved;
+      const nav = (typeof navigator !== 'undefined' ? (navigator.language || 'en-US') : 'en-US').toLowerCase();
+      if (nav.startsWith('uk')) return 'uk-UA';
+      if (nav.startsWith('pl')) return 'pl-PL';
+      if (nav.startsWith('ru')) return 'ru-RU';
+      return 'en-US';
     } catch {
-      return 'ru-RU';
+      return 'en-US';
     }
   });
 
