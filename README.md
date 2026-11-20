@@ -6,7 +6,7 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/Content_&_Design-CC--BY--4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Offline--First-green.svg)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 [![UNICEF Safe AI Aligned](https://img.shields.io/badge/Safety-UNICEF_Aligned-purple.svg)](https://www.unicef.org)
-[![Live Demo](https://img.shields.io/badge/Demo-Live_PWA-success.svg)](https://heysis-five.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Demo-Live_PWA-success.svg)](https://hey-sis.vercel.app/)
 
 ---
 
