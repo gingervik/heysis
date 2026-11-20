@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useVoice } from '../context/VoiceContext';
 import { HeySisLogo } from '../components/HeySisLogo';
+import { InstallAppButton } from '../components/InstallAppButton';
 import { getLocalizedStories, getLocalizedMyths } from '../data/mockDataLocalized';
 import { ParentGateModal } from '../components/ParentGateModal';
 import {
@@ -147,16 +148,19 @@ export const Dashboard = () => {
             </div>
           </div>
 
-          {/* Parent Mode Quick Button - Always 100% visible on any screen */}
-          <button
-            onClick={() => setShowParentGate(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border border-amber-300 text-amber-950 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
-            title={t('parentModeBtn')}
-            aria-label={t('parentModeBtn')}
-          >
-            <span className="text-sm">👨‍👩‍👧</span>
-            <span className="text-xs">{t('parentModeBtn')}</span>
-          </button>
+          {/* Right Header Controls: Install PWA + Parent Mode */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <InstallAppButton />
+            <button
+              onClick={() => setShowParentGate(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border border-amber-300 text-amber-950 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
+              title={t('parentModeBtn')}
+              aria-label={t('parentModeBtn')}
+            >
+              <span className="text-sm">👨‍👩‍👧</span>
+              <span className="text-xs">{t('parentModeBtn')}</span>
+            </button>
+          </div>
         </div>
 
         {/* Row 2: One-Click Segmented Language Switcher + Age & Sound */}
