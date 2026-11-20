@@ -21,7 +21,7 @@ const STORAGE_KEYS = {
 
 const getWelcomeMessage = (age, lang = 'ru') => {
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.ru;
-  const isKid = age === '8-9';
+  const isKid = age === '5-7' || age === '8-9';
   return {
     id: 'welcome-msg',
     sender: 'ai',
@@ -278,18 +278,18 @@ export const AppProvider = ({ children }) => {
       console.warn('AI chat error handled with gentle fallback:', err);
       const curLang = switchedLanguage || appLanguage;
       const fallbackText = curLang === 'uk'
-        ? (ageGroup === '8-9'
+        ? ((ageGroup === '5-7' || ageGroup === '8-9')
             ? 'Сонечко, я завжди з тобою 🌸 Якщо в тебе є запитання або таємниця — я з радістю відповім!'
             : 'Люба, дякую за запитання! Твоє тіло розвивається у своєму власному ритмі. Напиши мені сміливо, якщо щось тебе турбує 💜')
         : curLang === 'pl'
-        ? (ageGroup === '8-9'
+        ? ((ageGroup === '5-7' || ageGroup === '8-9')
             ? 'Słoneczko, zawsze jestem przy Tobie 🌸 Jeśli masz pytanko lub sekret — z radością odpowiem!'
             : 'Kochana, dziękuję za pytanie! Twoje ciało rozwija się w swoim własnym tempie. Napisz mi śmiało, jeśli coś Cię nurtuje 💜')
         : curLang === 'en'
-        ? (ageGroup === '8-9'
+        ? ((ageGroup === '5-7' || ageGroup === '8-9')
             ? 'Sweetheart, I am always right here for you 🌸 If you have a question or secret, I will gladly answer!'
             : 'Dear, thank you for your question! Your body grows and develops at its own unique pace. Feel free to ask me anything on your mind 💜')
-        : (ageGroup === '8-9'
+        : ((ageGroup === '5-7' || ageGroup === '8-9')
             ? 'Солнышко, я всегда с тобой 🌸 Если у тебя есть вопросик или секрет — я с радостью отвечу!'
             : 'Милая, спасибо за вопрос! Твое тело развивается в гармонии и в своем собственном ритме. Напиши мне подробнее, если что-то тебя беспокоит 💜');
 

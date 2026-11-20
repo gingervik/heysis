@@ -84,7 +84,7 @@ function collectAllTexts(langs) {
     }
   };
 
-  const ageGroups = ['8-9', '10-12', '13-15', '16+'];
+  const ageGroups = ['5-7', '8-9', '10-12', '13-15', '16+'];
 
   for (const lang of langs) {
     const isPolish = lang === 'pl';

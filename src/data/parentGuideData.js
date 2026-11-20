@@ -18,6 +18,7 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageGroups: {
+      '5-7': '5–7 лет (Дошкольный и 1 класс)',
       '8-9': '8–9 лет (Младший возраст)',
       '10-12': '10–12 лет (Предпубертат)',
       '13-15': '13–15 лет (Подростковый возраст)',
@@ -25,6 +26,19 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageRoadmap: {
+      '5-7': {
+        title: 'Дошкольный возраст: телесная автономия и простые ответы',
+        summary: 'В 5–7 лет ребёнок активно изучает мир, учится говорить «нет» и впервые задаёт вопросы о том, как устроено тело и откуда берутся дети.',
+        physical: 'Быстрый рост, развитие моторики, формирование базовых навыков самостоятельной гигиены (мытьё рук, чистка зубов, подмывание спереди назад).',
+        emotional: 'Естественное детское любопытство без стыда, сильная привязанность к родителям, яркие эмоции (страхи, обиды, злость) и потребность в безопасности.',
+        goals: [
+          'Называть все части тела правильными анатомическими словами (вульва, грудь, попа) — это научно доказанная основа защиты ребёнка.',
+          'Закрепить «Правило трусиков» и уважать её «нет» даже к объятиям родственников.',
+          'Объяснить разницу между хорошими секретами (сюрприз) и плохими (тревожными), которые всегда нужно рассказывать родителям.',
+          'Отвечать на вопрос «откуда берутся дети?» просто, честно и на уровне её возраста без лишних подробностей.'
+        ],
+        adviceForDads: 'Для папы 5–7-летней дочки: будьте тёплой опорой, играйте, уважайте её «стоп» в щекотке и играх — так вы с раннего детства учите её, что её границы всегда уважают.'
+      },
       '8-9': {
         title: 'Первые шаги: границы тела и естественность',
         summary: 'В этом возрасте закладывается фундамент здорового отношения к телу и безопасности.',
@@ -76,6 +90,38 @@ export const PARENT_GUIDE_DATA = {
     },
 
     scripts: [
+      {
+        id: 'early-boundaries-5-7',
+        topic: 'Правило трусиков и границы тела (5–7 лет)',
+        situation: 'Дочке 5–7 лет, вы хотите спокойно и без страха научить её телесным границам и праву говорить «нет».',
+        whatToSay: '«Солнышко, твоё тело принадлежит только тебе. Места под трусиками и маечкой — личные. Никто не имеет права просить тебя показать их или трогать, кроме мамы/папы при купании или врача, когда мы рядом. И если тебя не хочется обниматься даже с родственниками — ты можешь просто помахать ручкой или дать пять!»',
+        phrasesToAvoid: [
+          '«Иди обними тётю, а то она обидится!»',
+          '«Не смей произносить эти неприличные слова (про части тела)!»',
+          '«Будь хорошей девочкой, не перечь взрослым.»'
+        ],
+        betterAlternatives: [
+          '«Ты можешь выбрать: обняться, дать пять или просто сказать “привет”.»',
+          '«У каждой части тела есть своё правильное название, в этом нет ничего стыдного.»',
+          '«Если взрослый просит о чём-то странном — ты имеешь полное право сказать “Нет” и рассказать мне.»'
+        ]
+      },
+      {
+        id: 'where-babies-come-from-5-7',
+        topic: 'Как ответить на вопрос «откуда берутся дети?» (5–7 лет)',
+        situation: 'Дочка 5–7 лет неожиданно спросила, откуда она появилась, и вы не хотите врать про аиста или капусту.',
+        whatToSay: '«Какой классный вопрос! Малыш растёт в специальном уютном месте внутри маминого животика — оно называется матка. Он начинается из малюсенькой клеточки мамы и малюсенькой клеточки папы, которые соединяются, и за 9 месяцев вырастает ребёнок. А когда малыш готов, он рождается через специальный родовой путь!»',
+        phrasesToAvoid: [
+          '«Тебя аист принёс / в магазине купили.»',
+          '«Ты ещё маленькая, вырастешь — узнаешь!»',
+          '«Фу, не спрашивай такие глупости.»'
+        ],
+        betterAlternatives: [
+          '«Отличный вопрос, мне нравится, что ты спрашиваешь у меня!»',
+          '«Отвечу коротко и честно: малыш растёт в маминой матке 9 месяцев.»',
+          '«Если появятся ещё вопросы — всегда приходи, я всё объясню.»'
+        ]
+      },
       {
         id: 'start-period-talk',
         topic: 'Как завести разговор о первых месячных',
@@ -178,6 +224,12 @@ export const PARENT_GUIDE_DATA = {
     ],
 
     aiPromptChipsByAge: {
+      '5-7': [
+        'Как спокойно объяснить дочке 5–6 лет «Правило трусиков» без запугивания?',
+        'Дочка 6 лет спросила, откуда берутся дети — что ответить просто и честно?',
+        'Нужно ли называть половые органы правильными словами в 5 лет?',
+        'Бабушка обижается, что дочка не хочет обниматься — как защитить границы?'
+      ],
       '8-9': [
         'Как доступно объяснить «Правило купальника» и границы тела?',
         'Дочка боится темноты и выпадающих зубов, как успокоить?',
@@ -220,6 +272,7 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageGroups: {
+      '5-7': '5–7 років (Дошкільний вік)',
       '8-9': '8–9 років (Молодший вік)',
       '10-12': '10–12 років (Передпубертат)',
       '13-15': '13–15 років (Підлітковий вік)',
@@ -227,6 +280,19 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageRoadmap: {
+      '5-7': {
+        title: 'Дошкільний вік: тілесна автономія та прості відповіді',
+        summary: 'У 5–7 років дитина вчиться говорити «ні», знайомиться з правилами безпеки та вперше запитує, як влаштоване тіло і звідки беруться діти.',
+        physical: 'Активний ріст, формування базових звичок самостійної гігієни (миття рук, чищення зубів, підмивання спереду назад).',
+        emotional: 'Природна дитяча допитливість без сорому, яскраві емоції та сильна потреба у безпеці й підтримці батьків.',
+        goals: [
+          'Називати частини тіла правильними анатомічними словами без сорому.',
+          'Закріпити «Правило трусиків» і поважати її «ні» навіть до обіймів із родичами.',
+          'Навчити розрізняти добрі секрети (сюрприз) і погані (тривожні).',
+          'Спокійно й чесно відповідати на питання «звідки беруться діти?» відповідно до віку.'
+        ],
+        adviceForDads: 'Для тата 5–7-річної доньки: поважайте її «стоп» у лоскотанні та іграх — так ви змалечку формуєте в неї здорові особисті кордони.'
+      },
       '8-9': {
         title: 'Перші кроки: межі тіла та природність',
         summary: 'У цьому віці закладається фундамент здорового ставлення до тіла та безпеки.',
@@ -278,6 +344,38 @@ export const PARENT_GUIDE_DATA = {
     },
 
     scripts: [
+      {
+        id: 'early-boundaries-5-7',
+        topic: 'Правило трусиків і межі тіла (5–7 років)',
+        situation: 'Доньці 5–7 років, ви хочете спокійно й без залякування навчити її тілесних кордонів і права казати «ні».',
+        whatToSay: '«Сонечко, твоє тіло належить тільки тобі. Місця під трусиками й маєчкою — особисті. Ніхто не має права просити показати їх або торкатися, крім мами/тата під час купання чи лікаря, коли ми поруч. І якщо тобі не хочеться обійматися навіть із родичами — можеш просто помахати ручкою або дати п’ять!»',
+        phrasesToAvoid: [
+          '«Йди обійми тітку, бо вона образиться!»',
+          '«Не кажи ці непристойні слова (про частини тіла)!»',
+          '«Будь чемною дівчинкою, не сперечайся з дорослими.»'
+        ],
+        betterAlternatives: [
+          '«Ти можеш обрати: обійнятися, дати п’ять чи просто сказати “привіт”.»',
+          '«Кожна частина тіла має свою правильну назву, у цьому немає нічого соромного.»',
+          '«Якщо дорослий просить про щось дивне — ти маєш повне право сказати “Ні” і розповісти мені.»'
+        ]
+      },
+      {
+        id: 'where-babies-come-from-5-7',
+        topic: 'Як відповісти на питання «звідки беруться діти?» (5–7 років)',
+        situation: 'Донька 5–7 років несподівано запитала, звідки вона з’явилася, і ви хочете відповісти чесно й відповідно до віку.',
+        whatToSay: '«Яке чудове запитання! Малюк росте в спеціальному затишному місці всередині маминого животика — воно називається матка. Він починається з малесенької клітинки мами та малесенької клітинки тата, які поєднуються, і за 9 місяців виростає дитинка!»',
+        phrasesToAvoid: [
+          '«Тебе лелека приніс / у капусті знайшли.»',
+          '«Ти ще маленька, виростеш — дізнаєшся!»',
+          '«Не питай такі дурниці.»'
+        ],
+        betterAlternatives: [
+          '«Чудове запитання, мені подобається, що ти питаєш у мене!»',
+          '«Відповім просто й чесно: малюк росте в маминій матці 9 місяців.»',
+          '«Якщо з’являться ще питання — завжди приходь, я все поясню.»'
+        ]
+      },
       {
         id: 'start-period-talk',
         topic: 'Як розпочати розмову про перші місячні',
@@ -342,6 +440,12 @@ export const PARENT_GUIDE_DATA = {
     ],
 
     aiPromptChipsByAge: {
+      '5-7': [
+        'Як спокійно пояснити доньці 5–6 років «Правило трусиків» без залякування?',
+        'Донька 6 років запитала, звідки беруться діти — як відповісти просто й чесно?',
+        'Чи варто називати інтимні частини тіла правильними словами у 5 років?',
+        'Як захистити право доньки не обійматися, якщо родичі ображаються?'
+      ],
       '8-9': [
         'Як просто пояснити «Правило купальника» та межі тіла?',
         'Донька боїться темряви чи випадання зубчиків, як заспокоїти?',
@@ -384,6 +488,7 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageGroups: {
+      '5-7': '5–7 lat (Przedszkole i 1 klasa)',
       '8-9': '8–9 lat (Młodszy wiek)',
       '10-12': '10–12 lat (Wczesne dojrzewanie)',
       '13-15': '13–15 lat (Nastolatki)',
@@ -391,6 +496,19 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageRoadmap: {
+      '5-7': {
+        title: 'Wczesne dzieciństwo: autonomia ciała i proste odpowiedzi',
+        summary: 'W wieku 5–7 lat dziecko uczy się mówić «nie», poznaje zasady bezpieczeństwa i zadaje pierwsze pytania o ciało oraz skąd się biorą dzieci.',
+        physical: 'Szybki wzrost, budowanie podstawowych nawyków samodzielnej higieny (mycie rąk, zębów, podmywanie od przodu do tyłu).',
+        emotional: 'Naturalna ciekawość bez wstydu, silne emocje i potrzeba bezpiecznej więzi z rodzicami.',
+        goals: [
+          'Nazywać części ciała właściwymi słowami anatomicznymi bez zawstydzania.',
+          'Utrwalić «Zasadę bielizny» i szanować jej «nie» także wobec przytulania krewnych.',
+          'Nauczyć odróżniać dobre tajemnice (niespodzianka) od złych (niepokojących).',
+          'Odpowiadać na pytanie «skąd się biorą dzieci?» prosto i szczerze, odpowiednio do wieku.'
+        ],
+        adviceForDads: 'Dla taty 5–7-latki: szanuj jej «stop» w zabawach i łaskotkach — tak od najmłodszych lat budujesz w niej poczucie zdrowych granic.'
+      },
       '8-9': {
         title: 'Pierwsze kroki: granice ciała i naturalność',
         summary: 'W tym wieku buduje się zdrowe podejście do własnego ciała i bezpieczeństwa.',
@@ -442,6 +560,38 @@ export const PARENT_GUIDE_DATA = {
 
     scripts: [
       {
+        id: 'early-boundaries-5-7',
+        topic: 'Zasada bielizny i granice ciała (5–7 lat)',
+        situation: 'Twoja córka ma 5–7 lat i chcesz spokojnie nauczyć ją autonomii ciała oraz prawa do mówienia «nie».',
+        whatToSay: '«Kochanie, Twoje ciało należy wyłącznie do Ciebie. Miejsca pod majteczkami i koszulką są prywatne. Nikt nie może prosić o ich pokazanie ani ich dotykać, poza mamą/tatą przy kąpieli lub lekarzem w naszej obecności. A jeśli nie masz ochoty na przytulenie z krewnymi — zawsze możesz pomachać lub przybić piątkę!»',
+        phrasesToAvoid: [
+          '«Idź przytul ciocię, bo będzie jej przykro!»',
+          '«Nie używaj tych brzydkich słów (o częściach ciała)!»',
+          '«Bądź grzeczna, nie sprzeciwiaj się dorosłym.»'
+        ],
+        betterAlternatives: [
+          '«Możesz wybrać: przytulenie, piątkę albo samo “cześć”.»',
+          '«Każda część ciała ma swoją właściwą nazwę — nie ma w tym żadnego wstydu.»',
+          '«Jeśli dorosły prosi o coś dziwnego, zawsze możesz powiedzieć “Nie” i przyjść do mnie.»'
+        ]
+      },
+      {
+        id: 'where-babies-come-from-5-7',
+        topic: 'Jak odpowiedzieć na pytanie «skąd się biorą dzieci?» (5–7 lat)',
+        situation: 'Córka w wieku 5–7 lat zapytała, skąd się wzięła, a Ty chcesz odpowiedzieć szczerze i stosownie do wieku.',
+        whatToSay: '«Wspaniałe pytanie! Dziecko rośnie w specjalnym, przytulnym miejscu w brzuchu mamy, które nazywa się macica. Powstaje z malutkiej komórki mamy i malutkiej komórki taty, które się łączą, a przez 9 miesięcy dziecko rośnie aż jest gotowe przyjść na świat!»',
+        phrasesToAvoid: [
+          '«Przyniósł Cię bocian / znaleźliśmy Cię w kapuście.»',
+          '«Jesteś za mała, dorośniesz to zrozumiesz!»',
+          '«Nie zadawaj głupich pytań.»'
+        ],
+        betterAlternatives: [
+          '«Świetne pytanie, cieszę się, że mnie pytasz!»',
+          '«Powiem Ci krótko i szczerze: maluszek rośnie w macicy mamy przez 9 miesięcy.»',
+          '«Gdy będziesz mieć kolejne pytania, zawsze pytaj śmiało.»'
+        ]
+      },
+      {
         id: 'start-period-talk',
         topic: 'Jak zacząć rozmowę o pierwszej miesiączce',
         situation: 'Córka ma 10–11 lat, zmian jeszcze nie widać, ale warto ją spokojnie przygotować.',
@@ -486,6 +636,12 @@ export const PARENT_GUIDE_DATA = {
     ],
 
     aiPromptChipsByAge: {
+      '5-7': [
+        'Jak spokojnie wyjaśnić 5–6-latce «Zasadę bielizny» bez straszenia?',
+        '6-letnia córka zapytała, skąd się biorą dzieci — jak odpowiedzieć prosto?',
+        'Czy używać prawdziwych nazw części ciała u 5-latki?',
+        'Jak chronić granice córki, gdy rodzina nalega na przytulanie?'
+      ],
       '8-9': [
         'Jak prosto wyjaśnić «Zasadę kostiumu kąpielowego» i granice ciała?',
         'Córka boi się ciemności lub wypadających ząbków, jak ją uspokoić?',
@@ -528,6 +684,7 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageGroups: {
+      '5-7': '5–7 yrs (Preschool & Grade 1)',
       '8-9': '8–9 yrs (Early Childhood)',
       '10-12': '10–12 yrs (Pre-Puberty)',
       '13-15': '13–15 yrs (Adolescence)',
@@ -535,6 +692,19 @@ export const PARENT_GUIDE_DATA = {
     },
 
     ageRoadmap: {
+      '5-7': {
+        title: 'Ages 5–7: Body Autonomy & Honest Simple Answers',
+        summary: 'Young girls are naturally curious, learning to say "no", and asking their first big questions about bodies and where babies come from.',
+        physical: 'Steady growth and building independent daily hygiene habits (handwashing, brushing teeth, wiping front-to-back).',
+        emotional: 'Shame-free curiosity, big emotions (fears, frustration), and deep need for calm parental reassurance.',
+        goals: [
+          'Use accurate anatomical names for body parts — pediatric research shows this strongly protects children.',
+          'Teach the Underwear Rule and respect her "no" even when relatives ask for hugs.',
+          'Clarify happy surprises vs. tricky secrets that should always be shared with mom or dad.',
+          'Answer "where do babies come from?" honestly, briefly, and without overwhelming detail.'
+        ],
+        adviceForDads: 'For dads of 5–7 year olds: always honor her "stop!" during tickling and roughhousing — you are teaching her that her boundaries always matter.'
+      },
       '8-9': {
         title: 'Early Steps: Body Boundaries & Natural Care',
         summary: 'Laying the foundation of healthy body positivity, safety, and hygiene.',
@@ -585,6 +755,38 @@ export const PARENT_GUIDE_DATA = {
     },
 
     scripts: [
+      {
+        id: 'early-boundaries-5-7',
+        topic: 'The Underwear Rule & Body Boundaries (Ages 5–7)',
+        situation: 'Your daughter is 5–7 years old and you want to calmly teach body autonomy and her right to say "no" without causing fear.',
+        whatToSay: '"Sweetheart, you are the boss of your own body. The areas covered by your underwear are private. Nobody is allowed to ask to see or touch them except mom/dad helping with a bath or a doctor when we are right there. And if you do not feel like hugging relatives, you can always wave or give a high-five!"',
+        phrasesToAvoid: [
+          '"Go hug Auntie or she will be sad!"',
+          '"Do not say those naughty words (about body parts)!"',
+          '"Be a polite girl and always obey grown-ups."'
+        ],
+        betterAlternatives: [
+          '"Would you like to give a hug, a high-five, or just wave hello?"',
+          '"Every body part has a real, proper name — there is nothing shameful about it."',
+          '"If any grown-up ever asks you to do something weird, you can always say NO and tell me."'
+        ]
+      },
+      {
+        id: 'where-babies-come-from-5-7',
+        topic: 'Answering "Where Do Babies Come From?" (Ages 5–7)',
+        situation: 'Your 5–7 year old suddenly asks how she was born, and you want to give an honest, calm, age-appropriate answer.',
+        whatToSay: '"What a great question! A baby grows in a special cozy place inside a mom\'s belly called a uterus. It starts when a tiny egg cell from mom and a tiny seed cell from dad join together, and over 9 months the baby grows until it is ready to be born!"',
+        phrasesToAvoid: [
+          '"The stork brought you / we bought you at the store."',
+          '"You are too young — I will tell you when you grow up."',
+          '"Shh, do not ask silly questions like that."'
+        ],
+        betterAlternatives: [
+          '"I love that you asked me! Let me give you the real, simple answer."',
+          '"A baby grows safely in mom\'s uterus for about 9 months."',
+          '"Whenever you have more questions, you can always ask me!"'
+        ]
+      },
       {
         id: 'start-period-talk',
         topic: 'How to bring up her first period',
@@ -642,6 +844,12 @@ export const PARENT_GUIDE_DATA = {
     ],
 
     aiPromptChipsByAge: {
+      '5-7': [
+        'How to calmly explain the Underwear Rule to a 5–6yo without scaring her?',
+        'My 6yo asked where babies come from — how do I answer simply & honestly?',
+        'Why do pediatricians recommend using real anatomical body part names at age 5?',
+        'Relatives get offended when my daughter skips hugs — how do I protect her boundaries?'
+      ],
       '8-9': [
         'How to explain the Swimsuit Rule and body autonomy simply?',
         'Daughter is scared of darkness or losing teeth, how to soothe?',

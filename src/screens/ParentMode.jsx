@@ -40,6 +40,7 @@ const UI_LABELS = {
     aiConsultantBadge: 'Советник по детской психологии',
     childAgePrompt: 'Возраст ребенка для консультанта:',
     ageFocusSummaries: {
+      '5-7': '🧸 5–7 лет • Правило трусиков, анатомические названия, границы, «откуда берутся дети»',
       '8-9': '👶 8–9 лет • Границы тела, правило купальника, гигиена, доверие без стыда',
       '10-12': '👧 10–12 лет • Подготовка к первой менструации, сумочка в школу, деликатность',
       '13-15': '👱‍♀️ 13–15 лет • Нерегулярный цикл, спазмы, эмоции, личное пространство',
@@ -66,6 +67,7 @@ const UI_LABELS = {
     aiConsultantBadge: 'Порадник з дитячої психології',
     childAgePrompt: 'Вік дитини для консультанта:',
     ageFocusSummaries: {
+      '5-7': '🧸 5–7 років • Правило трусиків, анатомічні назви, кордони, «звідки беруться діти»',
       '8-9': '👶 8–9 років • Кордони тіла, правило купальника, гігієна, довіра без сорому',
       '10-12': '👧 10–12 років • Підготовка до перших місячних, сумочка до школи, делікатність',
       '13-15': '👱‍♀️ 13–15 років • Нерегулярний цикл, спазми, емоції, приватний простір',
@@ -92,6 +94,7 @@ const UI_LABELS = {
     aiConsultantBadge: 'Konsultant psychologii dziecięcej',
     childAgePrompt: 'Wiek dziecka dla konsultanta:',
     ageFocusSummaries: {
+      '5-7': '🧸 5–7 lat • Zasada bielizny, nazwy anatomiczne, granice, «skąd się biorą dzieci»',
       '8-9': '👶 8–9 lat • Granice ciała, zasada bielizny, higiena, zaufanie bez wstydu',
       '10-12': '👧 10–12 lat • Przygotowanie do pierwszej miesiączki, saszetka do szkoły',
       '13-15': '👱‍♀️ 13–15 lat • Nieregularny cykl, skurcze, emocje, prywatność',
@@ -118,6 +121,7 @@ const UI_LABELS = {
     aiConsultantBadge: 'Child Psychology Advisor',
     childAgePrompt: "Child's age for advisor:",
     ageFocusSummaries: {
+      '5-7': '🧸 5–7 yrs • Underwear Rule, anatomical names, body boundaries, "where babies come from"',
       '8-9': '👶 8–9 yrs • Body boundaries, swimsuit rule, hygiene, trust without shame',
       '10-12': '👧 10–12 yrs • Prep for first period, school emergency kit, privacy',
       '13-15': '👱‍♀️ 13–15 yrs • Irregular cycle, cramps, mood shifts, personal space',
@@ -660,6 +664,7 @@ export const ParentMode = () => {
             {/* 4 Age Pills */}
             <div className="grid grid-cols-4 gap-1.5">
               {[
+                { id: '5-7', label: '5–7', icon: '🧸' },
                 { id: '8-9', label: '8–9', icon: '👶' },
                 { id: '10-12', label: '10–12', icon: '👧' },
                 { id: '13-15', label: '13–15', icon: '👱‍♀️' },

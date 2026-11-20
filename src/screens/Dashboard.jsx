@@ -205,6 +205,7 @@ export const Dashboard = () => {
                 className="bg-transparent font-bold text-stone-800 focus:outline-none cursor-pointer text-xs"
                 aria-label={t('ageSelect')}
               >
+                <option value="5-7">{isPolish ? '5–7 lat' : isUkrainian ? '5–7 р.' : isEnglish ? '5–7 yrs' : '5–7 лет'}</option>
                 <option value="8-9">{isPolish ? '8–9 lat' : isUkrainian ? '8–9 р.' : isEnglish ? '8–9 yrs' : '8–9 лет'}</option>
                 <option value="10-12">{isPolish ? '10–12 lat' : isUkrainian ? '10–12 р.' : isEnglish ? '10–12 yrs' : '10–12 лет'}</option>
                 <option value="13-15">{isPolish ? '13–15 lat' : isUkrainian ? '13–15 р.' : isEnglish ? '13–15 yrs' : '13–15 лет'}</option>
@@ -250,39 +251,39 @@ export const Dashboard = () => {
               <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
               <span>
                 {isPolish
-                  ? (ageGroup === '8-9' ? 'Dobra Starsza Siostra 🌸' : 'Czat z Siostrą • 100% Poufnie')
+                  ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Dobra Starsza Siostra 🌸' : 'Czat z Siostrą • 100% Poufnie')
                   : isUkrainian
-                  ? (ageGroup === '8-9' ? 'Добра Старша Сестра 🌸' : 'Чат із Сестричкою • 100% Приватно')
+                  ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Добра Старша Сестра 🌸' : 'Чат із Сестричкою • 100% Приватно')
                   : isEnglish
-                  ? (ageGroup === '8-9' ? 'Gentle Big Sister 🌸' : 'Chat with Sister • 100% Private')
-                  : (ageGroup === '8-9' ? 'Добрая Старшая Сестра 🌸' : 'Чат с Сестренкой • 100% Приватно')}
+                  ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Gentle Big Sister 🌸' : 'Chat with Sister • 100% Private')
+                  : ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Добрая Старшая Сестра 🌸' : 'Чат с Сестренкой • 100% Приватно')}
               </span>
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black leading-snug text-white">
               {isPolish
-                ? (ageGroup === '8-9' ? 'Porozmawiajmy! ✨' : 'Zapytaj o cokolwiek')
+                ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Porozmawiajmy! ✨' : 'Zapytaj o cokolwiek')
                 : isUkrainian
-                ? (ageGroup === '8-9' ? 'Поговори зі мною! ✨' : 'Запитай про що завгодно')
+                ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Поговори зі мною! ✨' : 'Запитай про що завгодно')
                 : isEnglish
-                ? (ageGroup === '8-9' ? "Let's talk! ✨" : 'Ask about anything')
-                : (ageGroup === '8-9' ? 'Поговори со мной! ✨' : 'Спроси о чем угодно')}
+                ? ((ageGroup === '5-7' || ageGroup === '8-9') ? "Let's talk! ✨" : 'Ask about anything')
+                : ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Поговори со мной! ✨' : 'Спроси о чем угодно')}
             </h2>
 
             <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
               {isPolish
-                ? (ageGroup === '8-9'
+                ? ((ageGroup === '5-7' || ageGroup === '8-9')
                     ? 'O ząbkach, emocjach, ciele lub sekretach. Odpowiadam ciepło i prosto!'
                     : 'O ciele, nastroju, przyjaźni czy sekretach. Bez oceniania i w 100% anonimowo.')
                 : isUkrainian
-                ? (ageGroup === '8-9'
+                ? ((ageGroup === '5-7' || ageGroup === '8-9')
                     ? 'Про зубки, тіло, настрій чи секрети. Відповідаю лагідно і зрозуміло!'
                     : 'Про тіло, настрій, дружбу чи секрети. Без засудження і на 100% анонімно.')
                 : isEnglish
-                ? (ageGroup === '8-9'
+                ? ((ageGroup === '5-7' || ageGroup === '8-9')
                     ? 'About teeth, feelings, body changes or secrets. Warm and simple answers!'
                     : 'About your body, mood, friendships or secrets. Judgment-free and 100% private.')
-                : (ageGroup === '8-9'
+                : ((ageGroup === '5-7' || ageGroup === '8-9')
                     ? 'О зубках, теле, настроении или секретах. Отвечаю ласково и понятно!'
                     : 'О теле, настроении, дружбе или секретах. Без осуждения и на 100% анонимно.')}
             </p>
@@ -342,12 +343,12 @@ export const Dashboard = () => {
             </h2>
             <p className="text-xs text-stone-500">
               {isPolish
-                ? (ageGroup === '8-9' ? 'Krótkie i proste karty o ciele' : 'Krótkie karty bez trudnych słów')
+                ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Krótkie i proste karty o ciele' : 'Krótkie karty bez trudnych słów')
                 : isUkrainian
-                ? (ageGroup === '8-9' ? 'Короткі та добрі картки про тіло' : 'Короткі картки без складних термінів')
+                ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Короткі та добрі картки про тіло' : 'Короткі картки без складних термінів')
                 : isEnglish
-                ? (ageGroup === '8-9' ? 'Gentle & simple cards about your body' : 'Bite-sized cards without complex terms')
-                : (ageGroup === '8-9' ? 'Короткие и добрые карточки о теле' : 'Короткие карточки без сложных терминов')}
+                ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Gentle & simple cards about your body' : 'Bite-sized cards without complex terms')
+                : ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Короткие и добрые карточки о теле' : 'Короткие карточки без сложных терминов')}
             </p>
           </div>
         </div>

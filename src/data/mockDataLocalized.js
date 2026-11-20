@@ -2,6 +2,188 @@
 import { STORIES_DATA, DAILY_MYTHS_BY_AGE, ICE_BREAKER_PROMPTS_BY_AGE } from './mockData.js';
 
 export const STORIES_DATA_PL = [
+  // ---------------- 5-7 YEARS STORIES (PL) ----------------
+  {
+    id: 'body-boss-5',
+    targetAges: ['5-7'],
+    categoryId: 'safety',
+    categoryTitle: 'Moje ciało — tylko moje',
+    categoryIcon: 'Shield',
+    categoryColor: 'mint',
+    title: 'Zasada bielizny: moje ciało należy do mnie!',
+    subtitle: 'Jak chronić granice i odróżniać dobre tajemnice od złych',
+    readTime: '2 min',
+    slidesCount: 5,
+    badge: 'Dla 5–7 lat',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'Ty rządzisz swoim ciałem! 🛡️',
+        subtitle: 'Prosta i ważna zasada dla odważnych dziewczynek',
+        illustration: 'shield-heart',
+        text: 'Od czubka głowy aż po palce u stóp Twoje ciało należy wyłącznie do Ciebie. Nikt nie ma prawa dotykać Cię, gdy tego nie chcesz!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Zasada bielizny',
+        text: 'Miejsca zakryte majteczkami i koszulką to Twoje prywatne części ciała. Nie pokazujemy ich obcym. Może pomóc przy nich tylko mama, tata (przy kąpieli) lub lekarz w obecności rodzica.',
+        highlight: 'Pod bielizną — tylko Twoja strefa',
+        illustration: 'swimsuit',
+        tip: 'Jeśli ktoś prosi o pokazanie prywatnych miejsc — powiedz głośno «NIE!» i biegnij do mamy lub taty.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Dobre i złe tajemnice',
+        text: 'Dobra tajemnica to niespodzianka na urodziny, która cieszy. Zła tajemnica to taka, która budzi strach albo każe milczeć. Złych tajemnic NIE wolno ukrywać!',
+        highlight: 'Złą tajemnicę zawsze powiedz rodzicom!',
+        illustration: 'open-lock',
+        tip: 'Mama i tata nigdy nie będą na Ciebie źli za opowiedzenie niepokojącej tajemnicy.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Mini-gra',
+        question: 'Prawda czy Mit: Jeśli ktoś nieprzyjemnie Cię łaskocze lub przytula, musisz wytrzymać, żeby być grzeczną?',
+        options: [
+          { text: 'Prawda, trzeba milczeć', isCorrect: false },
+          { text: 'Mit! Możesz powiedzieć «Stop, nie lubię tego!»', isCorrect: true }
+        ],
+        explanation: 'Mit! Zawsze możesz powiedzieć «Stop!» albo «Nie chcę się teraz przytulać». Twoje «NIE» jest bardzo ważne!'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'Jesteś super dzielna! 🌟',
+        text: 'Znasz już Zasadę bielizny i potrafisz dbać o swoje bezpieczeństwo!',
+        promptContext: 'Opowiedz prosto o dobrych i złych tajemnicach',
+        ctaText: 'Zapytaj starszą siostrę'
+      }
+    ]
+  },
+  {
+    id: 'clean-superhero-5',
+    targetAges: ['5-7'],
+    categoryId: 'hygiene',
+    categoryTitle: 'Czystość i troska',
+    categoryIcon: 'Sparkles',
+    categoryColor: 'peach',
+    title: 'Sekrety czystości superbohaterki',
+    subtitle: 'Jak myć rączki, podmywać się i dbać o siebie każdego dnia',
+    readTime: '2 min',
+    slidesCount: 5,
+    badge: 'Dla 5–7 lat',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'Dbanie o ciało to supermoc! ✨',
+        subtitle: 'Proste nawyki na każdy dzień',
+        illustration: 'shield-heart',
+        text: 'Każdego dnia Twoje ciało biega, skacze i odkrywa świat. Zobacz, jak pomagać mu być czystym i zdrowym!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Czyste rączki i świeża bielizna',
+        text: 'Po spacerze, toalecie i przed jedzeniem zmywamy niewidoczne bakterie wodą z mydłem. A każdego ranka zakładamy świeże, bawełniane majteczki.',
+        highlight: 'Świeże majteczki każdego dnia!',
+        illustration: 'swimsuit',
+        tip: 'Myj rączki przez około 20 sekund — tyle, ile trwa krótka piosenka.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Złoty kierunek: od przodu do tyłu',
+        text: 'Gdy myjesz się pod prysznicem lub wycierasz w toalecie, zawsze rób to od brzuszka w stronę pleców (od przodu do tyłu). Tak chronisz swoje zdrowie przed bakteriami.',
+        highlight: 'Zawsze od przodu do tyłu 🌿',
+        illustration: 'open-lock',
+        tip: 'Do podmywania wystarczy ciepła czysta woda — zwykłe mydło może szczypać delikatną skórę.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Mini-gra',
+        question: 'Prawda czy Mit: Podmywamy się i wycieramy zawsze od przodu do tyłu?',
+        options: [
+          { text: 'Prawda! To chroni ciało przed bakteriami', isCorrect: true },
+          { text: 'Mit, kierunek nie ma znaczenia', isCorrect: false }
+        ],
+        explanation: 'Prawda! Kierunek od przodu do tyłu to najważniejszy zdrowy nawyk każdej dziewczynki.'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'Superbohaterka czystości! 🫧',
+        text: 'Twoje ciało dziękuje Ci za tak cudowną opiekę!',
+        promptContext: 'Jak dbać o czystość każdego dnia?',
+        ctaText: 'Porozmawiaj z siostrą'
+      }
+    ]
+  },
+  {
+    id: 'big-feelings-5',
+    targetAges: ['5-7'],
+    categoryId: 'emotions',
+    categoryTitle: 'Moje uczucia',
+    categoryIcon: 'Heart',
+    categoryColor: 'lavender',
+    title: 'Wielkie uczucia: złość, strach i odwaga',
+    subtitle: 'Dlaczego wszystkie emocje są ważne i jak uspokoić się w 3 oddechy',
+    readTime: '2 min',
+    slidesCount: 5,
+    badge: 'Dla 5–7 lat',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'Wszystkie Twoje uczucia są OK! 💜',
+        subtitle: 'Możesz się cieszyć, smucić, a nawet złościć',
+        illustration: 'shield-heart',
+        text: 'Czasem w środku świeci słońce, a czasem przychodzi chmurka. Złość, smutek czy strach nie są niczym złym!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Oddech «Kwiatek i świeczka»',
+        text: 'Gdy jest Ci smutno lub strasznie, powoli powąchaj wyimaginowany kwiatek noskiem, a potem delikatnie zdmuchnij świeczkę ustami. Powtórz 3 razy — serduszko się uspokoi.',
+        highlight: 'Wdech — kwiatek, wydech — świeczka 🌸',
+        illustration: 'loud-voice',
+        tip: 'Możesz też przytulić ulubionego misia albo poprosić mamę lub tatę o przytulenie.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Proszenie o pomoc to odwaga',
+        text: 'Jeśli ktoś sprawił Ci przykrość w przedszkolu lub szkole, albo przyśnił się zły sen — powiedzenie o tym dorosłemu to prawdziwa odwaga!',
+        highlight: 'Nie jesteś sama, zawsze masz wsparcie',
+        illustration: 'open-lock',
+        tip: 'Wybierz 3 zaufanych dorosłych, którym zawsze możesz wszystko powiedzieć.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Mini-gra',
+        question: 'Prawda czy Mit: Grzeczne dziewczynki nigdy nie płaczą i nie złoszczą się?',
+        options: [
+          { text: 'Prawda, nie wolno płakać', isCorrect: false },
+          { text: 'Mit! Każdy człowiek czasem płacze i czuje złość', isCorrect: true }
+        ],
+        explanation: 'Mit! Nawet dorośli czasem płaczą lub się złoszczą. Ważne, by nikogo nie krzywdzić i mówić o swoich uczuciach.'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'Jesteś bardzo odważna! 🌈',
+        text: 'Potrafisz już rozpoznawać swoje emocje i spokojnie oddychać!',
+        promptContext: 'Trochę się boję albo jest mi smutno, pomóż mi się uspokoić',
+        ctaText: 'Porozmawiaj z siostrą'
+      }
+    ]
+  },
+
   // ---------------- 8-9 YEARS STORIES (PL) ----------------
   {
     id: 'swimsuit-rule-8',
@@ -491,6 +673,35 @@ export const STORIES_DATA_PL = [
 ];
 
 export const DAILY_MYTHS_BY_AGE_PL = {
+  '5-7': [
+    {
+      id: 'myth-hugs-5-pl',
+      dateLabel: 'Mit dnia (5–7 lat)',
+      question: 'Czy trzeba przytulać każdego dorosłego, nawet jeśli nie masz na to ochoty?',
+      isFact: false,
+      shortAnswer: 'To Mit!',
+      fullExplanation: 'Twoje ciało należy tylko do Ciebie! Możesz grzecznie pomachać ręką lub przybić piątkę, jeśli nie chcesz się przytulać.',
+      actionText: 'Poznaj prawdę'
+    },
+    {
+      id: 'myth-crying-5-pl',
+      dateLabel: 'Mit dnia (5–7 lat)',
+      question: 'Czy odważne dziewczynki nigdy nie boją się ciemności i nie płaczą?',
+      isFact: false,
+      shortAnswer: 'To Mit!',
+      fullExplanation: 'Strach i łzy są całkowicie normalne! Odwaga to umiejętność powiedzenia mamie lub tacie, gdy czegoś się boisz.',
+      actionText: 'Sprawdź siebie'
+    },
+    {
+      id: 'myth-front-back-5-pl',
+      dateLabel: 'Fakt dnia (5–7 lat)',
+      question: 'Czy mycie rąk mydłem i podmywanie się od przodu do tyłu chroni przed bakteriami?',
+      isFact: true,
+      shortAnswer: 'To czysta Prawda!',
+      fullExplanation: 'Ciepła woda z mydłem zmywa bakterie z rąk, a kierunek od przodu do tyłu każdego dnia chroni Twoje zdrowie!',
+      actionText: 'Sprawdź siebie'
+    }
+  ],
   '8-9': [
     {
       id: 'myth-gum-stomach-8',
@@ -552,6 +763,23 @@ export const DAILY_MYTHS_BY_AGE_PL = {
 };
 
 export const ICE_BREAKER_PROMPTS_BY_AGE_PL = {
+  '5-7': [
+    {
+      text: 'Co to jest zasada bielizny?',
+      tag: 'Bezpieczeństwo',
+      answer: 'Skarbie, to bardzo proste: miejsca zakryte majteczkami i koszulką należą tylko do Ciebie! Nikt nie ma prawa ich dotykać ani prosić o pokazanie. Jeśli coś Cię niepokoi — od razu powiedz mamie lub tacie 🛡️'
+    },
+    {
+      text: 'Boję się ciemności, pomóż!',
+      tag: 'Odwaga',
+      answer: 'Strach przed ciemnością jest całkiem normalny! Zróbmy razem 3 spokojne oddechy «kwiatek — świeczka», przytul ulubionego misia i poproś rodziców o przytulną lampkę nocną 🌟'
+    },
+    {
+      text: 'Dlaczego czasem się złoszczę?',
+      tag: 'Uczucia',
+      answer: 'Złość jest normalna — pokazuje, że coś Ci się nie podobało albo było niesprawiedliwe. Możesz głęboko odetchnąć i powiedzieć słowami: «Jestem teraz zła!» 💜'
+    }
+  ],
   '8-9': [
     {
       text: 'Co to jest zasada stroju kąpielowego?',
@@ -626,6 +854,188 @@ export const ICE_BREAKER_PROMPTS_BY_AGE_PL = {
 // UKRAINIAN LOCALIZATION (УКРАЇНСЬКА МОВА)
 // ========================================================
 export const STORIES_DATA_UK = [
+  // ---------------- 5-7 YEARS STORIES (UK) ----------------
+  {
+    id: 'body-boss-5',
+    targetAges: ['5-7'],
+    categoryId: 'safety',
+    categoryTitle: 'Я — господарка тіла',
+    categoryIcon: 'Shield',
+    categoryColor: 'mint',
+    title: 'Правило трусиків: моє тіло — тільки моє!',
+    subtitle: 'Як берегти особисті кордони та відрізняти добрі секрети від поганих',
+    readTime: '2 хв',
+    slidesCount: 5,
+    badge: 'Для 5–7 років',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'Ти — головна господарка свого тіла! 🛡️',
+        subtitle: 'Просте й важливе правило для сміливих дівчаток',
+        illustration: 'shield-heart',
+        text: 'Від верхівки до п’яточок твоє тіло належить тільки тобі. Ніхто не має права торкатися тебе, якщо тобі це неприємно!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Правило трусиків',
+        text: 'Те, що сховано під трусиками й маєчкою, — це твої особисті частини тіла. Їх не показують стороннім і не дозволяють торкатися нікому, крім мами чи тата (коли допомагають помитися) та лікаря в присутності батьків.',
+        highlight: 'Під білизною — тільки твоя зона',
+        illustration: 'swimsuit',
+        tip: 'Якщо хтось просить показати особисті місця — одразу кажи «Ні!» і біжи до мами чи тата.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Добрі та погані секрети',
+        text: 'Добрий секрет — це сюрприз на день народження, від якого радісно. А поганий секрет — коли тебе лякають або просять нікому не казати. Погані секрети зберігати НЕ МОЖНА!',
+        highlight: 'Поганий секрет — розкажи мамі!',
+        illustration: 'open-lock',
+        tip: 'Мама і тато ніколи не сваритимуть тебе за тривожний секрет.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Міні-гра',
+        question: 'Правда чи Міф: Якщо тебе неприємно лоскочуть чи міцно обіймають, треба терпіти, щоб бути чемною?',
+        options: [
+          { text: 'Правда, треба мовчати', isCorrect: false },
+          { text: 'Міф! Можна сказати «Стоп, мені неприємно!»', isCorrect: true }
+        ],
+        explanation: 'Міф! Ти завжди можеш сказати «Стоп!» або «Я зараз не хочу обійматися». Твоє «Ні» — дуже важливе!'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'Ти справжня розумниця! 🌟',
+        text: 'Тепер ти знаєш Правило трусиків і вмієш берегти себе!',
+        promptContext: 'Розкажи простими словами про добрі та погані секрети',
+        ctaText: 'Запитати у сестрички'
+      }
+    ]
+  },
+  {
+    id: 'clean-superhero-5',
+    targetAges: ['5-7'],
+    categoryId: 'hygiene',
+    categoryTitle: 'Чистота і турбота',
+    categoryIcon: 'Sparkles',
+    categoryColor: 'peach',
+    title: 'Секрети чистоти для супергероїні',
+    subtitle: 'Як правильно митися, чистити зубки та піклуватися про себе',
+    readTime: '2 хв',
+    slidesCount: 5,
+    badge: 'Для 5–7 років',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'Турбота про тіло — це суперсила! ✨',
+        subtitle: 'Прості звички на кожен день',
+        illustration: 'shield-heart',
+        text: 'Щодня твоє тіло бігає, стрибає і грається. Дізнаймося, як допомагати йому залишатися чистим і здоровим!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Чисті ручки і свіжа білизна',
+        text: 'Після прогулянки, туалету та перед їжею ми змиваємо невидимих мікробів водою з милом. А щоранку вдягаємо чисті бавовняні трусики.',
+        highlight: 'Свіжі трусики щодня!',
+        illustration: 'swimsuit',
+        tip: 'Мий ручки близько 20 секунд — поки співається коротка пісенька.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Чарівний напрямок: спереду назад',
+        text: 'Коли ти підмиваєшся в душі або витираєшся в туалеті, завжди рухайся від животика до спинки (спереду назад). Так мікроби не потраплять туди, де їм не місце.',
+        highlight: 'Завжди спереду назад 🌿',
+        illustration: 'open-lock',
+        tip: 'Для підмивання достатньо теплої чистої водички — звичайне мило може щипати ніжну шкіру.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Міні-гра',
+        question: 'Правда чи Міф: Підмиватися та витиратися потрібно завжди спереду назад?',
+        options: [
+          { text: 'Правда! Так тіло захищене від мікробів', isCorrect: true },
+          { text: 'Міф, напрямок не важливий', isCorrect: false }
+        ],
+        explanation: 'Правда! Рух спереду назад — головна звичка здоров’я для кожної дівчинки.'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'Супергероїня чистоти! 🫧',
+        text: 'Твоє тіло дякує тобі за таку дбайливу турботу!',
+        promptContext: 'Як правильно дбати про чистоту щодня?',
+        ctaText: 'Поговорити із сестричкою'
+      }
+    ]
+  },
+  {
+    id: 'big-feelings-5',
+    targetAges: ['5-7'],
+    categoryId: 'emotions',
+    categoryTitle: 'Мої почуття',
+    categoryIcon: 'Heart',
+    categoryColor: 'lavender',
+    title: 'Великі почуття: злість, страх і сміливість',
+    subtitle: 'Чому всі емоції важливі і як заспокоїтися за 3 вдихи',
+    readTime: '2 хв',
+    slidesCount: 5,
+    badge: 'Для 5–7 років',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'Усі твої почуття — нормальні! 💜',
+        subtitle: 'Радіти, сумувати й навіть злитися — можна',
+        illustration: 'shield-heart',
+        text: 'Іноді всередині світить сонечко, а іноді приходить хмаринка. Відчувати образу, страх чи злість — зовсім не соромно!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Дихання «Квіточка і свічка»',
+        text: 'Коли ти засмутилася чи злякалася, уяви ароматну квіточку: повільно понюхай її носиком, а потім м’яко задуй свічку ротиком. Повтори 3 рази — сердечко заспокоїться.',
+        highlight: 'Вдих — квіточка, видих — свічка 🌸',
+        illustration: 'loud-voice',
+        tip: 'Можна обійняти улюблену іграшку або попросити обіймів у мами й тата.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Просити про допомогу — це сміливість',
+        text: 'Якщо тебе хтось образив у садочку чи школі, або наснився страшний сон — розповісти про це дорослому — справжня сміливість!',
+        highlight: 'Ти не сама, поруч є захист',
+        illustration: 'open-lock',
+        tip: 'Обери 3 дорослих, яким ти довіряєш найбільше.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Міні-гра',
+        question: 'Правда чи Міф: Чемні дівчатка ніколи не зляться і не плачуть?',
+        options: [
+          { text: 'Правда, плакати не можна', isCorrect: false },
+          { text: 'Міф! Усі люди іноді сумують і зляться', isCorrect: true }
+        ],
+        explanation: 'Міф! І діти, і дорослі іноді зляться та плачуть. Головне — не ображати інших і говорити про свої почуття словами.'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'Ти дуже смілива! 🌈',
+        text: 'Тепер ти знаєш, як дружити зі своїми почуттями й заспокоюватися!',
+        promptContext: 'Мені трохи сумно або страшно, допоможи заспокоїтися',
+        ctaText: 'Поговорити із сестричкою'
+      }
+    ]
+  },
+
   // ---------------- 8-9 YEARS STORIES (UK) ----------------
   {
     id: 'swimsuit-rule-8',
@@ -1115,6 +1525,35 @@ export const STORIES_DATA_UK = [
 ];
 
 export const DAILY_MYTHS_BY_AGE_UK = {
+  '5-7': [
+    {
+      id: 'myth-hugs-5-uk',
+      dateLabel: 'Міф дня (5–7 років)',
+      question: 'Чи правда, що треба обов’язково обіймати кожного дорослого, навіть якщо не хочеться?',
+      isFact: false,
+      shortAnswer: 'Це Міф!',
+      fullExplanation: 'Твоє тіло належить тільки тобі! Ти можеш чемно помахати ручкою або дати «п’ять», якщо зараз не хочеться обійматися.',
+      actionText: 'Дізнатися правду'
+    },
+    {
+      id: 'myth-crying-5-uk',
+      dateLabel: 'Міф дня (5–7 років)',
+      question: 'Чи правда, що сміливі дівчатка ніколи не бояться темряви і не плачуть?',
+      isFact: false,
+      shortAnswer: 'Це Міф!',
+      fullExplanation: 'Боятися і плакати — абсолютно нормально! Сміливість — це вміння розповісти про свій страх мамі чи татові.',
+      actionText: 'Перевірити себе'
+    },
+    {
+      id: 'myth-front-back-5-uk',
+      dateLabel: 'Факт дня (5–7 років)',
+      question: 'Чи правда, що мити руки з милом і підмиватися спереду назад захищає від мікробів?',
+      isFact: true,
+      shortAnswer: 'Це чиста Правда!',
+      fullExplanation: 'Тепла вода з милом змиває мікробів із ручок, а рух спереду назад щодня береже твоє здоров’я!',
+      actionText: 'Перевірити себе'
+    }
+  ],
   '8-9': [
     {
       id: 'myth-gum-stomach-8',
@@ -1176,6 +1615,23 @@ export const DAILY_MYTHS_BY_AGE_UK = {
 };
 
 export const ICE_BREAKER_PROMPTS_BY_AGE_UK = {
+  '5-7': [
+    {
+      text: 'Що таке правило трусиків?',
+      tag: 'Безпека',
+      answer: 'Сонечко, це дуже просто: місця під трусиками та маєчкою належать тільки тобі! Ніхто не має права торкатися їх або просити показати. Якщо тобі ніяково — одразу біжи до мами чи тата 🛡️'
+    },
+    {
+      text: 'Мені страшно в темряві, допоможи!',
+      tag: 'Сміливість',
+      answer: 'Боятися темряви — зовсім нормально! Давай разом зробимо 3 повільні вдихи «квіточка — свічка», обіймемо улюблену іграшку й попросимо батьків увімкнути затишний нічник 🌟'
+    },
+    {
+      text: 'Чому я іноді злюся?',
+      tag: 'Почуття',
+      answer: 'Злитися — нормально, злість підказує, що тобі щось не сподобалося. Можна глибоко подихати і сказати словами: «Я зараз злюся!» 💜'
+    }
+  ],
   '8-9': [
     {
       text: 'Що таке правило купальника?',
@@ -1247,6 +1703,35 @@ export const ICE_BREAKER_PROMPTS_BY_AGE_UK = {
 };
 
 export const DAILY_MYTHS_BY_AGE_EN = {
+  '5-7': [
+    {
+      id: 'myth-hugs-5-en',
+      dateLabel: 'Fact or Myth (5–7 yrs)',
+      question: 'Do you have to hug every grown-up even when you do not feel like it?',
+      isFact: false,
+      shortAnswer: 'That is a Myth!',
+      fullExplanation: 'You are the boss of your own body! You can politely wave hello or give a high-five whenever you do not want a hug.',
+      actionText: 'Learn the truth'
+    },
+    {
+      id: 'myth-crying-5-en',
+      dateLabel: 'Fact or Myth (5–7 yrs)',
+      question: 'Is it true that brave girls never cry or feel scared of the dark?',
+      isFact: false,
+      shortAnswer: 'That is a Myth!',
+      fullExplanation: 'Crying and feeling scared are completely normal! Being brave means telling mom or dad when you need a hug or a nightlight.',
+      actionText: 'Check yourself'
+    },
+    {
+      id: 'myth-front-back-5-en',
+      dateLabel: 'Fact or Myth (5–7 yrs)',
+      question: 'Does washing hands with soap and wiping front-to-back help keep germs away?',
+      isFact: true,
+      shortAnswer: 'That is 100% True!',
+      fullExplanation: 'Warm water and soap wash away invisible germs, and wiping front-to-back keeps your body healthy every single day!',
+      actionText: 'Check yourself'
+    }
+  ],
   '8-9': [
     {
       id: 'en-myth-8-1',
@@ -1321,6 +1806,23 @@ export const DAILY_MYTHS_BY_AGE_EN = {
 };
 
 export const ICE_BREAKER_PROMPTS_BY_AGE_EN = {
+  '5-7': [
+    {
+      text: 'What is the Underwear Rule?',
+      tag: 'Safety',
+      answer: 'Sweetie, it is super simple: the parts of your body covered by your underwear belong only to you! No one is allowed to touch them or ask to see them. If anyone makes you feel weird, tell mom or dad right away 🛡️'
+    },
+    {
+      text: 'I feel scared in the dark, help!',
+      tag: 'Bravery',
+      answer: 'Feeling scared in the dark is totally normal! Let us take 3 slow "smell the flower, blow out the candle" breaths together, hug your favorite plushie, and ask mom or dad for a cozy nightlight 🌟'
+    },
+    {
+      text: 'Why do I feel angry sometimes?',
+      tag: 'Feelings',
+      answer: 'Feeling angry is totally okay — it just means something felt unfair or upsetting. Take a deep breath and use your words: "I feel angry right now!" 💜'
+    }
+  ],
   '8-9': [
     {
       text: 'What is the swimsuit rule?',
@@ -1397,6 +1899,188 @@ export const ICE_BREAKER_PROMPTS_BY_AGE_EN = {
 // ENGLISH LOCALIZATION (ENGLISH)
 // ========================================================
 export const STORIES_DATA_EN = [
+  // ---------------- 5-7 YEARS STORIES (EN) ----------------
+  {
+    id: 'body-boss-5',
+    targetAges: ['5-7'],
+    categoryId: 'safety',
+    categoryTitle: 'My Body Is Mine',
+    categoryIcon: 'Shield',
+    categoryColor: 'mint',
+    title: 'The Underwear Rule: You Are the Boss of Your Body!',
+    subtitle: 'How to protect your personal space and spot tricky secrets',
+    readTime: '2 min',
+    slidesCount: 5,
+    badge: 'Ages 5–7',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'You Are the Boss of Your Body! 🛡️',
+        subtitle: 'A simple, superpower safety rule for brave girls',
+        illustration: 'shield-heart',
+        text: 'From the top of your head to the tips of your toes, your body belongs only to you. Nobody is allowed to touch you in a way that feels uncomfortable!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'The Underwear Rule',
+        text: 'The parts of your body covered by your underwear and swimsuit are private. Only mom or dad (when helping you bathe) or a doctor with mom or dad right next to you may check them.',
+        highlight: 'Under your underwear is your private zone',
+        illustration: 'swimsuit',
+        tip: 'If anyone ever asks you to show your private parts, say a loud "NO!" and run straight to mom or dad.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Happy Surprises vs. Tricky Secrets',
+        text: 'A happy surprise is a birthday gift that makes people smile. A tricky secret makes your tummy feel scared or asks you to hide something from mom and dad. NEVER keep tricky secrets!',
+        highlight: 'Always tell mom or dad tricky secrets!',
+        illustration: 'open-lock',
+        tip: 'Mom and dad will never be mad at you for telling them a scary secret.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Mini Quiz',
+        question: 'Fact or Myth: If someone tickles or hugs you too hard, do you have to stay quiet to be polite?',
+        options: [
+          { text: 'Fact, you have to stay quiet', isCorrect: false },
+          { text: 'Myth! You can say "Stop, I do not like that!"', isCorrect: true }
+        ],
+        explanation: 'Myth! You always have the right to say "Stop!" or "I do not want a hug right now." Your voice matters!'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'You Are a Safety Star! 🌟',
+        text: 'Now you know the Underwear Rule and how to keep yourself safe!',
+        promptContext: 'Tell me simply about happy surprises vs tricky secrets',
+        ctaText: 'Ask Big Sister'
+      }
+    ]
+  },
+  {
+    id: 'clean-superhero-5',
+    targetAges: ['5-7'],
+    categoryId: 'hygiene',
+    categoryTitle: 'Clean & Healthy',
+    categoryIcon: 'Sparkles',
+    categoryColor: 'peach',
+    title: 'Daily Cleanliness Superpowers',
+    subtitle: 'How to wash hands, stay fresh, and care for your body',
+    readTime: '2 min',
+    slidesCount: 5,
+    badge: 'Ages 5–7',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'Caring for Your Body Is a Superpower! ✨',
+        subtitle: 'Easy, happy habits for every single day',
+        illustration: 'shield-heart',
+        text: 'Every day your body runs, jumps, and plays. Let us learn simple ways to keep it clean, comfy, and healthy!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Soapy Hands & Fresh Underwear',
+        text: 'After playing outside, using the bathroom, and before eating, soap and water wash away tiny invisible germs. And every morning we put on fresh, clean cotton underwear.',
+        highlight: 'Fresh cotton underwear every day!',
+        illustration: 'swimsuit',
+        tip: 'Wash your hands for 20 seconds — about the time it takes to sing Happy Birthday twice.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'The Magic Direction: Front to Back',
+        text: 'When you wash in the bath or wipe in the bathroom, always go from your tummy toward your back (front to back). That keeps germs away from places they do not belong.',
+        highlight: 'Always wipe front to back 🌿',
+        illustration: 'open-lock',
+        tip: 'Plain warm water is best for gentle washing — strong scented soaps can sting delicate skin.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Mini Quiz',
+        question: 'Fact or Myth: Should you always wipe and wash from front to back?',
+        options: [
+          { text: 'Fact! It keeps germs away', isCorrect: true },
+          { text: 'Myth, direction does not matter', isCorrect: false }
+        ],
+        explanation: 'Fact! Going front to back is one of the best healthy habits for every girl.'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'Cleanliness Superhero! 🫧',
+        text: 'Your body says a big thank you for taking such gentle care of it!',
+        promptContext: 'How can I take good care of my body every day?',
+        ctaText: 'Chat with Big Sister'
+      }
+    ]
+  },
+  {
+    id: 'big-feelings-5',
+    targetAges: ['5-7'],
+    categoryId: 'emotions',
+    categoryTitle: 'Big Feelings',
+    categoryIcon: 'Heart',
+    categoryColor: 'lavender',
+    title: 'Big Feelings: Anger, Fear & Bravery',
+    subtitle: 'Why every feeling is okay and how to calm down in 3 breaths',
+    readTime: '2 min',
+    slidesCount: 5,
+    badge: 'Ages 5–7',
+    slides: [
+      {
+        id: 1,
+        type: 'intro',
+        title: 'All of Your Feelings Are Okay! 💜',
+        subtitle: 'Happy, sad, scared, or mad — every feeling belongs',
+        illustration: 'shield-heart',
+        text: 'Sometimes it feels sunny inside, and sometimes a storm cloud rolls in. Feeling upset, scared, or angry is never something to be ashamed of!'
+      },
+      {
+        id: 2,
+        type: 'fact',
+        title: 'Flower & Candle Breathing',
+        text: 'When you feel upset or scared, pretend you are holding a flower: breathe in slowly through your nose, then gently blow out a birthday candle through your mouth. Do it 3 times!',
+        highlight: 'Smell the flower, blow out the candle 🌸',
+        illustration: 'loud-voice',
+        tip: 'Hugging a favorite stuffed animal or asking mom or dad for a cuddle helps too.'
+      },
+      {
+        id: 3,
+        type: 'fact',
+        title: 'Asking for Help Is Brave',
+        text: 'If someone was mean at kindergarten or school, or you had a bad dream, telling a trusted grown-up is not tattling — it is super brave!',
+        highlight: 'You are never alone',
+        illustration: 'open-lock',
+        tip: 'Pick 3 trusted grown-ups you can always talk to about anything.'
+      },
+      {
+        id: 4,
+        type: 'quiz',
+        title: 'Mini Quiz',
+        question: 'Fact or Myth: Good girls never get angry or cry?',
+        options: [
+          { text: 'Fact, you should never cry', isCorrect: false },
+          { text: 'Myth! Everyone feels sad or mad sometimes', isCorrect: true }
+        ],
+        explanation: 'Myth! Even grown-ups cry and feel angry sometimes. What matters is being kind and talking about your feelings.'
+      },
+      {
+        id: 5,
+        type: 'completion',
+        title: 'You Are So Brave! 🌈',
+        text: 'Now you know how to be friends with your big feelings!',
+        promptContext: 'I feel a little sad or scared, help me calm down',
+        ctaText: 'Chat with Big Sister'
+      }
+    ]
+  },
+
   // ---------------- 8-9 YEARS STORIES (EN) ----------------
   {
     id: 'swimsuit-rule-8',

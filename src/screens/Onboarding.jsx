@@ -14,20 +14,22 @@ export const Onboarding = () => {
   const isUkrainian = appLanguage === 'uk';
   const isEnglish = appLanguage === 'en';
 
+  const isYoungKid = selectedAge === '5-7' || selectedAge === '8-9';
+
   const welcomeSpokenText = isPolish
-    ? (selectedAge === '8-9'
-        ? 'Cześć, słoneczko! To Twoja bezpieczna przestrzeń. Tutaj możesz dowiedzieć się o sekretach ciała, dlaczego wypadają ząbki, jak się przyjaźnić i co zrobić, gdy czujesz niepokój. Możesz zadawać pytania głosem przez mikrofon, a siostra odpowie Ci na głos! Nikt nie dowie się o naszych rozmowach.'
+    ? (isYoungKid
+        ? 'Cześć, słoneczko! To Twoja bezpieczna przestrzeń. Tutaj możesz dowiedzieć się o sekretach ciała, granicach, przyjaźni i co zrobić, gdy czujesz niepokój. Możesz zadawać pytania głosem przez mikrofon, a siostra odpowie Ci na głos! Nikt nie dowie się o naszych rozmowach.'
         : 'Cześć! To Twoja bezpieczna przestrzeń. Tutaj możesz spokojnie dowiedzieć się wszystkiego o swoim ciele, miesiączce i emocjach bez wstydu i strachu. Żadnych kont, haseł i historii.')
     : isUkrainian
-    ? (selectedAge === '8-9'
-        ? 'Привіт, сонечко! Це твій безпечний простір. Тут ти можеш дізнатися про секрети тіла, чому випадають зубки, як дружити і що робити, якщо тобі тривожно. Ти можеш ставити запитання просто своїм голосом через мікрофон, а сестричка відповість тобі вголос! Ніхто не дізнається про наші розмови.'
+    ? (isYoungKid
+        ? 'Привіт, сонечко! Це твій безпечний простір. Тут ти можеш дізнатися про секрети тіла, кордони, дружбу і що робити, якщо тобі тривожно. Ти можеш ставити запитання просто своїм голосом через мікрофон, а сестричка відповість тобі вголос! Ніхто не дізнається про наші розмови.'
         : 'Привіт! Це твій безпечний простір. Тут ти можеш спокійно дізнатися все про своє тіло, місячні та емоції без сорому й страху. Жодних акаунтів, паролів чи слідів. Доступні голосове введення та озвучення відповідей.')
     : isEnglish
-    ? (selectedAge === '8-9'
-        ? 'Hello sweetie! This is your safe haven. Here you can discover secrets about your body, losing baby teeth, friendships, and how to handle worries. You can speak into the mic, and big sister will read back to you! Everything stays strictly private.'
+    ? (isYoungKid
+        ? 'Hello sweetie! This is your safe haven. Here you can learn about your body, personal boundaries, feelings, and bravery. You can speak into the mic, and big sister will read back to you! Everything stays strictly private.'
         : 'Hello! This is your private safe space. Here you can comfortably learn about your body, periods, and emotions without embarrassment or worry. No accounts, passwords, or traces. Voice input and audio responses are ready for you.')
-    : (selectedAge === '8-9'
-        ? 'Привет, солнышко! Это твоё безопасное пространство. Здесь ты можешь узнать о секретах тела, почему выпадают зубки, как дружить и что делать, если тебе тревожно. Ты можешь задавать вопросы прямо своим голосом через микрофон, а сестренка ответит тебе вслух! Никто не узнает о наших беседах.'
+    : (isYoungKid
+        ? 'Привет, солнышко! Это твоё безопасное пространство. Здесь ты можешь узнать о секретах тела, границах, дружбе и что делать, если тебе тревожно. Ты можешь задавать вопросы прямо своим голосом через микрофон, а сестренка ответит тебе вслух! Никто не узнает о наших беседах.'
         : 'Привет! Это твоё безопасное пространство. Здесь ты можешь спокойно узнать всё о своем теле, месячных и эмоциях без стеснения и страха. Никаких аккаунтов, паролей или следов. Доступны голосовой ввод и озвучка ответов.');
 
   const isWelcomeSpeaking = isSpeaking && speakingId === 'onboarding-welcome';
@@ -41,6 +43,7 @@ export const Onboarding = () => {
   };
 
   const ageOptions = [
+    { value: '5-7', label: isPolish ? '5–7 lat' : isUkrainian ? '5–7 років' : isEnglish ? '5–7 yrs' : '5–7 лет', hint: isPolish ? 'Bezpieczeństwo' : isUkrainian ? 'Безпека і тіло' : isEnglish ? 'Safety & body' : 'Безопасность' },
     { value: '8-9', label: isPolish ? '8–9 lat' : isUkrainian ? '8–9 років' : isEnglish ? '8–9 yrs' : '8–9 лет', hint: isPolish ? 'Ciało i przyjaźń' : isUkrainian ? 'Тіло і дружба' : isEnglish ? 'Body & friendship' : 'Тело и дружба' },
     { value: '10-12', label: isPolish ? '10–12 lat' : isUkrainian ? '10–12 років' : isEnglish ? '10–12 yrs' : '10–12 лет', hint: isPolish ? 'Sam początek' : isUkrainian ? 'Самий початок' : isEnglish ? 'Starting out' : 'Самое начало' },
     { value: '13-15', label: isPolish ? '13–15 lat' : isUkrainian ? '13–15 років' : isEnglish ? '13–15 yrs' : '13–15 лет', hint: isPolish ? 'Czas zmian' : isUkrainian ? 'Час змін' : isEnglish ? 'Time of changes' : 'Время перемен' },
