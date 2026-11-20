@@ -128,9 +128,9 @@ export const Dashboard = () => {
   const isEnglish = appLanguage === 'en';
 
   return (
-    <div className="h-[100dvh] overflow-y-auto bg-stone-50/70 pb-14 pt-2.5 px-3.5 sm:px-5 max-w-xl mx-auto flex flex-col justify-between gap-2.5">
+    <div className="h-[100dvh] overflow-y-auto bg-stone-50/70 pb-14 pt-3 px-3.5 sm:px-5 max-w-xl mx-auto flex flex-col gap-3.5">
       {/* 1. Mobile-First Clean Top Header */}
-      <header className="space-y-1.5 shrink-0">
+      <header className="space-y-2 shrink-0">
         {/* Row 1: Brand & Highly Visible Parent Mode Button */}
         <div className="flex items-center justify-between gap-2">
           {/* Brand / Title */}
@@ -238,16 +238,16 @@ export const Dashboard = () => {
         </div>
       </header>
 
-      {/* 2. HERO CARD (Compact Single-Screen Fit): Sister Chat with Voice */}
+      {/* 2. HERO CARD (Balanced Plush Single-Screen Fit): Sister Chat with Voice */}
       <div
         onClick={() => setScreen('chat')}
-        className="relative overflow-hidden bg-gradient-to-br from-lavender-500 via-rose-400 to-indigo-600 rounded-2xl p-3.5 text-white shadow-md hover:shadow-lg transition-all cursor-pointer group active:scale-99 shrink-0"
+        className="relative overflow-hidden bg-gradient-to-br from-lavender-500 via-rose-400 to-indigo-600 rounded-3xl p-4 text-white shadow-md hover:shadow-lg transition-all cursor-pointer group active:scale-99 shrink-0"
       >
-        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -right-8 -bottom-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
 
-        <div className="flex items-center justify-between gap-2 relative z-10">
-          <div className="space-y-0.5 min-w-0">
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-[10px] font-bold text-white">
+        <div className="flex items-center justify-between gap-3 relative z-10">
+          <div className="space-y-1 min-w-0">
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-[11px] font-bold text-white">
               <Sparkles className="w-3 h-3 text-yellow-200" />
               <span>
                 {isPolish
@@ -260,7 +260,7 @@ export const Dashboard = () => {
               </span>
             </div>
 
-            <h2 className="text-lg sm:text-xl font-black leading-tight text-white">
+            <h2 className="text-xl font-black leading-tight text-white">
               {isPolish
                 ? ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Porozmawiajmy! ✨' : 'Zapytaj o cokolwiek')
                 : isUkrainian
@@ -270,7 +270,7 @@ export const Dashboard = () => {
                 : ((ageGroup === '5-7' || ageGroup === '8-9') ? 'Поговори со мной! ✨' : 'Спроси о чем угодно')}
             </h2>
 
-            <p className="text-xs text-white/90 leading-snug line-clamp-1">
+            <p className="text-xs text-white/95 leading-snug">
               {isPolish
                 ? ((ageGroup === '5-7' || ageGroup === '8-9')
                     ? 'O emocjach, ciele lub sekretach — ciepło i prosto!'
@@ -289,7 +289,7 @@ export const Dashboard = () => {
             </p>
           </div>
 
-          <span className="flex items-center gap-1 bg-white text-stone-900 px-3 py-1.5 rounded-full text-xs font-extrabold shadow-sm group-hover:bg-rose-50 transition shrink-0">
+          <span className="flex items-center gap-1 bg-white text-stone-900 px-3.5 py-2 rounded-full text-xs font-extrabold shadow-sm group-hover:bg-rose-50 transition shrink-0">
             <Mic className="w-3.5 h-3.5 text-lavender-600" />
             <span>
               {isPolish
@@ -305,10 +305,10 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* 3. STORIES SECTION (Compact Horizontal Carousel) */}
-      <div className="space-y-1.5 shrink-0">
+      {/* 3. STORIES SECTION (Balanced Horizontal Carousel) */}
+      <div className="space-y-2 shrink-0">
         <div className="flex items-center justify-between px-0.5">
-          <h2 className="text-sm sm:text-base font-black text-stone-800 flex items-center gap-2">
+          <h2 className="text-base font-black text-stone-800 flex items-center gap-2">
             <span>
               {isPolish
                 ? 'Ciekawe historie 📖'
@@ -318,14 +318,14 @@ export const Dashboard = () => {
                 ? 'Helpful Stories 📖'
                 : 'Полезные истории 📖'}
             </span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full bg-mint-100 text-mint-800 font-bold">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-mint-100 text-mint-800 font-bold">
               {completedInAge}/{visibleStories.length}
             </span>
           </h2>
         </div>
 
         {/* Horizontal Carousel */}
-        <div className="flex gap-2.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar scroll-smooth snap-x snap-mandatory">
+        <div className="flex gap-3 overflow-x-auto pb-1 pt-0.5 no-scrollbar scroll-smooth snap-x snap-mandatory">
           {visibleStories.map((story) => {
             const isCompleted = completedStories.includes(story.id);
             const theme = getCategoryTheme(story.categoryColor);
@@ -334,37 +334,37 @@ export const Dashboard = () => {
               <div
                 key={story.id}
                 onClick={() => openStory(story.id)}
-                className={`snap-center shrink-0 w-[225px] sm:w-[245px] p-3 rounded-2xl border bg-gradient-to-b ${theme.gradient} ${theme.border} shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-2 relative group active:scale-98`}
+                className={`snap-center shrink-0 w-[240px] sm:w-[255px] p-4 rounded-3xl border bg-gradient-to-b ${theme.gradient} ${theme.border} shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between space-y-2.5 relative group active:scale-98`}
               >
                 {/* Completed badge */}
                 {isCompleted && (
-                  <div className="absolute top-2.5 right-2.5 bg-white text-mint-700 p-0.5 rounded-full shadow-2xs flex items-center gap-0.5 text-[10px] font-bold px-1.5">
+                  <div className="absolute top-3 right-3 bg-white text-mint-700 p-0.5 rounded-full shadow-2xs flex items-center gap-0.5 text-[10px] font-bold px-1.5">
                     <CheckCircle2 className="w-3 h-3 text-mint-600" />
                     <span>{isPolish ? 'OK' : isUkrainian ? 'OK' : isEnglish ? 'Done' : 'OK'}</span>
                   </div>
                 )}
 
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <div className="p-1.5 bg-white rounded-xl shadow-2xs">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-white rounded-2xl shadow-2xs">
                       {getCategoryIcon(story.categoryIcon)}
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border truncate ${theme.badge}`}>
+                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border truncate ${theme.badge}`}>
                       {story.categoryTitle}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="font-extrabold text-stone-800 text-sm leading-snug line-clamp-2">
+                    <h3 className="font-extrabold text-stone-800 text-[15px] leading-snug line-clamp-2">
                       {story.title}
                     </h3>
-                    <p className="text-[11px] text-stone-600 mt-0.5 leading-snug line-clamp-1">
+                    <p className="text-xs text-stone-600 mt-1 leading-snug line-clamp-2">
                       {story.subtitle}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-1.5 border-t border-stone-200/50 text-xs text-stone-500 font-medium">
+                <div className="flex items-center justify-between pt-2 border-t border-stone-200/50 text-xs text-stone-500 font-medium">
                   <div className="flex items-center gap-1.5 text-[11px]">
                     <Clock className="w-3.5 h-3.5 text-stone-400" />
                     <span>{story.readTime}</span>
@@ -423,9 +423,9 @@ export const Dashboard = () => {
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl p-3 border border-stone-200/80 shadow-xs space-y-2">
+        <div className="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-3">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-xs sm:text-sm font-bold text-stone-800 leading-snug line-clamp-2">
+            <h3 className="text-sm font-bold text-stone-800 leading-snug">
               {currentMyth.question}
             </h3>
             <button
@@ -464,16 +464,16 @@ export const Dashboard = () => {
 
           {/* Interactive Choices */}
           {!mythAnswerState ? (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={() => handleMythAnswer(true)}
-                className="py-2 px-3 rounded-xl border border-stone-200 hover:border-mint-400 hover:bg-mint-50/70 text-stone-800 font-extrabold text-xs transition shadow-2xs active:scale-95"
+                className="py-2.5 px-3 rounded-2xl border border-stone-200 hover:border-mint-400 hover:bg-mint-50/70 text-stone-800 font-extrabold text-sm transition shadow-2xs active:scale-95"
               >
                 👍 {t('truthBtn')}
               </button>
               <button
                 onClick={() => handleMythAnswer(false)}
-                className="py-2 px-3 rounded-xl border border-stone-200 hover:border-peach-400 hover:bg-peach-50/70 text-stone-800 font-extrabold text-xs transition shadow-2xs active:scale-95"
+                className="py-2.5 px-3 rounded-2xl border border-stone-200 hover:border-peach-400 hover:bg-peach-50/70 text-stone-800 font-extrabold text-sm transition shadow-2xs active:scale-95"
               >
                 🙅‍♀️ {t('mythBtn')}
               </button>
@@ -512,7 +512,7 @@ export const Dashboard = () => {
       />
 
       {/* 6. Compact Single-Line Open Source & Sources Footer */}
-      <footer className="pt-1.5 text-center text-[10px] text-stone-400 space-y-0.5 border-t border-stone-200/60 shrink-0">
+      <footer className="mt-auto pt-2 text-center text-[10px] text-stone-400 space-y-0.5 border-t border-stone-200/60 shrink-0">
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-stone-500">
           <a
             href="https://github.com/gingervik/heysis"
