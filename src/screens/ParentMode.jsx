@@ -265,68 +265,71 @@ export const ParentMode = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20 pt-3 px-3.5 sm:px-6 max-w-2xl mx-auto space-y-4">
-      {/* 1. Header with Return and Settings */}
-      <div className="flex items-center justify-between gap-2 pt-1">
-        <button
-          onClick={() => setScreen('dashboard')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-stone-100 font-bold text-xs shadow-2xs transition active:scale-95 shrink-0"
-        >
-          <ArrowLeft className="w-4 h-4 text-stone-600" />
-          <span>
-            {appLanguage === 'pl'
-              ? 'Wróć do trybu dziecka'
-              : appLanguage === 'uk'
-              ? 'До дитячого режиму'
-              : appLanguage === 'en'
-              ? 'Back to child mode'
-              : 'В детский режим'}
-          </span>
-        </button>
-
-        <div className="flex items-center gap-1.5">
-          {/* 4-Language Segmented Switcher */}
-          <div className="flex items-center bg-stone-200/80 rounded-xl p-0.5 text-xs font-bold">
-            {[
-              { code: 'ru', label: 'RU', flag: '🌸' },
-              { code: 'uk', label: 'UA', flag: '🌻' },
-              { code: 'pl', label: 'PL', flag: '🇵🇱' },
-              { code: 'en', label: 'EN', flag: '✨' }
-            ].map((lang) => {
-              const isActive = appLanguage === lang.code;
-              return (
-                <button
-                  key={lang.code}
-                  onClick={() => setAppLanguage(lang.code)}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
-                    isActive
-                      ? 'bg-white text-stone-900 shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                  aria-pressed={isActive}
-                  title={lang.code.toUpperCase()}
-                >
-                  <span className="text-[11px]">{lang.flag}</span>
-                  <span>{lang.label}</span>
-                </button>
-              );
-            })}
-          </div>
+      {/* 1. Clean 2-Row Mobile-First Header (zero overflow on any screen) */}
+      <header className="space-y-2 pt-1">
+        {/* Row 1: Back to Child Mode + Age Selector */}
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={() => setScreen('dashboard')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-stone-100 font-bold text-xs shadow-2xs transition active:scale-95 shrink-0"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-stone-600" />
+            <span>
+              {appLanguage === 'pl'
+                ? 'Tryb dziecka'
+                : appLanguage === 'uk'
+                ? 'Дитячий режим'
+                : appLanguage === 'en'
+                ? 'Child mode'
+                : 'Детский режим'}
+            </span>
+          </button>
 
           {/* Age Group Selector */}
-          <div className="flex items-center bg-white border border-stone-200 rounded-full px-2 py-1 text-xs text-stone-700 shadow-2xs">
+          <div className="flex items-center gap-1 bg-white border border-stone-200 rounded-full px-2.5 py-1.5 text-xs text-stone-700 shadow-2xs shrink-0">
+            <span className="text-xs">👧</span>
             <select
               value={ageGroup}
               onChange={(e) => setAgeGroup(e.target.value)}
               className="bg-transparent font-bold text-stone-800 focus:outline-none cursor-pointer text-xs"
             >
-              <option value="8-9">8–9</option>
-              <option value="10-12">10–12</option>
-              <option value="13-15">13–15</option>
-              <option value="16+">16+</option>
+              <option value="5-7">{appLanguage === 'pl' ? '5–7 lat' : appLanguage === 'uk' ? '5–7 р.' : appLanguage === 'en' ? '5–7 yrs' : '5–7 лет'}</option>
+              <option value="8-9">{appLanguage === 'pl' ? '8–9 lat' : appLanguage === 'uk' ? '8–9 р.' : appLanguage === 'en' ? '8–9 yrs' : '8–9 лет'}</option>
+              <option value="10-12">{appLanguage === 'pl' ? '10–12 lat' : appLanguage === 'uk' ? '10–12 р.' : appLanguage === 'en' ? '10–12 yrs' : '10–12 лет'}</option>
+              <option value="13-15">{appLanguage === 'pl' ? '13–15 lat' : appLanguage === 'uk' ? '13–15 р.' : appLanguage === 'en' ? '13–15 yrs' : '13–15 лет'}</option>
+              <option value="16+">{appLanguage === 'pl' ? '16+ lat' : appLanguage === 'uk' ? '16+ р.' : appLanguage === 'en' ? '16+ yrs' : '16+ лет'}</option>
             </select>
           </div>
         </div>
-      </div>
+
+        {/* Row 2: Full-width 4-Language Segmented Switcher */}
+        <div className="grid grid-cols-4 bg-stone-200/80 rounded-xl p-0.5 text-xs font-bold">
+          {[
+            { code: 'ru', label: 'RU', flag: '🌸' },
+            { code: 'uk', label: 'UA', flag: '🌻' },
+            { code: 'pl', label: 'PL', flag: '🇵🇱' },
+            { code: 'en', label: 'EN', flag: '✨' }
+          ].map((lang) => {
+            const isActive = appLanguage === lang.code;
+            return (
+              <button
+                key={lang.code}
+                onClick={() => setAppLanguage(lang.code)}
+                className={`py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
+                  isActive
+                    ? 'bg-white text-stone-900 shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+                aria-pressed={isActive}
+                title={lang.code.toUpperCase()}
+              >
+                <span className="text-[11px]">{lang.flag}</span>
+                <span>{lang.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </header>
 
       {/* 2. Title & Privacy Notice Banner */}
       <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-5 text-white shadow-md relative overflow-hidden">
@@ -402,20 +405,53 @@ export const ParentMode = () => {
         </button>
       </div>
 
-      {/* 4. Tab 1: Dialogue Scripts */}
-      {activeTab === 'scripts' && (
+      {/* 4. Tab 1: Dialogue Scripts (Age-Targeted) */}
+      {activeTab === 'scripts' && (() => {
+        const filteredScripts = data.scripts.filter(
+          (s) => !s.targetAges || s.targetAges.includes(ageGroup)
+        );
+        const visibleScripts = filteredScripts.length > 0 ? filteredScripts : data.scripts;
+
+        return (
         <div className="space-y-3 animate-fade-in">
+          {/* Age Filter Pills inside Scripts tab */}
+          <div className="grid grid-cols-5 gap-1.5">
+            {[
+              { id: '5-7', label: '5–7', icon: '🧸' },
+              { id: '8-9', label: '8–9', icon: '👶' },
+              { id: '10-12', label: '10–12', icon: '🌸' },
+              { id: '13-15', label: '13–15', icon: '⚡' },
+              { id: '16+', label: '16+', icon: '🎓' }
+            ].map((age) => (
+              <button
+                key={age.id}
+                onClick={() => {
+                  setAgeGroup(age.id);
+                  setExpandedScriptId(null);
+                }}
+                className={`py-1.5 px-1 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 border ${
+                  ageGroup === age.id
+                    ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
+                    : 'bg-white text-stone-600 border-stone-200 hover:bg-amber-50'
+                }`}
+              >
+                <span>{age.icon}</span>
+                <span>{age.label}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-center justify-between px-1">
             <h2 className="text-sm font-extrabold text-stone-800">
-              {data.tabs.scripts}
+              {data.tabs.scripts} ({ageGroup})
             </h2>
             <span className="text-[11px] text-stone-500">
-              {data.scripts.length} {labels.scriptsCount}
+              {visibleScripts.length} {labels.scriptsCount}
             </span>
           </div>
 
           <div className="space-y-3">
-            {data.scripts.map((item) => {
+            {visibleScripts.map((item) => {
               const isExpanded = expandedScriptId === item.id;
               return (
                 <div
@@ -494,7 +530,8 @@ export const ParentMode = () => {
             })}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* 5. Tab 2: Age Roadmap */}
       {activeTab === 'byAge' && currentAgeInfo && (

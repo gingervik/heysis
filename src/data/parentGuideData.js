@@ -92,6 +92,7 @@ export const PARENT_GUIDE_DATA = {
     scripts: [
       {
         id: 'early-boundaries-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'Правило трусиков и границы тела (5–7 лет)',
         situation: 'Дочке 5–7 лет, вы хотите спокойно и без страха научить её телесным границам и праву говорить «нет».',
         whatToSay: '«Солнышко, твоё тело принадлежит только тебе. Места под трусиками и маечкой — личные. Никто не имеет права просить тебя показать их или трогать, кроме мамы/папы при купании или врача, когда мы рядом. И если тебя не хочется обниматься даже с родственниками — ты можешь просто помахать ручкой или дать пять!»',
@@ -108,6 +109,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'where-babies-come-from-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'Как ответить на вопрос «откуда берутся дети?» (5–7 лет)',
         situation: 'Дочка 5–7 лет неожиданно спросила, откуда она появилась, и вы не хотите врать про аиста или капусту.',
         whatToSay: '«Какой классный вопрос! Малыш растёт в специальном уютном месте внутри маминого животика — оно называется матка. Он начинается из малюсенькой клеточки мамы и малюсенькой клеточки папы, которые соединяются, и за 9 месяцев вырастает ребёнок. А когда малыш готов, он рождается через специальный родовой путь!»',
@@ -124,6 +126,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'start-period-talk',
+        targetAges: ['8-9', '10-12'],
         topic: 'Как завести разговор о первых месячных',
         situation: 'Дочке 10–11 лет, изменений пока нет или только начались, но вы хотите мягко подготовить ее заранее.',
         whatToSay: '«Милая, ты сейчас заметно подрастаешь, и скоро твое тело начнет меняться. Через какое-то время у тебя начнется менструация — это когда раз в месяц выходит несколько капель крови. Это признак того, что организм развивается абсолютно здорово! Я хочу показать тебе, какие бывают удобные прокладки, и положить их тебе в сумочку, чтобы ты всегда чувствовала себя спокойно и уверенно.»',
@@ -140,6 +143,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'child-is-shy',
+        targetAges: ['10-12', '13-15', '16+'],
         topic: 'Что делать, если дочь стесняется и закрывается',
         situation: 'При попытке поговорить дочка краснеет, раздражается или говорит «Мам/Пап, отстань, я все знаю».',
         whatToSay: '«Я прекрасно понимаю, что говорить об этом может быть немного неловко. Я не буду устраивать допрос. Просто знай: в ванной на верхней полочке всегда лежат прокладки и салфетки. А если у тебя возникнет любой вопрос — ты можешь спросить меня лично или даже просто написать в мессенджере или запиской на столе. Я никогда не буду смеяться или ругать.»',
@@ -154,6 +158,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'period-pain',
+        targetAges: ['10-12', '13-15', '16+'],
         topic: 'Если дочка жалуется на боль в животе при менструации',
         situation: 'У дочки спазмы, она вялая, плачет или боится идти в школу.',
         whatToSay: '«Малышка, мне очень жаль, что тебе сейчас некомфортно. Легкие спазмы бывают, потому что матка сокращается. Давай я налью тебе теплый ромашковый чай, принесу уютный плед и теплую грелочку. Если боль не проходит — мы аккуратно подберем безопасный способ облегчить состояние. Ты не должна терпеть сильную боль молча 🫂»',
@@ -168,6 +173,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'hygiene-deodorant',
+        targetAges: ['10-12', '13-15'],
         topic: 'Деликатный разговор о запахе пота и гигиене',
         situation: 'У девочки в 10–12 лет меняется запах тела, но она забывает принимать душ или стесняется дезодоранта.',
         whatToSay: '«Солнышко, с взрослением потовые железы начинают работать по-новому — это происходит абсолютно со всеми людьми на свете! Давай мы сходим вместе в магазин и выберем тебе персональный вкусный гель для душа и мягкий дезодорант с ароматом, который понравится лично тебе.»',
@@ -346,6 +352,7 @@ export const PARENT_GUIDE_DATA = {
     scripts: [
       {
         id: 'early-boundaries-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'Правило трусиків і межі тіла (5–7 років)',
         situation: 'Доньці 5–7 років, ви хочете спокійно й без залякування навчити її тілесних кордонів і права казати «ні».',
         whatToSay: '«Сонечко, твоє тіло належить тільки тобі. Місця під трусиками й маєчкою — особисті. Ніхто не має права просити показати їх або торкатися, крім мами/тата під час купання чи лікаря, коли ми поруч. І якщо тобі не хочеться обійматися навіть із родичами — можеш просто помахати ручкою або дати п’ять!»',
@@ -362,6 +369,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'where-babies-come-from-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'Як відповісти на питання «звідки беруться діти?» (5–7 років)',
         situation: 'Донька 5–7 років несподівано запитала, звідки вона з’явилася, і ви хочете відповісти чесно й відповідно до віку.',
         whatToSay: '«Яке чудове запитання! Малюк росте в спеціальному затишному місці всередині маминого животика — воно називається матка. Він починається з малесенької клітинки мами та малесенької клітинки тата, які поєднуються, і за 9 місяців виростає дитинка!»',
@@ -378,6 +386,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'start-period-talk',
+        targetAges: ['8-9', '10-12'],
         topic: 'Як розпочати розмову про перші місячні',
         situation: 'Доньці 10–11 років, змін ще немає, але варто підготувати її заздалегідь.',
         whatToSay: '«Люба, ти помітно підростаєш, і скоро твоє тіло почне змінюватися. Через деякий час у тебе почнеться менструація — це коли раз на місяць виділяється трохи крові. Це ознака того, що ти ростеш здоровою! Хочу показати тобі зручні прокладки й покласти їх у рюкзачок, щоб ти почувалася спокійно.»',
@@ -392,6 +401,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'child-is-shy',
+        targetAges: ['10-12', '13-15', '16+'],
         topic: 'Що робити, якщо донька соромиться',
         situation: 'Донька ніяковіє або каже: «Мамо/Тату, я все знаю, не чіпай мене».',
         whatToSay: '«Я чудово розумію, що говорити про це буває ніяково. Я не буду влаштовувати допит. Просто знай: у ванній на поличці завжди лежать засоби гігієни. А якщо буде питання — ти завжди можеш запитати мене або навіть просто написати повідомлення в телефоні. Я ніколи не буду сварити чи насміхатися.»',
@@ -561,6 +571,7 @@ export const PARENT_GUIDE_DATA = {
     scripts: [
       {
         id: 'early-boundaries-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'Zasada bielizny i granice ciała (5–7 lat)',
         situation: 'Twoja córka ma 5–7 lat i chcesz spokojnie nauczyć ją autonomii ciała oraz prawa do mówienia «nie».',
         whatToSay: '«Kochanie, Twoje ciało należy wyłącznie do Ciebie. Miejsca pod majteczkami i koszulką są prywatne. Nikt nie może prosić o ich pokazanie ani ich dotykać, poza mamą/tatą przy kąpieli lub lekarzem w naszej obecności. A jeśli nie masz ochoty na przytulenie z krewnymi — zawsze możesz pomachać lub przybić piątkę!»',
@@ -577,6 +588,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'where-babies-come-from-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'Jak odpowiedzieć na pytanie «skąd się biorą dzieci?» (5–7 lat)',
         situation: 'Córka w wieku 5–7 lat zapytała, skąd się wzięła, a Ty chcesz odpowiedzieć szczerze i stosownie do wieku.',
         whatToSay: '«Wspaniałe pytanie! Dziecko rośnie w specjalnym, przytulnym miejscu w brzuchu mamy, które nazywa się macica. Powstaje z malutkiej komórki mamy i malutkiej komórki taty, które się łączą, a przez 9 miesięcy dziecko rośnie aż jest gotowe przyjść na świat!»',
@@ -593,6 +605,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'start-period-talk',
+        targetAges: ['8-9', '10-12'],
         topic: 'Jak zacząć rozmowę o pierwszej miesiączce',
         situation: 'Córka ma 10–11 lat, zmian jeszcze nie widać, ale warto ją spokojnie przygotować.',
         whatToSay: '«Kochanie, bardzo urosłaś i Twoje ciało powoli zaczyna się zmieniać. Za jakiś czas pojawi się pierwsza miesiączka — kilka kropel krwi raz w miesiącu. To znak, że Twój organizm rozwija się zdrowo! Chcę pokazać Ci wygodne podpaski i schować kilka do Twojego plecaka, abyś czuła się w pełni bezpiecznie.»',
@@ -757,6 +770,7 @@ export const PARENT_GUIDE_DATA = {
     scripts: [
       {
         id: 'early-boundaries-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'The Underwear Rule & Body Boundaries (Ages 5–7)',
         situation: 'Your daughter is 5–7 years old and you want to calmly teach body autonomy and her right to say "no" without causing fear.',
         whatToSay: '"Sweetheart, you are the boss of your own body. The areas covered by your underwear are private. Nobody is allowed to ask to see or touch them except mom/dad helping with a bath or a doctor when we are right there. And if you do not feel like hugging relatives, you can always wave or give a high-five!"',
@@ -773,6 +787,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'where-babies-come-from-5-7',
+        targetAges: ['5-7', '8-9'],
         topic: 'Answering "Where Do Babies Come From?" (Ages 5–7)',
         situation: 'Your 5–7 year old suddenly asks how she was born, and you want to give an honest, calm, age-appropriate answer.',
         whatToSay: '"What a great question! A baby grows in a special cozy place inside a mom\'s belly called a uterus. It starts when a tiny egg cell from mom and a tiny seed cell from dad join together, and over 9 months the baby grows until it is ready to be born!"',
@@ -789,6 +804,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'start-period-talk',
+        targetAges: ['8-9', '10-12'],
         topic: 'How to bring up her first period',
         situation: 'Daughter is 10–11 years old. Signs haven’t started yet, but you want to prepare her gently in advance.',
         whatToSay: '«Sweetheart, you are growing up so nicely, and soon your body will start changing. Sometime soon your period will begin — that is when a little blood comes out once a month. It’s a wonderful sign that your body is strong and healthy! Let’s pick out some comfy pads to keep in your backpack so you always feel confident and prepared.»',
@@ -803,6 +819,7 @@ export const PARENT_GUIDE_DATA = {
       },
       {
         id: 'child-is-shy',
+        targetAges: ['10-12', '13-15', '16+'],
         topic: 'What to do if she is shy or shuts down',
         situation: 'She blushes, gets annoyed, or says "Mom/Dad, stop, I already know everything".',
         whatToSay: '«I totally understand that talking about this feels a little awkward. I promise not to interrogate you. Just remember: there are always pads and wipes in the bathroom cabinet. And if you ever have any questions, you can ask in person or simply send a text. I will never laugh or judge you.»',
