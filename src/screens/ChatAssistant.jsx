@@ -30,6 +30,7 @@ export const ChatAssistant = () => {
     ageGroup,
     isAiTyping,
     appLanguage,
+    setAppLanguage,
     triggerPanic,
     t
   } = useApp();
@@ -40,6 +41,7 @@ export const ChatAssistant = () => {
     isSpeaking,
     speakingId,
     voiceEnabled,
+    setSelectedLang,
     isListening,
     interimTranscript,
     micError,
@@ -310,7 +312,14 @@ export const ChatAssistant = () => {
           ].map((lang) => (
             <button
               key={lang.code}
-              onClick={() => setAppLanguage(lang.code)}
+              onClick={() => {
+                stopSpeaking();
+                setAppLanguage(lang.code);
+                const voiceMap = { ru: 'ru-RU', uk: 'uk-UA', pl: 'pl-PL', en: 'en-US' };
+                if (voiceMap[lang.code] && setSelectedLang) {
+                  setSelectedLang(voiceMap[lang.code]);
+                }
+              }}
               className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
                 appLanguage === lang.code ? 'bg-lavender-100 text-lavender-900 shadow-2xs' : 'text-stone-400 hover:text-stone-700'
               }`}
