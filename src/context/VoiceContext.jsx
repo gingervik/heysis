@@ -447,11 +447,10 @@ export const VoiceProvider = ({ children }) => {
     if (!cleaned) return;
 
     // Check if Neural AI Voice should be used
+    // Works with: 1) Pre-generated offline OpenAI MP3s, 2) User API key, 3) Secure /api/tts proxy
     const cfg = voiceConfigRef.current || getStoredVoiceConfig();
-    const hasNeuralKey = (cfg.provider === 'openai' && cfg.openaiKey) ||
-                         (cfg.provider === 'elevenlabs' && cfg.elevenKey);
 
-    if (cfg.engine === 'neural' && hasNeuralKey && (typeof navigator === 'undefined' || navigator.onLine)) {
+    if (cfg.engine === 'neural') {
       setIsSpeaking(true);
       setSpeakingId(id);
       isSpeakingRef.current = true;
@@ -460,6 +459,7 @@ export const VoiceProvider = ({ children }) => {
       try {
         const audioUrl = await fetchNeuralSpeechAudio({
           text: cleaned,
+          rawText: text,
           config: cfg,
           speed: speechRateRef.current || 1.0
         });
@@ -472,7 +472,8 @@ export const VoiceProvider = ({ children }) => {
         if (audioUrl) {
           const audio = new Audio(audioUrl);
           activeAudioRef.current = audio;
-          audio.playbackRate = speechRateRef.current || 1.0;
+          // Only adjust playbackRate on static pre-generated MP3s; live OpenAI TTS already applies speed
+          audio.playbackRate = audioUrl.startsWith('./audio/') ? (speechRateRef.current || 1.0) : 1.0;
 
           audio.onended = () => {
             activeAudioRef.current = null;

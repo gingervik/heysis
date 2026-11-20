@@ -142,7 +142,7 @@ export const saveStoredVoiceConfig = (config) => {
  * 3. Secure Serverless Proxy (/api/tts) when hosted on Vercel / Cloudflare
  * Returns: audioUrl (string url or blob url) or null if failed / offline
  */
-export const fetchNeuralSpeechAudio = async ({ text, config, speed = 1.0 }) => {
+export const fetchNeuralSpeechAudio = async ({ text, rawText, config, speed = 1.0 }) => {
   if (!text || !text.trim()) return null;
   const trimmed = text.trim();
 
@@ -152,11 +152,17 @@ export const fetchNeuralSpeechAudio = async ({ text, config, speed = 1.0 }) => {
   if (cfg.engine !== 'neural') return null;
 
   // 0. Check pre-generated static offline OpenAI MP3 first (works even offline!)
+  // Check both rawText (with emojis) and cleaned text so every pre-generated clip matches 100%
   try {
     const manifest = await loadStaticAudioManifest();
-    const hash = hashSpeechText(trimmed);
-    if (manifest && manifest[hash]) {
-      return `./audio/${manifest[hash]}`;
+    if (manifest) {
+      const candidates = [rawText, trimmed].filter(Boolean);
+      for (const candidate of candidates) {
+        const hash = hashSpeechText(candidate);
+        if (manifest[hash]) {
+          return `./audio/${manifest[hash]}`;
+        }
+      }
     }
   } catch {
     // ignore manifest lookup errors
