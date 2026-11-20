@@ -217,8 +217,8 @@ export const StoriesPlayer = () => {
     setQuizAnswer({ selectedIndex: idx, isCorrect });
     if (voiceEnabled) {
       const prefix = isCorrect
-        ? (isPolish ? 'Prawidłowo! ' : isUkrainian ? 'Правильно! ' : 'Правильно! ')
-        : (isPolish ? 'To mit! ' : isUkrainian ? 'Це міф! ' : 'Это миф! ');
+        ? (isPolish ? 'Prawidłowo! ' : isUkrainian ? 'Правильно! ' : isEnglish ? 'Correct! ' : 'Правильно! ')
+        : (isPolish ? 'To mit! ' : isUkrainian ? 'Це міф! ' : isEnglish ? 'That is a myth! ' : 'Это миф! ');
       const resultText = prefix + (currentSlide.explanation || '');
       speak(resultText, `quiz-result-${currentIndex}`);
     }

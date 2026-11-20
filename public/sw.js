@@ -1,4 +1,4 @@
-const CACHE_NAME = 'heysis-cache-v1';
+const CACHE_NAME = 'heysis-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -32,12 +32,25 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Navigation requests: Network-first falling back to cache
-  if (event.request.mode === 'navigate') {
+  const url = new URL(event.request.url);
+
+  // Never cache API proxy calls or non-GET requests
+  if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Navigation & audio manifest: Network-first falling back to cache
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('/audio/manifest.json')) {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('/index.html');
-      })
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request).then((res) => res || caches.match('/index.html')))
     );
     return;
   }
