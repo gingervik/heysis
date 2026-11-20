@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { useVoice } from '../context/VoiceContext';
+import { HeySisLogo } from '../components/HeySisLogo';
 import { getLocalizedIceBreakers } from '../data/mockDataLocalized';
 import { LANG_META } from '../services/languageDetector';
 import {
@@ -231,18 +232,16 @@ export const ChatAssistant = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          {/* Sister Avatar & Title */}
+          {/* HeySis Avatar & Title */}
           <div className="flex items-center gap-2.5">
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-lavender-400 via-rose-300 to-mint-300 flex items-center justify-center text-white shadow-xs">
-                <span className="text-lg">🌸</span>
-              </div>
+              <HeySisLogo className="w-10 h-10" rounded="rounded-xl" />
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
 
             <div>
-              <h2 className="font-extrabold text-stone-800 text-sm sm:text-base leading-tight">
-                {t('sisterTitle')}
+              <h2 className="font-extrabold text-stone-800 text-sm sm:text-base leading-tight tracking-tight">
+                HeySis
               </h2>
               <p className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
                 <span>{isPolish ? 'zawsze blisko 💚' : isUkrainian ? 'завжди поруч 💚' : isEnglish ? 'always here for you 💚' : 'всегда рядом 💚'}</span>

@@ -6,7 +6,8 @@ const ASSETS_TO_CACHE = [
   '/favicon.svg',
   '/icons/icon-192.svg',
   '/icons/icon-512.svg',
-  '/icons/notebook.svg'
+  '/icons/notebook.svg',
+  '/icons/heysis-logo.svg'
 ];
 
 self.addEventListener('install', (event) => {

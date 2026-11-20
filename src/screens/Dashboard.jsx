@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useVoice } from '../context/VoiceContext';
+import { HeySisLogo } from '../components/HeySisLogo';
 import { getLocalizedStories, getLocalizedMyths } from '../data/mockDataLocalized';
 import { ParentGateModal } from '../components/ParentGateModal';
 import {
@@ -134,12 +135,10 @@ export const Dashboard = () => {
         <div className="flex items-center justify-between gap-2">
           {/* Brand / Title */}
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-200 via-lavender-200 to-mint-200 flex items-center justify-center shadow-xs shrink-0">
-              <span className="text-base">🌸</span>
-            </div>
+            <HeySisLogo className="w-9 h-9" rounded="rounded-xl" />
             <div>
-              <h1 className="text-sm sm:text-base font-extrabold text-stone-800 leading-tight">
-                {isPolish ? 'Siostra' : isUkrainian ? 'Сестричка' : isEnglish ? 'Sister' : 'Сестренка'}
+              <h1 className="text-sm sm:text-base font-extrabold text-stone-800 leading-tight tracking-tight">
+                HeySis
               </h1>
               <div className="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>

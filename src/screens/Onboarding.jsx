@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useVoice } from '../context/VoiceContext';
+import { HeySisLogo } from '../components/HeySisLogo';
 import { ShieldCheck, Heart, Sparkles, Calculator, Check, ArrowRight, EyeOff, Volume2, VolumeX, Mic, Globe } from 'lucide-react';
 
 export const Onboarding = () => {
@@ -81,12 +82,12 @@ export const Onboarding = () => {
 
       {/* Main Hero & Welcome */}
       <div className="my-auto py-6 space-y-6">
-        {/* Soft Mascot / Badge */}
-        <div className="w-20 h-20 bg-gradient-to-tr from-mint-200 to-lavender-200 rounded-3xl mx-auto flex items-center justify-center shadow-md shadow-lavender-200/40 relative">
-          <Sparkles className="w-10 h-10 text-mint-700 animate-pulse-subtle" />
-          <div className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-sm">
-            <Heart className="w-4 h-4 text-peach-500 fill-peach-400" />
-          </div>
+        {/* HeySis Brand Logo */}
+        <div className="flex flex-col items-center gap-2.5">
+          <HeySisLogo className="w-20 h-20 shadow-md shadow-lavender-200/50" rounded="rounded-3xl" />
+          <span className="text-base font-black tracking-tight bg-gradient-to-r from-lavender-600 via-rose-500 to-mint-600 bg-clip-text text-transparent">
+            HeySis
+          </span>
         </div>
 
         <div className="text-center space-y-3">
