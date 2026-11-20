@@ -148,19 +148,16 @@ export const Dashboard = () => {
             </div>
           </div>
 
-          {/* Right Header Controls: Install PWA + Parent Mode */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <InstallAppButton />
-            <button
-              onClick={() => setShowParentGate(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border border-amber-300 text-amber-950 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
-              title={t('parentModeBtn')}
-              aria-label={t('parentModeBtn')}
-            >
-              <span className="text-sm">👨‍👩‍👧</span>
-              <span className="text-xs">{t('parentModeBtn')}</span>
-            </button>
-          </div>
+          {/* Parent Mode Quick Button */}
+          <button
+            onClick={() => setShowParentGate(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 border border-amber-300 text-amber-950 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
+            title={t('parentModeBtn')}
+            aria-label={t('parentModeBtn')}
+          >
+            <span className="text-sm">👨‍👩‍👧</span>
+            <span className="text-xs">{t('parentModeBtn')}</span>
+          </button>
         </div>
 
         {/* Row 2: One-Click Segmented Language Switcher + Age & Sound */}
@@ -514,6 +511,9 @@ export const Dashboard = () => {
         }}
         language={appLanguage}
       />
+
+      {/* 5. Prominent Dismissible Install PWA Banner (Android 1-tap / iOS Safari & Chrome) */}
+      <InstallAppButton variant="banner" />
 
       {/* 6. Compact Single-Line Open Source & Sources Footer */}
       <footer className="mt-auto pt-2 text-center text-[10px] text-stone-400 space-y-0.5 border-t border-stone-200/60 shrink-0">

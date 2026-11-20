@@ -5,6 +5,8 @@ import { useApp } from '../context/AppContext';
 const COPY = {
   ru: {
     btn: 'Установить',
+    bannerTitle: 'Установить на телефон',
+    bannerSub: 'Как обычный блокнот «My Notes» 📘 • работает офлайн',
     iosTitle: 'Установить на iPhone',
     iosSubtitle: 'Установится незаметно под иконкой блокнота «My Notes» 📘 и будет работать офлайн',
     step1Title: 'Нажми «Поделиться» внизу Safari',
@@ -22,6 +24,8 @@ const COPY = {
   },
   uk: {
     btn: 'Встановити',
+    bannerTitle: 'Встановити на телефон',
+    bannerSub: 'Як звичайний блокнот «My Notes» 📘 • працює офлайн',
     iosTitle: 'Встановити на iPhone',
     iosSubtitle: 'Встановиться непомітно під іконкою блокнота «My Notes» 📘 і працюватиме офлайн',
     step1Title: 'Натисни «Поділитися» внизу Safari',
@@ -39,6 +43,8 @@ const COPY = {
   },
   pl: {
     btn: 'Zainstaluj',
+    bannerTitle: 'Zainstaluj na telefonie',
+    bannerSub: 'Jako zwykły notatnik «My Notes» 📘 • działa offline',
     iosTitle: 'Zainstaluj na iPhone',
     iosSubtitle: 'Zainstaluje się dyskretnie jako notatnik «My Notes» 📘 i działa offline',
     step1Title: 'Kliknij «Udostępnij» na dole Safari',
@@ -56,6 +62,8 @@ const COPY = {
   },
   en: {
     btn: 'Install',
+    bannerTitle: 'Install as an App',
+    bannerSub: 'Discreet "My Notes" icon 📘 • works offline',
     iosTitle: 'Install on iPhone',
     iosSubtitle: 'Installs discreetly as "My Notes" 📘 on your Home Screen and works offline',
     step1Title: 'Tap "Share" in Safari toolbar',
@@ -73,7 +81,7 @@ const COPY = {
   }
 };
 
-export const InstallAppButton = () => {
+export const InstallAppButton = ({ variant = 'pill' }) => {
   const { appLanguage } = useApp();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -81,6 +89,13 @@ export const InstallAppButton = () => {
   const [isStandalone, setIsStandalone] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
   const [justInstalled, setJustInstalled] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem('heysis_install_banner_dismissed') === '1';
+    } catch {
+      return false;
+    }
+  });
 
   const text = COPY[appLanguage] || COPY.en;
 
@@ -120,6 +135,15 @@ export const InstallAppButton = () => {
 
   if (isStandalone && !justInstalled) return null;
   if (!deferredPrompt && !isIOS && !justInstalled) return null;
+  if (variant === 'banner' && dismissed && !justInstalled) return null;
+
+  const handleDismiss = (e) => {
+    e.stopPropagation();
+    setDismissed(true);
+    try {
+      sessionStorage.setItem('heysis_install_banner_dismissed', '1');
+    } catch {}
+  };
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -137,25 +161,63 @@ export const InstallAppButton = () => {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={handleInstallClick}
-        className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-mint-50 hover:bg-mint-100 border border-mint-300/90 text-mint-800 font-bold text-xs shadow-2xs transition active:scale-95 shrink-0"
-        title={text.btn}
-        aria-label={text.btn}
-      >
-        {justInstalled ? (
-          <>
-            <CheckCircle2 className="w-3.5 h-3.5 text-mint-600" />
-            <span className="text-[11px]">{text.installed}</span>
-          </>
-        ) : (
-          <>
-            <Smartphone className="w-3.5 h-3.5 text-mint-600" />
-            <span className="text-[11px]">{text.btn}</span>
-          </>
-        )}
-      </button>
+      {variant === 'banner' ? (
+        <div
+          onClick={handleInstallClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && handleInstallClick()}
+          className="w-full bg-gradient-to-r from-mint-50 via-white to-lavender-50 border border-mint-300/80 rounded-2xl px-3.5 py-2.5 shadow-xs hover:shadow-md transition cursor-pointer flex items-center justify-between gap-2.5 shrink-0 active:scale-99"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-mint-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              {justInstalled ? <CheckCircle2 className="w-5 h-5" /> : <Smartphone className="w-5 h-5" />}
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-extrabold text-stone-900 leading-tight truncate">
+                {justInstalled ? text.installed : text.bannerTitle}
+              </div>
+              <div className="text-[11px] text-stone-500 leading-tight truncate mt-0.5">
+                {text.bannerSub}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="px-3 py-1.5 rounded-xl bg-mint-600 hover:bg-mint-700 text-white font-extrabold text-xs shadow-2xs transition">
+              {justInstalled ? '✓' : text.btn}
+            </span>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="p-1 rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition"
+              aria-label="Dismiss"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={handleInstallClick}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-mint-50 hover:bg-mint-100 border border-mint-300/90 text-mint-800 font-bold text-xs shadow-2xs transition active:scale-95 shrink-0"
+          title={text.btn}
+          aria-label={text.btn}
+        >
+          {justInstalled ? (
+            <>
+              <CheckCircle2 className="w-3.5 h-3.5 text-mint-600" />
+              <span className="text-[11px]">{text.installed}</span>
+            </>
+          ) : (
+            <>
+              <Smartphone className="w-3.5 h-3.5 text-mint-600" />
+              <span className="text-[11px]">{text.btn}</span>
+            </>
+          )}
+        </button>
+      )}
 
       {/* iOS Safari Step-by-Step Install Sheet */}
       {showIOSModal && (
