@@ -51,19 +51,19 @@ export const Onboarding = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-mint-50/60 via-lavender-50/50 to-peach-50/60 flex flex-col justify-between p-5 sm:p-8 max-w-lg mx-auto">
+    <div className="h-[100dvh] overflow-y-auto bg-gradient-to-b from-mint-50/60 via-lavender-50/50 to-peach-50/60 flex flex-col justify-between px-4 py-3 sm:py-5 max-w-lg mx-auto gap-2.5">
       {/* Header safety badge & Language Selector */}
-      <div className="pt-2 flex items-center justify-between">
-        <div className="inline-flex items-center gap-2 bg-white/90 border border-mint-200/80 rounded-full px-3.5 py-1.5 shadow-sm text-xs font-semibold text-mint-700">
-          <ShieldCheck className="w-4 h-4 text-mint-600" />
+      <div className="flex items-center justify-between shrink-0">
+        <div className="inline-flex items-center gap-1.5 bg-white/90 border border-mint-200/80 rounded-full px-3 py-1 shadow-xs text-[11px] font-semibold text-mint-700">
+          <ShieldCheck className="w-3.5 h-3.5 text-mint-600" />
           <span>
             {isPolish
-              ? '100% Anonimowo • Bez rejestracji'
+              ? '100% Anonimowo • Bez konta'
               : isUkrainian
               ? '100% Анонімно • Без реєстрації'
               : isEnglish
-              ? '100% Private • No registration'
-              : '100% Анонимно • Без регистрации и смс'}
+              ? '100% Private • No account'
+              : '100% Анонимно • Без регистрации'}
           </span>
         </div>
 
@@ -84,17 +84,17 @@ export const Onboarding = () => {
       </div>
 
       {/* Main Hero & Welcome */}
-      <div className="my-auto py-6 space-y-6">
+      <div className="my-auto space-y-3">
         {/* HeySis Brand Logo */}
-        <div className="flex flex-col items-center gap-2.5">
-          <HeySisLogo className="w-20 h-20 shadow-md shadow-lavender-200/50" rounded="rounded-3xl" />
-          <span className="text-base font-black tracking-tight bg-gradient-to-r from-lavender-600 via-rose-500 to-mint-600 bg-clip-text text-transparent">
+        <div className="flex flex-col items-center gap-1">
+          <HeySisLogo className="w-14 h-14 shadow-md shadow-lavender-200/50" rounded="rounded-2xl" />
+          <span className="text-sm font-black tracking-tight bg-gradient-to-r from-lavender-600 via-rose-500 to-mint-600 bg-clip-text text-transparent">
             HeySis
           </span>
         </div>
 
-        <div className="text-center space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-800 tracking-tight">
+        <div className="text-center space-y-1.5">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-stone-800 tracking-tight leading-tight">
             {isPolish
               ? 'Twoja bezpieczna przestrzeń'
               : isUkrainian
@@ -103,83 +103,53 @@ export const Onboarding = () => {
               ? 'Your safe haven'
               : 'Твоё безопасное пространство'}
           </h1>
-          <p className="text-sm sm:text-base text-stone-600 leading-relaxed max-w-sm mx-auto">
+          <p className="text-xs sm:text-sm text-stone-600 leading-snug max-w-sm mx-auto">
             {isPolish
-              ? 'Cześć! Tutaj możesz spokojnie dowiedzieć się wszystkiego o swoim ciele, emocjach i przyjaźni.'
+              ? 'Spokojnie poznaj swoje ciało, emocje i przyjaźń — bez kont i śladów.'
               : isUkrainian
-              ? 'Привіт! Тут ти можеш спокійно дізнатися все про своє тіло, емоції та дружбу.'
+              ? 'Спокійно дізнайся про тіло, емоції та дружбу — без акаунтів і слідів.'
               : isEnglish
-              ? 'Hello! Here you can comfortably learn all about your body, feelings, and friendships.'
-              : 'Привет! Здесь ты можешь спокойно узнать всё о своем теле, эмоциях и дружбе.'}
-            <span className="font-semibold text-stone-700 block mt-1">
-              {isPolish
-                ? 'Żadnych kont, historii przeglądania i śladów.'
-                : isUkrainian
-                ? 'Жодних акаунтів, історії пошуку та слідів.'
-                : isEnglish
-                ? 'No accounts, browsing history, or traces.'
-                : 'Никаких аккаунтов, истории поиска и следов.'}
-            </span>
+              ? 'Calmly learn about your body, feelings & boundaries — no accounts or traces.'
+              : 'Спокойно узнай о своём теле, эмоциях и границах — без аккаунтов и следов.'}
           </p>
 
-          {/* Voice listen button for young kids who prefer listening */}
-          <div className="pt-1 flex justify-center">
+          {/* Compact Voice listen button */}
+          <div className="pt-0.5 flex justify-center">
             <button
               type="button"
               onClick={toggleWelcomeVoice}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition shadow-xs ${
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold transition shadow-xs ${
                 isWelcomeSpeaking
                   ? 'bg-lavender-500 text-white animate-pulse'
                   : 'bg-white hover:bg-lavender-50 text-lavender-800 border border-lavender-200'
               }`}
             >
-              {isWelcomeSpeaking ? (
-                <>
-                  <Volume2 className="w-4 h-4 animate-bounce" />
-                  <span>
-                    {isPolish
-                      ? 'Czytam na głos... Naciśnij, aby zatrzymać'
-                      : isUkrainian
-                      ? 'Читаю вголос... Натисни, щоб зупинити'
-                      : isEnglish
-                      ? 'Reading aloud... Tap to stop'
-                      : 'Читаю вслух... Нажми, чтобы остановить'}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-4 h-4 text-lavender-600" />
-                  <span>
-                    {isPolish
-                      ? 'Posłuchaj powitania na głos 🔊'
-                      : isUkrainian
-                      ? 'Послухати привітання голосом 🔊'
-                      : isEnglish
-                      ? 'Listen to welcome voice 🔊'
-                      : 'Послушать приветствие голосом 🔊'}
-                  </span>
-                </>
-              )}
+              <Volume2 className={`w-3.5 h-3.5 ${isWelcomeSpeaking ? 'animate-bounce' : 'text-lavender-600'}`} />
+              <span>
+                {isWelcomeSpeaking
+                  ? (isPolish ? 'Zatrzymaj' : isUkrainian ? 'Зупинити' : isEnglish ? 'Tap to stop' : 'Остановить')
+                  : (isPolish ? 'Posłuchaj powitania 🔊' : isUkrainian ? 'Послухати голосом 🔊' : isEnglish ? 'Listen to welcome 🔊' : 'Послушать голосом 🔊')}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Age selection cards */}
-        <div className="space-y-2.5 bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-stone-200/70 shadow-sm">
-          <div className="text-xs font-bold text-stone-500 uppercase tracking-wider flex justify-between items-center">
+        {/* Compact Age selection pills (single clean row) */}
+        <div className="space-y-2 bg-white/85 backdrop-blur-sm p-3 rounded-2xl border border-stone-200/70 shadow-sm">
+          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider flex justify-between items-center">
             <span>{t('selectAge')}</span>
-            <span className="text-[11px] font-normal text-stone-400">
+            <span className="text-[10px] font-normal text-stone-400">
               {isPolish
-                ? 'dla dopasowania tematów'
+                ? 'dopasuje historie'
                 : isUkrainian
-                ? 'для адаптації історій'
+                ? 'адаптує історії'
                 : isEnglish
-                ? 'to adapt topics'
-                : 'для адаптации историй'}
+                ? 'adapts stories'
+                : 'адаптирует истории'}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          <div className="grid grid-cols-5 gap-1.5">
             {ageOptions.map((opt) => {
               const isSelected = selectedAge === opt.value;
               return (
@@ -187,92 +157,63 @@ export const Onboarding = () => {
                   key={opt.value}
                   type="button"
                   onClick={() => setSelectedAge(opt.value)}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
+                  className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl border text-center transition-all ${
                     isSelected
-                      ? 'border-mint-500 bg-mint-50/90 text-mint-800 font-bold shadow-sm ring-1 ring-mint-400'
-                      : 'border-stone-200 hover:border-stone-300 bg-white text-stone-600'
+                      ? 'border-mint-500 bg-mint-50/90 text-mint-800 font-extrabold shadow-xs ring-1 ring-mint-400'
+                      : 'border-stone-200 hover:border-stone-300 bg-white text-stone-600 font-semibold'
                   }`}
                 >
-                  <span className="text-sm">{opt.label}</span>
-                  <span className="text-[10px] text-stone-400 mt-0.5">{opt.hint}</span>
+                  <span className="text-xs leading-tight">{opt.value}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Safety Rule & Panic Button Interactive Demonstration */}
-        <div className="bg-gradient-to-r from-lavender-100/70 to-peach-100/60 p-4 rounded-2xl border border-lavender-200/70 shadow-sm space-y-2.5">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-white rounded-xl shadow-xs text-lavender-700 shrink-0">
-              <Calculator className="w-5 h-5" />
+        {/* Compact Safety Rule & Panic Button strip */}
+        <div className="bg-gradient-to-r from-lavender-100/70 to-peach-100/60 p-3 rounded-2xl border border-lavender-200/70 shadow-xs flex items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-2 bg-white rounded-xl shadow-2xs text-lavender-700 shrink-0">
+              <Calculator className="w-4 h-4" />
             </div>
-            <div className="text-xs text-stone-700 leading-snug">
-              <div className="font-bold text-stone-800 text-sm mb-0.5 flex items-center gap-1.5">
-                <span>
-                  {isPolish
-                    ? 'Zasada bezpieczeństwa: Przycisk SOS'
-                    : isUkrainian
-                    ? 'Правило безпеки: Кнопка SOS'
-                    : isEnglish
-                    ? 'Safety Rule: SOS Button'
-                    : 'Правило безопасности: Кнопка SOS'}
-                </span>
-                <span className="px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded text-[10px]">
-                  {isPolish ? 'Kamuflaż' : isUkrainian ? 'Камуфляж' : isEnglish ? 'Stealth' : 'Камуфляж'}
-                </span>
+            <div className="text-[11px] text-stone-700 leading-snug min-w-0">
+              <div className="font-bold text-stone-800 text-xs flex items-center gap-1">
+                <span>{isPolish ? 'Przycisk SOS' : isUkrainian ? 'Кнопка SOS' : isEnglish ? 'SOS Stealth' : 'Кнопка SOS'}</span>
+                <span className="px-1.5 bg-amber-100 text-amber-800 rounded text-[9px]">Esc</span>
               </div>
-              {isPolish
-                ? 'Gdy ktoś zagląda przez ramię — naciśnij przycisk «SOS» w rogu lub klawisz Esc. Aplikacja natychmiast zamieni się w zwykły kalkulator.'
-                : isUkrainian
-                ? 'Якщо хтось заглядає через плече — натисни кнопку «SOS» у кутку екрана або клавішу Esc. Додаток моментально перетвориться на звичайний калькулятор.'
-                : isEnglish
-                ? 'If someone looks over your shoulder, tap the corner SOS button or press Esc. The screen immediately disguises itself as a normal calculator.'
-                : 'Если кто-то заглядывает через плечо — нажми кнопку «SOS» в углу экрана или клавишу Esc. Приложение моментально превратится в обычный рабочий калькулятор.'}
+              <p className="truncate text-stone-600">
+                {isPolish
+                  ? 'Natychmiast zamienia ekran w kalkulator'
+                  : isUkrainian
+                  ? 'Миттєво вмикає робочий калькулятор'
+                  : isEnglish
+                  ? 'Instantly switches to a working calculator'
+                  : 'Мгновенно включает рабочий калькулятор'}
+              </p>
             </div>
           </div>
 
-          <div className="pt-1 flex items-center justify-between">
-            <span className="text-[11px] text-stone-500">
-              {hasTriedPanic
-                ? (isPolish
-                    ? '✨ Sprawdziłaś już, jak to działa!'
-                    : isUkrainian
-                    ? '✨ Ти вже перевірила, як це працює!'
-                    : isEnglish
-                    ? '✨ You tested how it works!'
-                    : '✨ Ты уже проверила, как это работает!')
-                : (isPolish
-                    ? 'Wypróbuj teraz:'
-                    : isUkrainian
-                    ? 'Спробуй перевірити просто зараз:'
-                    : isEnglish
-                    ? 'Try it now:'
-                    : 'Попробуй проверить прямо сейчас:')}
-            </span>
-            <button
-              onClick={() => {
-                stopSpeaking();
-                setHasTriedPanic(true);
-                triggerPanic('calculator');
-              }}
-              className="text-xs bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 font-semibold px-3 py-1.5 rounded-lg shadow-2xs hover:shadow-xs transition flex items-center gap-1"
-            >
-              <span>{isPolish ? 'Test kamuflażu' : isUkrainian ? 'Тест камуфляжу' : isEnglish ? 'Test camouflage' : 'Тест камуфляжа'}</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              stopSpeaking();
+              setHasTriedPanic(true);
+              triggerPanic('calculator');
+            }}
+            className="text-[11px] bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 font-bold px-2.5 py-1.5 rounded-lg shadow-2xs transition shrink-0"
+          >
+            {hasTriedPanic ? '✨ OK' : (isPolish ? 'Test' : isUkrainian ? 'Тест' : isEnglish ? 'Test' : 'Тест')}
+          </button>
         </div>
       </div>
 
       {/* Start Button */}
-      <div className="pt-4 pb-2">
+      <div className="pt-1 pb-1 shrink-0">
         <button
           onClick={() => {
             stopSpeaking();
             completeOnboarding(selectedAge);
           }}
-          className="w-full bg-gradient-to-r from-mint-600 to-mint-500 hover:from-mint-700 hover:to-mint-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all transform active:scale-98 flex items-center justify-center gap-2 text-base"
+          className="w-full bg-gradient-to-r from-mint-600 to-mint-500 hover:from-mint-700 hover:to-mint-600 text-white font-bold py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all transform active:scale-98 flex items-center justify-center gap-2 text-sm sm:text-base"
         >
           <span>
             {isPolish
@@ -283,16 +224,16 @@ export const Onboarding = () => {
               ? 'Begin safe journey'
               : 'Начать безопасное знакомство'}
           </span>
-          <ArrowRight className="w-5 h-5" />
+          <ArrowRight className="w-4 h-4" />
         </button>
-        <p className="text-center text-[11px] text-stone-400 mt-2">
+        <p className="text-center text-[10px] text-stone-400 mt-1.5">
           {isPolish
-            ? 'Dane są zapisywane wyłącznie w pamięci Twojego urządzenia'
+            ? 'Dane zapisywane wyłącznie na Twoim urządzeniu'
             : isUkrainian
-            ? 'Дані зберігаються виключно в пам’яті твого пристрою'
+            ? 'Дані зберігаються тільки на твоєму пристрої'
             : isEnglish
-            ? 'All data stays exclusively in your device storage'
-            : 'Данные хранятся только в памяти твоего устройства'}
+            ? 'All data stays strictly on your device'
+            : 'Данные хранятся только на твоём устройстве'}
         </p>
       </div>
     </div>
