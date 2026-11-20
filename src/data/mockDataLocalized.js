@@ -1,5 +1,5 @@
 // Localized micro-learning stories, quizzes, myths and icebreakers for Russian and Polish
-import { STORIES_DATA, DAILY_MYTHS_BY_AGE, ICE_BREAKER_PROMPTS_BY_AGE } from './mockData';
+import { STORIES_DATA, DAILY_MYTHS_BY_AGE, ICE_BREAKER_PROMPTS_BY_AGE } from './mockData.js';
 
 export const STORIES_DATA_PL = [
   // ---------------- 8-9 YEARS STORIES (PL) ----------------

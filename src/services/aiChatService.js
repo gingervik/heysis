@@ -13,6 +13,9 @@ const STORAGE_KEYS = {
   AI_PROVIDER: 'sisterhood_ai_provider_v1', // 'gemini' | 'openai' | 'custom' | 'local'
 };
 
+// Optional serverless proxy base URL (e.g. https://heysis.vercel.app); empty string uses same-origin /api/chat
+const PROXY_BASE = (import.meta.env.VITE_PROXY_URL || '').replace(/\/+$/, '');
+
 // Default fallback key from environment variable (empty string by default for public open-source)
 const DEFAULT_OPENAI_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
@@ -694,28 +697,34 @@ export const callAIChat = async ({
     }
   }
 
-  // 2. Check OpenAI-compatible Provider
-  if (config.provider === 'openai' && config.openaiKey) {
+  // 2. Check OpenAI-compatible Provider (Direct with user key OR Secure Serverless Proxy)
+  if (config.provider === 'openai') {
+    const messages = [{ role: 'system', content: systemPrompt }];
+    for (const msg of chatMessages.slice(-6)) {
+      if (msg.id === 'welcome-msg') continue;
+      messages.push({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      });
+    }
+    messages.push({ role: 'user', content: userMessage });
+
     try {
       if (onStatusChange) onStatusChange({ isOnline: true, mode: 'calling-openai' });
 
-      const messages = [{ role: 'system', content: systemPrompt }];
-      for (const msg of chatMessages.slice(-6)) {
-        if (msg.id === 'welcome-msg') continue;
-        messages.push({
-          role: msg.sender === 'user' ? 'user' : 'assistant',
-          content: msg.text
-        });
-      }
-      messages.push({ role: 'user', content: userMessage });
+      const useDirect = Boolean(config.openaiKey);
+      const endpoint = useDirect
+        ? (config.customEndpoint || 'https://api.openai.com/v1/chat/completions')
+        : `${PROXY_BASE}/api/chat`;
 
-      const endpoint = config.customEndpoint || 'https://api.openai.com/v1/chat/completions';
+      const headers = { 'Content-Type': 'application/json' };
+      if (useDirect) {
+        headers['Authorization'] = `Bearer ${config.openaiKey}`;
+      }
+
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.openaiKey}`
-        },
+        headers,
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages,
@@ -735,7 +744,7 @@ export const callAIChat = async ({
         return {
           text: reply.trim(),
           isAIGenerated: true,
-          modelUsed: 'gpt-4o-mini',
+          modelUsed: useDirect ? 'gpt-4o-mini' : 'gpt-4o-mini-proxy',
           detectedLang: detectedCode || null
         };
       }

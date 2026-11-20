@@ -1,6 +1,7 @@
-// Neural AI Voice Service (OpenAI TTS & ElevenLabs)
+// Neural AI Voice Service (Pre-generated Offline OpenAI MP3s + OpenAI TTS / Serverless Proxy + ElevenLabs)
 // Provides hyper-realistic, human-like voice synthesis with warmth and natural prosody.
-// Automatically falls back to Web Speech API when offline or when no key is configured.
+// Priority: 1) Offline pre-generated MP3 -> 2) User API Key -> 3) Serverless Proxy (/api/tts) -> 4) Web Speech API
+import { hashSpeechText } from '../utils/audioHash.js';
 
 const STORAGE_KEYS = {
   ENGINE: 'sisterhood_voice_engine_v1', // 'neural' | 'browser'
@@ -64,6 +65,21 @@ export const NEURAL_VOICE_PRESETS = {
 // In-memory audio blob URL cache to save API credits & provide instant playback for repeated texts
 const audioCache = new Map();
 
+// Lazy-loaded manifest of pre-generated offline OpenAI MP3 clips (public/audio/manifest.json)
+let staticManifestPromise = null;
+const loadStaticAudioManifest = async () => {
+  if (typeof window === 'undefined') return {};
+  if (!staticManifestPromise) {
+    staticManifestPromise = fetch('./audio/manifest.json')
+      .then((res) => (res.ok ? res.json() : {}))
+      .catch(() => ({}));
+  }
+  return staticManifestPromise;
+};
+
+// Optional serverless proxy base URL (e.g. https://heysis.vercel.app); empty string uses same-origin /api/tts
+const PROXY_BASE = (import.meta.env.VITE_PROXY_URL || '').replace(/\/+$/, '');
+
 // Default fallback key from environment variable (empty string by default for public open-source)
 const DEFAULT_OPENAI_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
@@ -120,8 +136,11 @@ export const saveStoredVoiceConfig = (config) => {
 };
 
 /**
- * Synthesizes audio using OpenAI TTS or ElevenLabs
- * Returns: audioUrl (string blob url) or null if failed / offline
+ * Synthesizes audio using:
+ * 1. Pre-generated offline OpenAI MP3s (instant, free, works 100% offline)
+ * 2. User's own OpenAI TTS / ElevenLabs key (direct)
+ * 3. Secure Serverless Proxy (/api/tts) when hosted on Vercel / Cloudflare
+ * Returns: audioUrl (string url or blob url) or null if failed / offline
  */
 export const fetchNeuralSpeechAudio = async ({ text, config, speed = 1.0 }) => {
   if (!text || !text.trim()) return null;
@@ -129,47 +148,87 @@ export const fetchNeuralSpeechAudio = async ({ text, config, speed = 1.0 }) => {
 
   const cfg = config || getStoredVoiceConfig();
 
-  // If engine is set to browser or offline, skip
+  // If engine is explicitly set to browser, skip neural audio
   if (cfg.engine !== 'neural') return null;
+
+  // 0. Check pre-generated static offline OpenAI MP3 first (works even offline!)
+  try {
+    const manifest = await loadStaticAudioManifest();
+    const hash = hashSpeechText(trimmed);
+    if (manifest && manifest[hash]) {
+      return `./audio/${manifest[hash]}`;
+    }
+  } catch {
+    // ignore manifest lookup errors
+  }
+
   if (typeof navigator !== 'undefined' && !navigator.onLine) return null;
 
-  // 1. OpenAI TTS
+  // 1. OpenAI TTS (Direct with user key OR via Secure Serverless Proxy)
   if (cfg.provider === 'openai') {
-    if (!cfg.openaiKey) return null;
-
-    const cacheKey = `openai:${cfg.openaiVoice}:${speed}:${trimmed}`;
+    const safeSpeed = Math.max(0.75, Math.min(1.25, speed));
+    const voice = cfg.openaiVoice || 'nova';
+    const cacheKey = `openai:${voice}:${safeSpeed}:${trimmed}`;
     if (audioCache.has(cacheKey)) {
       return audioCache.get(cacheKey);
     }
 
+    // 1a. Direct OpenAI call if user configured their own key
+    if (cfg.openaiKey) {
+      try {
+        const response = await fetch('https://api.openai.com/v1/audio/speech', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${cfg.openaiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'tts-1',
+            input: trimmed,
+            voice,
+            speed: safeSpeed
+          })
+        });
+
+        if (!response.ok) {
+          const errJson = await response.json().catch(() => ({}));
+          throw new Error(errJson?.error?.message || `OpenAI TTS HTTP ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        audioCache.set(cacheKey, audioUrl);
+        return audioUrl;
+      } catch (e) {
+        console.warn('OpenAI TTS failed, falling back:', e.message);
+        return null;
+      }
+    }
+
+    // 1b. Secure Serverless Proxy (/api/tts) — keeps API key on server
     try {
-      const response = await fetch('https://api.openai.com/v1/audio/speech', {
+      const proxyUrl = `${PROXY_BASE}/api/tts`;
+      const response = await fetch(proxyUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${cfg.openaiKey}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'tts-1',
           input: trimmed,
-          voice: cfg.openaiVoice || 'nova',
-          speed: Math.max(0.75, Math.min(1.25, speed))
+          voice,
+          speed: safeSpeed
         })
       });
 
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson?.error?.message || `OpenAI TTS HTTP ${response.status}`);
+      if (response.ok && (response.headers.get('content-type') || '').includes('audio')) {
+        const blob = await response.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        audioCache.set(cacheKey, audioUrl);
+        return audioUrl;
       }
-
-      const blob = await response.blob();
-      const audioUrl = URL.createObjectURL(blob);
-      audioCache.set(cacheKey, audioUrl);
-      return audioUrl;
-    } catch (e) {
-      console.warn('OpenAI TTS failed, falling back to browser synthesis:', e.message);
-      return null;
+    } catch {
+      // Proxy unavailable (e.g. static GitHub Pages without VITE_PROXY_URL) — fall back silently
     }
+
+    return null;
   }
 
   // 2. ElevenLabs Multilingual
