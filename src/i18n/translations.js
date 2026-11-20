@@ -27,7 +27,7 @@ export const TRANSLATIONS = {
     selectAge: 'Выбери свой возраст',
     selectAgeSub: 'Это поможет подобрать понятные и полезные темы именно для тебя',
     privacyBadge: '100% Приватно • Без следов в браузере',
-    unicefNotice: 'Разработано с заботой по стандартам безопасности детей UNICEF',
+    unicefNotice: 'Основано на открытых материалах ВОЗ и UNICEF (независимый open-source проект)',
     startBtn: 'Войти в безопасное пространство',
     panicTip: 'Секретная кнопка в углу мгновенно превратит экран в калькулятор',
 
@@ -129,7 +129,7 @@ export const TRANSLATIONS = {
     selectAge: 'Wybierz swój wiek',
     selectAgeSub: 'Pomoże to dobrać zrozumiałe i przydatne tematy specjalnie dla Ciebie',
     privacyBadge: '100% Prywatnie • Bez śladów w historii',
-    unicefNotice: 'Opracowane z troską zgodnie ze standardami bezpieczeństwa dzieci UNICEF',
+    unicefNotice: 'Oparte na otwartych materiałach WHO i UNICEF (niezależny projekt open-source)',
     startBtn: 'Wejdź do bezpiecznej przestrzeni',
     panicTip: 'Sekretny przycisk w rogu natychmiast zamieni ekran w zwykły kalkulator',
 
@@ -231,7 +231,7 @@ export const TRANSLATIONS = {
     selectAge: 'Обери свій вік',
     selectAgeSub: 'Це допоможе підібрати зрозумілі та корисні теми саме для тебе',
     privacyBadge: '100% Приватно • Без слідів у браузері',
-    unicefNotice: 'Створено з турботою за стандартами безпеки дітей UNICEF',
+    unicefNotice: 'Засновано на відкритих матеріалах ВООЗ та UNICEF (незалежний open-source проєкт)',
     startBtn: 'Увійти в безпечний простір',
     panicTip: 'Секретна кнопка в кутку миттєво перетворить екран на калькулятор',
 
@@ -333,7 +333,7 @@ export const TRANSLATIONS = {
     selectAge: 'Select your age',
     selectAgeSub: 'This helps customize topics and language tailored for you',
     privacyBadge: '100% Private • No history tracking',
-    unicefNotice: 'Designed with care following UNICEF child safety principles',
+    unicefNotice: 'Informed by public WHO & UNICEF guidelines (independent open-source project)',
     startBtn: 'Enter safe space',
     panicTip: 'The secret corner button instantly disguises the screen as a calculator',
 

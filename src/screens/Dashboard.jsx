@@ -549,8 +549,8 @@ export const Dashboard = () => {
         language={appLanguage}
       />
 
-      {/* 6. Minimal, Reassuring Footer */}
-      <div className="pt-2 text-center text-xs text-stone-400 space-y-1">
+      {/* 6. Minimal, Reassuring Footer with Open Source & Evidence Sources */}
+      <footer className="pt-3 pb-2 text-center text-xs text-stone-400 space-y-2 border-t border-stone-200/60">
         <div className="flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-mint-600 shrink-0" />
           <span>
@@ -563,7 +563,64 @@ export const Dashboard = () => {
               : 'Все данные сохраняются исключительно на твоем телефоне'}
           </span>
         </div>
-      </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-stone-500">
+          <a
+            href="https://github.com/gingervik/heysis"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-lavender-700 hover:underline"
+          >
+            GitHub (Open Source)
+          </a>
+          <span aria-hidden="true">•</span>
+          <a
+            href="https://github.com/gingervik/heysis/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            MIT &amp; CC-BY 4.0
+          </a>
+          <span aria-hidden="true">•</span>
+          <span>
+            {isPolish
+              ? 'Źródła: '
+              : isUkrainian
+              ? 'Джерела: '
+              : isEnglish
+              ? 'Sources: '
+              : 'Источники: '}
+            <a
+              href="https://www.who.int/health-topics/adolescent-health"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-700"
+            >
+              WHO
+            </a>
+            {' & '}
+            <a
+              href="https://www.unicef.org/documents/guidance-menstrual-health-and-hygiene"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-700"
+            >
+              UNICEF
+            </a>
+          </span>
+        </div>
+
+        <p className="text-[10px] text-stone-400 max-w-md mx-auto leading-relaxed">
+          {isPolish
+            ? 'Niezależny projekt open-source oparty na otwartych materiałach WHO i UNICEF (bez oficjalnej afiliacji).'
+            : isUkrainian
+            ? 'Незалежний open-source проєкт на основі відкритих матеріалів ВООЗ та UNICEF (без офіційної афіліації).'
+            : isEnglish
+            ? 'Independent open-source project informed by public WHO & UNICEF materials (not affiliated with or endorsed by WHO/UNICEF).'
+            : 'Независимый open-source проект на основе открытых материалов ВОЗ и UNICEF (без официальной аффилиации).'}
+        </p>
+      </footer>
     </div>
   );
 };

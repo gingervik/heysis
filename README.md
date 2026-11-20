@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/Software_License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![License: CC BY 4.0](https://img.shields.io/badge/Content_&_Design-CC--BY--4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Offline--First-green.svg)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
-[![UNICEF Safe AI Aligned](https://img.shields.io/badge/Safety-UNICEF_Aligned-purple.svg)](https://www.unicef.org)
+[![Informed by WHO & UNICEF](https://img.shields.io/badge/Informed_by-WHO_%26_UNICEF_Public_Guidelines-purple.svg)](#sources--disclaimer)
 [![Live Demo](https://img.shields.io/badge/Demo-Live_PWA-success.svg)](https://hey-sis.vercel.app/)
 
 ---
@@ -112,8 +112,12 @@ npm run preview
 
 ---
 
-## 💜 Безопасность и этические принципы (Safety Guidelines)
+## 💜 Безопасность, источники и дисклеймер (Sources & Disclaimer)
 
-- Никакой телеметрии и трекеров сторонних сервисов (Google Analytics, Яндекс Метрика, Facebook Pixel категорически запрещены).
-- Все обращения к ИИ должны валидироваться на клиенте и сервере с приоритетом физической и эмоциональной безопасности ребенка.
-- Проект создан волонтерским сообществом в интересах здоровья детей.
+- **Никакой телеметрии и трекеров** сторонних сервисов (Google Analytics, Яндекс Метрика, Facebook Pixel категорически запрещены).
+- **Открытые источники:** образовательные материалы и правила безопасности ИИ основаны на открытых публикациях международных организаций:
+  - [WHO — Adolescent Health & Development](https://www.who.int/health-topics/adolescent-health)
+  - [UNICEF — Guidance on Menstrual Health and Hygiene](https://www.unicef.org/documents/guidance-menstrual-health-and-hygiene)
+  - [UNICEF — Policy Guidance on AI for Children](https://www.unicef.org/innocenti/reports/policy-guidance-ai-children)
+  - [Council of Europe — The Underwear Rule](https://www.coe.int/en/web/children/the-underwear-rule)
+- **Независимый проект (Disclaimer):** HeySis — независимый open-source проект, созданный сообществом (лицензия MIT для кода и CC-BY 4.0 для контента). Проект **не аффилирован с ВОЗ или UNICEF** и не является их официальным продуктом. Приложение не заменяет консультацию врача.

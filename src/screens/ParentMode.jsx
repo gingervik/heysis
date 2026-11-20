@@ -776,6 +776,50 @@ export const ParentMode = () => {
           </form>
         </div>
       )}
+
+      {/* Open Source, License & Evidence Sources Footer */}
+      <footer className="mt-8 pt-4 border-t border-stone-200/70 text-center text-[11px] text-stone-500 space-y-1.5">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <a
+            href="https://github.com/gingervik/heysis"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-amber-700 hover:underline"
+          >
+            GitHub: gingervik/heysis
+          </a>
+          <span aria-hidden="true">•</span>
+          <a
+            href="https://github.com/gingervik/heysis/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            MIT (Code) &amp; CC-BY 4.0 (Content)
+          </a>
+        </div>
+        <p className="text-[10px] text-stone-400 max-w-md mx-auto leading-relaxed">
+          {appLanguage === 'pl'
+            ? 'Oparte na otwartych materiałach '
+            : appLanguage === 'uk'
+            ? 'Засновано на відкритих матеріалах '
+            : appLanguage === 'en'
+            ? 'Informed by public guidelines from '
+            : 'Основано на открытых материалах '}
+          <a href="https://www.who.int/health-topics/adolescent-health" target="_blank" rel="noopener noreferrer" className="underline hover:text-stone-600">WHO</a>
+          {', '}
+          <a href="https://www.unicef.org/documents/guidance-menstrual-health-and-hygiene" target="_blank" rel="noopener noreferrer" className="underline hover:text-stone-600">UNICEF (MHH)</a>
+          {' & '}
+          <a href="https://www.unicef.org/innocenti/reports/policy-guidance-ai-children" target="_blank" rel="noopener noreferrer" className="underline hover:text-stone-600">UNICEF AI for Children</a>
+          {appLanguage === 'pl'
+            ? '. Niezależny projekt open-source — brak oficjalnej afiliacji z WHO/UNICEF.'
+            : appLanguage === 'uk'
+            ? '. Незалежний open-source проєкт — не афілійований із ВООЗ/UNICEF.'
+            : appLanguage === 'en'
+            ? '. Independent open-source project — not affiliated with or endorsed by WHO or UNICEF.'
+            : '. Независимый open-source проект — не аффилирован с ВОЗ или UNICEF.'}
+        </p>
+      </footer>
     </div>
   );
 };
