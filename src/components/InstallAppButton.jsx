@@ -9,12 +9,15 @@ const COPY = {
     iosSubtitle: 'Установится незаметно под иконкой блокнота «My Notes» 📘 и будет работать офлайн',
     step1Title: 'Нажми «Поделиться» внизу Safari',
     step1Desc: 'Иконка квадрата со стрелочкой вверх в нижней панели браузера',
+    step1ChromeTitle: 'Нажми «Поделиться» вверху справа в Chrome',
+    step1ChromeDesc: 'Иконка квадрата со стрелочкой вверх в адресной строке справа',
     step2Title: 'Выбери «На экран „Домой“»',
     step2Desc: 'Пролистай меню чуть ниже и нажми «На экран „Домой“» (Add to Home Screen)',
     step3Title: 'Нажми «Добавить»',
     step3Desc: 'Приложение появится на рабочем столе как обычный блокнот',
     done: 'Понятно!',
     safariHint: 'Кнопка «Поделиться» внизу экрана ↓',
+    chromeHint: 'Кнопка «Поделиться» вверху справа в адресной строке ↗',
     installed: 'Установлено!'
   },
   uk: {
@@ -23,12 +26,15 @@ const COPY = {
     iosSubtitle: 'Встановиться непомітно під іконкою блокнота «My Notes» 📘 і працюватиме офлайн',
     step1Title: 'Натисни «Поділитися» внизу Safari',
     step1Desc: 'Іконка квадрата зі стрілочкою вгору в нижній панелі браузера',
+    step1ChromeTitle: 'Натисни «Поділитися» вгорі праворуч у Chrome',
+    step1ChromeDesc: 'Іконка квадрата зі стрілочкою вгору в адресному рядку праворуч',
     step2Title: 'Обери «На екран „Додому“»',
     step2Desc: 'Прогорни меню трохи нижче та натисни «На екран „Додому“»',
     step3Title: 'Натисни «Додати»',
     step3Desc: 'Застосунок з’явиться на робочому столі як звичайний блокнот',
     done: 'Зрозуміло!',
     safariHint: 'Кнопка «Поділитися» внизу екрана ↓',
+    chromeHint: 'Кнопка «Поділитися» вгорі праворуч в адресному рядку ↗',
     installed: 'Встановлено!'
   },
   pl: {
@@ -37,12 +43,15 @@ const COPY = {
     iosSubtitle: 'Zainstaluje się dyskretnie jako notatnik «My Notes» 📘 i działa offline',
     step1Title: 'Kliknij «Udostępnij» na dole Safari',
     step1Desc: 'Ikona kwadratu ze strzałką w górę na dolnym pasku przeglądarki',
+    step1ChromeTitle: 'Kliknij «Udostępnij» u góry po prawej w Chrome',
+    step1ChromeDesc: 'Ikona kwadratu ze strzałką w górę w pasku adresu po prawej',
     step2Title: 'Wybierz «Do ekranu początkowego»',
     step2Desc: 'Przewiń menu nieco w dół i kliknij «Do ekranu początkowego»',
     step3Title: 'Kliknij «Dodaj»',
     step3Desc: 'Aplikacja pojawi się na ekranie głównym jak zwykły notatnik',
     done: 'Rozumiem!',
     safariHint: 'Przycisk «Udostępnij» na dole ekranu ↓',
+    chromeHint: 'Przycisk «Udostępnij» u góry po prawej w pasku adresu ↗',
     installed: 'Zainstalowano!'
   },
   en: {
@@ -51,12 +60,15 @@ const COPY = {
     iosSubtitle: 'Installs discreetly as "My Notes" 📘 on your Home Screen and works offline',
     step1Title: 'Tap "Share" in Safari toolbar',
     step1Desc: 'Look for the square icon with an upward arrow at the bottom of Safari',
+    step1ChromeTitle: 'Tap "Share" at top-right of Chrome',
+    step1ChromeDesc: 'Look for the square icon with an upward arrow in the address bar',
     step2Title: 'Tap "Add to Home Screen"',
     step2Desc: 'Scroll down the share sheet and select "Add to Home Screen"',
     step3Title: 'Tap "Add"',
     step3Desc: 'It will appear on your Home Screen looking like a normal notebook app',
     done: 'Got it!',
     safariHint: 'Share button is right below ↓',
+    chromeHint: 'Share button is at the top-right address bar ↗',
     installed: 'Installed!'
   }
 };
@@ -65,6 +77,7 @@ export const InstallAppButton = () => {
   const { appLanguage } = useApp();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
+  const [isIOSChrome, setIsIOSChrome] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
   const [justInstalled, setJustInstalled] = useState(false);
@@ -82,6 +95,7 @@ export const InstallAppButton = () => {
     const ua = window.navigator.userAgent || '';
     const iosDevice = /iPhone|iPad|iPod/i.test(ua) && !window.MSStream;
     setIsIOS(iosDevice);
+    setIsIOSChrome(iosDevice && /CriOS/i.test(ua));
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
@@ -179,10 +193,10 @@ export const InstallAppButton = () => {
                 </div>
                 <div className="text-xs space-y-0.5">
                   <div className="font-bold text-stone-800 flex items-center gap-1.5">
-                    <span>{text.step1Title}</span>
+                    <span>{isIOSChrome ? text.step1ChromeTitle : text.step1Title}</span>
                     <Share2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                   </div>
-                  <p className="text-stone-500 leading-snug">{text.step1Desc}</p>
+                  <p className="text-stone-500 leading-snug">{isIOSChrome ? text.step1ChromeDesc : text.step1Desc}</p>
                 </div>
               </div>
 
@@ -217,9 +231,9 @@ export const InstallAppButton = () => {
               {text.done}
             </button>
 
-            {/* Animated pointer toward Safari's bottom Share toolbar */}
+            {/* Animated pointer toward browser Share toolbar */}
             <div className="text-center text-[11px] font-bold text-blue-600 animate-bounce pt-0.5">
-              {text.safariHint}
+              {isIOSChrome ? text.chromeHint : text.safariHint}
             </div>
           </div>
         </div>
